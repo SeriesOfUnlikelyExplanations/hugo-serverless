@@ -9,6 +9,8 @@ enableInlineShortcodes = true
 footnoteReturnLinkContents = "^"
 ignoreFiles = ['__.*']
 
+contentDir = "../../onward-blog/content"
+
 theme = "blog"
 
 [params]
