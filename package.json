@@ -1,0 +1,26 @@
+{
+  "name": "hugo-serverless",
+  "version": "1.0.0",
+  "description": "Hugo, powered by EFS, lambda, and S3",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "hugo -s static-site",
+    "serve": "hugo server -s static-site",
+    "new": "hugo new -s static-site",
+    "deploy-website": "aws s3 sync static-site/public s3://blog.always-onward.com --delete "
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SeriesOfUnlikelyExplanations/hugo-serverless.git"
+  },
+  "author": "Tom Woodard",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/SeriesOfUnlikelyExplanations/hugo-serverless/issues"
+  },
+  "homepage": "https://github.com/SeriesOfUnlikelyExplanations/hugo-serverless#readme",
+  "dependencies": {
+    "hugo-bin": "^0.77.2"
+  }
+}

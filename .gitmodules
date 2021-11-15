@@ -1,0 +1,6 @@
+[submodule "onward-blog/themes/fjord"]
+	path = onward-blog/themes/fjord
+	url = https://github.com/stackbit-themes/fjord-nextjs
+[submodule "onward-blog/themes/casper3"]
+	path = onward-blog/themes/casper3
+	url = git@github.com:jonathanjanssens/hugo-casper3.git

@@ -1,0 +1,9 @@
+node_modules/
+static-site/public/
+lib/*.js
+bin/*.js
+*.d.ts
+
+# CDK asset staging directory
+.cdk.staging
+cdk.out

@@ -1,0 +1,48 @@
+baseURL = "https://blog.always-onward.com/"
+title = "Onward Blog"
+author = "Tom Woodard"
+copyright = "Copyright © 2020"
+paginate = 3
+languageCode = "en"
+DefaultContentLanguage = "en"
+enableInlineShortcodes = true
+footnoteReturnLinkContents = "^"
+ignoreFiles = ['__.*']
+
+theme = "blog"
+
+[params]
+  github = "https://github.com/SeriesOfUnlikelyExplanations/hugo-serverless"
+  description = "Welcome to Adventure!"
+  mainSections = ["posts"]
+
+[menu]
+  [[menu.main]]
+    identifier = "about"
+    name = "About"
+    url = "/about/"
+    weight = 10
+  [[menu.main]]
+    identifier = "image-credit"
+    name = "Image Credit"
+    url = "/image-credit/"
+    weight = 20
+    weight = 30
+  [[menu.main]]
+    identifier = "author"
+    name = "Author Homepage"
+    url = "https://always-onward.com"
+    weight = 40
+
+[privacy]
+  [privacy.vimeo]
+    disabled = false
+    simple = true
+  [privacy.youtube]
+    disabled = false
+    privacyEnhanced = true
+
+[taxonomies]
+category = "categories"
+tag = "tags"
+series = "series"

@@ -1,0 +1,10 @@
+name = "onward"
+license = "MIT"
+licenselink = ""
+description = "Heavily modified Casper3 theme"
+tags = ["blog", "dark", "light"]
+features = ["darkmode"]
+min_version = "0.0.0"
+
+[blackfriday]
+  extensions = ["hardLineBreak"]
