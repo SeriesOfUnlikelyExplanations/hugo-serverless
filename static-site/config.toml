@@ -25,15 +25,14 @@ theme = "blog"
     url = "/about/"
     weight = 10
   [[menu.main]]
-    identifier = "image-credit"
-    name = "Image Credit"
-    url = "/image-credit/"
+    identifier = "campsites"
+    name = "Campsite Reviews"
+    url = "/campsites/"
     weight = 20
-    weight = 30
   [[menu.main]]
-    identifier = "author"
-    name = "Author Homepage"
-    url = "https://always-onward.com"
+    identifier = "sara-quotes"
+    name = "Sara's Quotes"
+    url = "/sara-quotes/"
     weight = 40
 
 [privacy]
@@ -48,3 +47,10 @@ theme = "blog"
 category = "categories"
 tag = "tags"
 series = "series"
+
+[deploy]
+region = 'us-west-2'
+certificateArn = 'arn:aws:acm:us-east-1:718523126320:certificate/759a286c-c57f-44b4-a40f-4c864a8ab447'
+hostedZoneId = 'Z0092175EW0ABPS51GQB'
+siteName = 'blog.always-onward.com'
+zoneName = 'always-onward.com'

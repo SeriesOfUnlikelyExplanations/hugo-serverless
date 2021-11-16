@@ -1,0 +1,33 @@
+name: Deploy
+# This workflow is triggered on pushes to the repository.
+on:
+  push:
+    branches:
+      - live
+jobs:
+ build:
+    name: Build and deploy
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Use Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: '14.x'
+
+      - name: Configure NPM
+        run: |
+          npm install
+          cd lambda
+          npm install --production
+          cd ../vpclambda
+          npm install --production
+          
+      #~ - name: Deploy
+        #~ run: |
+          #~ npm run predeploy
+          #~ npm run deploy
+        #~ env:
+          #~ AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          #~ AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}

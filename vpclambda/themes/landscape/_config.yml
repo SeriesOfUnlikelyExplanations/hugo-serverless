@@ -1,0 +1,42 @@
+# Header
+menu:
+  Home: /
+  Archives: /archives
+rss: /atom.xml
+
+# Content
+excerpt_link: Read More
+fancybox: true
+
+# Sidebar
+sidebar: left
+widgets:
+- about
+- pages
+#~ - category
+- tag
+- tagcloud
+- archive
+- recent_posts
+
+#about Sidebar
+nickname: The Woodard Family
+description: "**Welcome to Adventure!** <br> Just another blog about the adventures of a small family traveling by land (van) and by sea (boat)."
+avatar: /images/family.jpg
+
+# display widgets at the bottom of index pages (pagination == 2)
+index_widgets:
+# - category
+# - tagcloud
+# - archive
+
+# widget behavior
+archive_type: 'monthly'
+show_count: false
+
+# Miscellaneous
+google_analytics: G-TG1ZH6PWKD
+gauges_analytics:
+favicon: /images/hiker.png
+twitter:
+youtube: UCZkA2vkOPKIjKyIm_ckot0w

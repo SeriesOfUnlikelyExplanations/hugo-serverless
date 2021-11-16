@@ -1,0 +1,24 @@
+{
+  "name": "HugoServerlessLambda",
+  "version": "1.0.0",
+  "author": "Tom Woodard",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/SeriesOfUnlikelyExplanations/onward-blog.git"
+  },
+  "description": "",
+  "main": "index.js",
+  "hexo": {
+    "version": "5.4.0"
+  },
+  "description": "Serverless version of Hexo blog",
+  "dependencies": {
+    "aws-sdk": "^2.939.0",
+    "broken-link-checker": "^0.7.8",
+    "html-to-text": "^8.0.0",
+    "mime": "^2.5.2",
+    "mustache.mjml": "^1.1.0",
+    "rss-parser": "^3.12.0"
+  }
+}
