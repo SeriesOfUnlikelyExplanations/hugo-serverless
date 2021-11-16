@@ -1,7 +1,8 @@
 const AWS = require('aws-sdk');
-var Hexo = require('hexo');
 const fs = require('fs');
-const yaml = require('js-yaml')
+const util = require('util');
+const execFile = util.promisify(require('child_process').execFile);
+const hugo = require('hugo-bin');
 
 exports.handler = async (event, context) => {
   console.log(event)
@@ -12,14 +13,10 @@ exports.handler = async (event, context) => {
     var ssmData = await ssm.getParameters({Names: ['/OnwardBlog/datasyncWebsiteTask',
       '/OnwardBlog/datasyncSourceTask']}).promise();
     if (event.resources[0].includes(ssmData.Parameters.find(p => p.Name ==='/OnwardBlog/datasyncSourceTask').Value)) {
-      console.log('Source Datalink task completed. Start Hexo Generation...');
-      const fileContents = fs.readFileSync('./_config.yml', 'utf8');
-      const data = yaml.load(fileContents);
-      console.log(data);
-      
-      var hexo = new Hexo(process.cwd(), {debug: true});
-      await hexo.init()
-      await hexo.call('generate', {}).then(console.log)
+      console.log('Source Datalink task completed. Start Hugo Generation...');
+    
+      const res = await execFile(hugo, [])
+      console.log(res)
       
       var ssm = new AWS.SSM();
       var ssmData = await ssm.getParameters({Names: ['/OnwardBlog/deploymentLambda']}).promise();
