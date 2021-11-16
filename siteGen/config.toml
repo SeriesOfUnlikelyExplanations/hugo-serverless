@@ -30,7 +30,7 @@ theme = "blog"
     url = "/campsites/"
     weight = 20
   [[menu.main]]
-    identifier = "sara-quotes"
+    identifier = "sara-quote"
     name = "Sara's Quotes"
     url = "/sara-quotes/"
     weight = 40
