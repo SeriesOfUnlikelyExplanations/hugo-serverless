@@ -15,13 +15,13 @@ import { AwsCustomResource, PhysicalResourceId, AwsCustomResourcePolicy } from '
 
 import * as fs from 'fs';
 import * as toml from 'toml';
-const config = toml.parse(fs.readFileSync('./static-site/config.toml', 'utf-8'));
+const config = toml.parse(fs.readFileSync('./siteGen/config.toml', 'utf-8'));
 
 export class HugoServerlessStack extends cdk.Stack {
   constructor(scope: cdk.App, id: string, props: cdk.StackProps) {
     super(scope, id, props);
-    //Create a bucket to cache the source info for Hexo
-    const sourceBucket = new Bucket(this, 'Hexo Serverless Source', {
+    //Create a bucket to cache the source info for Hugo
+    const sourceBucket = new Bucket(this, 'Hugo Serverless Source', {
       bucketName: config.deploy.siteName+'-source',
       versioned: true,
       blockPublicAccess: BlockPublicAccess.BLOCK_ALL,
@@ -152,9 +152,9 @@ export class HugoServerlessStack extends cdk.Stack {
     });
     
     // Create the lambda for all of the backend support
-    const handler = new Function(this, 'hexoServerlessLambda', {
+    const handler = new Function(this, 'hugoServerlessLambda', {
       functionName: 'hugoServerlessLambda',
-      code: Code.fromAsset('lambda'),
+      code: Code.fromAsset('adminLambda'),
       handler: 'index.handler',
       memorySize: 512,
       timeout: cdk.Duration.seconds(240),
@@ -230,10 +230,10 @@ export class HugoServerlessStack extends cdk.Stack {
       actions: ['ses:SendEmail', 'ses:SendRawEmail'],
     }))
     
-    // Create the VPC lambda for Hexo generation
-    const vpcHandler = new Function(this, 'hexoServerlessVpcLambda', {
+    // Create the VPC lambda for Hugo generation
+    const vpcHandler = new Function(this, 'hugoServerlessVpcLambda', {
       functionName: `hugoServerlessVpcLambda`,
-      code: Code.fromAsset('vpclambda'),
+      code: Code.fromAsset('siteGen'),
       handler: 'index.handler',
       memorySize: 512,
       timeout: cdk.Duration.seconds(240),
@@ -241,7 +241,7 @@ export class HugoServerlessStack extends cdk.Stack {
       retryAttempts: 0,
       vpc: vpc,
       securityGroups: [ dsSG ],
-      filesystem: FileSystem.fromEfsAccessPoint(accessPoint, '/mnt/hexo')
+      filesystem: FileSystem.fromEfsAccessPoint(accessPoint, '/mnt/hugo')
     });
     //allow the vpc lambda to call other lambda
     const callLambda = vpc.addInterfaceEndpoint('lambda', {
