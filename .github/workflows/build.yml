@@ -19,9 +19,9 @@ jobs:
       - name: Configure NPM
         run: |
           npm install
-          cd lambda
+          cd adminLambda
           npm install --production
-          cd ../site
+          cd ../siteGen
           npm install --production
           
       - name: Deploy
