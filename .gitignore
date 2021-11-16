@@ -1,5 +1,5 @@
 node_modules/
-static-site/public/
+public/
 lib/*.js
 bin/*.js
 *.d.ts
