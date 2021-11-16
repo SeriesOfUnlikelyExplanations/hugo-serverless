@@ -15,7 +15,7 @@ exports.handler = async (event, context) => {
     if (event.resources[0].includes(ssmData.Parameters.find(p => p.Name ==='/OnwardBlog/datasyncSourceTask').Value)) {
       console.log('Source Datalink task completed. Start Hugo Generation...');
     
-      const res = await execFile(hugo, ['-c', '/mnt/hugo/content', '-c', '/mnt/hugo/public']])
+      const res = await execFile(hugo, ['-c', '/mnt/hugo/content', '-d', '/mnt/hugo/public']])
       console.log(res)
       
       var ssm = new AWS.SSM();
