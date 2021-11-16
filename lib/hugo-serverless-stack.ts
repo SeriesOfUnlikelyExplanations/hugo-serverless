@@ -242,7 +242,7 @@ export class HugoServerlessStack extends cdk.Stack {
       retryAttempts: 0,
       vpc: vpc,
       securityGroups: [ dsSG ],
-      filesystem: FileSystem.fromEfsAccessPoint(accessPoint, '/mnt/content')
+      filesystem: FileSystem.fromEfsAccessPoint(accessPoint, '/mnt/hugo')
     });
     //allow the vpc lambda to call other lambda
     const callLambda = vpc.addInterfaceEndpoint('lambda', {

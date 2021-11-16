@@ -15,7 +15,7 @@ exports.handler = async (event, context) => {
     if (event.resources[0].includes(ssmData.Parameters.find(p => p.Name ==='/OnwardBlog/datasyncSourceTask').Value)) {
       console.log('Source Datalink task completed. Start Hugo Generation...');
     
-      const res = await execFile(hugo, [])
+      const res = await execFile(hugo, ['-c', '/mnt/hugo/content', '-c', '/mnt/hugo/public']])
       console.log(res)
       
       var ssm = new AWS.SSM();
@@ -41,14 +41,14 @@ exports.handler = async (event, context) => {
       });
     } else if (event.resources[0].includes(ssmData.Parameters.find(p => p.Name ==='/OnwardBlog/datasyncWebsiteTask').Value)) {
       console.log('Website Datalink task completed. Deleting the EFS drive...');
-      result = 'passed';
+      result = 'pass';
     } else {
       console.log('Datalink task not supported');
-      result = 'passed';
+      result = 'pass';
     };
   } else {
     console.log('Event not supported')
-    result = 'passed';
+    result = 'pass';
   };
   console.log(result);
   return {result: result}
