@@ -24,10 +24,9 @@ jobs:
           cd ../vpclambda
           npm install --production
           
-      #~ - name: Deploy
-        #~ run: |
-          #~ npm run predeploy
-          #~ npm run deploy
-        #~ env:
-          #~ AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          #~ AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      - name: Deploy
+        run: |
+          npm run deploy
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
