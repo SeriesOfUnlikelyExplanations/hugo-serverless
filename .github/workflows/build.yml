@@ -21,7 +21,7 @@ jobs:
           npm install
           cd lambda
           npm install --production
-          cd ../vpclambda
+          cd ../site
           npm install --production
           
       - name: Deploy
