@@ -52,5 +52,5 @@ series = "series"
 region = 'us-west-2'
 certificateArn = 'arn:aws:acm:us-east-1:718523126320:certificate/759a286c-c57f-44b4-a40f-4c864a8ab447'
 hostedZoneId = 'Z0092175EW0ABPS51GQB'
-siteName = 'blog.always-onward.com'
+siteName = 'blog2.always-onward.com'
 zoneName = 'always-onward.com'
