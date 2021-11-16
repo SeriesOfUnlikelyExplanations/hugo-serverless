@@ -48,6 +48,23 @@ category = "categories"
 tag = "tags"
 series = "series"
 
+[caches]
+  [caches.assets]
+    dir = ':cacheDir/_gen'
+    maxAge = -1
+  [caches.getcsv]
+    dir = ':cacheDir/:project'
+    maxAge = -1
+  [caches.getjson]
+    dir = ':cacheDir/:project'
+    maxAge = -1
+  [caches.images]
+    dir = ':cacheDir/_gen'
+    maxAge = -1
+  [caches.modules]
+    dir = ':cacheDir/modules'
+    maxAge = -1
+
 [deploy]
 region = 'us-west-2'
 certificateArn = 'arn:aws:acm:us-east-1:718523126320:certificate/759a286c-c57f-44b4-a40f-4c864a8ab447'
