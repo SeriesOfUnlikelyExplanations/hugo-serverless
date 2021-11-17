@@ -5,10 +5,10 @@
   "main": "index.js",
   "scripts": {
     "build": "tsc",
-    "build-website": "hugo -s static-site",
-    "serve": "hugo server -s static-site",
+    "build-website": "hugo -s siteGen",
+    "serve": "hugo server -s siteGen",
     "new": "hugo new -s static-site",
-    "deploy-website": "aws s3 sync static-site/public s3://blog.always-onward.com --delete",
+    "deploy-website": "aws s3 sync siteGen/public s3://blog.always-onward.com --delete",
     "test-cdk": "cdk synth",
     "predeploy": "node lib/scripts/pre-deploy.js",
     "deploy": "cdk deploy --all --require-approval never",

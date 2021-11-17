@@ -1,8 +1,16 @@
 const AWS = require('aws-sdk');
 const fs = require('fs-extra');
 const util = require('util');
-const execFile = util.promisify(require('child_process').execFile);
+const exec = require('child_process').execFile;
 const hugo = require('hugo-bin');
+
+
+function promiseFromChildProcess(child) {
+  return new Promise(function (resolve, reject) {
+    child.addListener("error", reject);
+    child.addListener("exit", resolve);
+  });
+}
 
 exports.handler = async (event, context) => {
   console.log(event)
@@ -17,8 +25,22 @@ exports.handler = async (event, context) => {
       
       fs.copySync('config.toml', '/tmp/config.toml')
       fs.copySync('themes', '/tmp/themes')
-    
-      const res = await execFile(hugo, ['-s', '/tmp', '-c', '/mnt/hugo/content', '-d', '/mnt/hugo/public'])
+      
+      const child = exec(hugo, ['-s', '/tmp', '-c', '/mnt/hugo/content', '-d', '/mnt/hugo/public']);
+
+      const res = await promiseFromChildProcess(child)
+
+      child.stdout.on('data', function (data) {
+          console.log('stdout: ' + data);
+      });
+      child.stderr.on('data', function (data) {
+          console.log('stderr: ' + data);
+      });
+      child.on('close', function (code) {
+          console.log('closing code: ' + code);
+      });
+      
+      const res = await execFile()
       console.log(res)
       
       var ssm = new AWS.SSM();
