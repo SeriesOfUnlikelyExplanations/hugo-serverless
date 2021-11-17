@@ -1,7 +1,6 @@
-import AWS from 'aws-sdk';
-import fs from 'fs-extra';
-import hugo from "hugo-extended";
-import { exec } from "child_process";
+const AWS = require('aws-sdk');
+const fs = require('fs-extra');
+
 
 function promiseFromChildProcess(child) {
   return new Promise(function (resolve, reject) {
@@ -25,21 +24,8 @@ exports.handler = async (event, context) => {
       fs.copySync('config.toml', '/tmp/config.toml')
       fs.copySync('themes', '/tmp/themes')
       
-      const binPath = await hugo();
-      const child = exec(binPath, ['-s', '/tmp', '-c', '/mnt/hugo/content', '-d', '/mnt/hugo/public']);
-      
-      child.stdout.on('data', function (data) {
-          console.log('stdout: ' + data);
-      });
-      child.stderr.on('data', function (data) {
-          console.log('stderr: ' + data);
-      });
-      child.on('close', function (code) {
-          console.log('closing code: ' + code);
-      });
-      
-      const res = await promiseFromChildProcess(child)
-      console.log(res)
+      const deploy = await import('./deploy.mjs')
+      deploy();
       
       var lambda = new AWS.Lambda();
 

@@ -14,8 +14,7 @@
     "test-service": "aws s3 cp ../onward-blog/content/_index.md s3://blog.always-onward.com-source/content/_index.md",
     "download-source": "aws s3 sync s3://blog.always-onward.com-source/source source/",
     "upload-source": "aws s3 sync ../onward-blog/content s3://blog.always-onward.com-source/content",
-    "test-lambda": "node lambda/test/runIndex.js",
-    "test-vpclambda": "cd siteGen && node test/runIndex.js && cd .."
+    "test-lambda": "node lambda/test/runIndex.js"
   },
   "dependencies": {
     "@aws-cdk/assert": "^1.130.0",
