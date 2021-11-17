@@ -40,7 +40,6 @@ exports.handler = async (event, context) => {
           console.log('closing code: ' + code);
       });
       
-      const res = await execFile()
       console.log(res)
       
       var ssm = new AWS.SSM();
