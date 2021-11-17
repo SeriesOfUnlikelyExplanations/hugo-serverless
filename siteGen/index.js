@@ -2,7 +2,7 @@ const AWS = require('aws-sdk');
 const fs = require('fs-extra');
 const util = require('util');
 const exec = require('child_process').execFile;
-const hugo = require('hugo-bin');
+const hugo = require('hugo-extended');
 
 
 function promiseFromChildProcess(child) {
@@ -26,7 +26,8 @@ exports.handler = async (event, context) => {
       fs.copySync('config.toml', '/tmp/config.toml')
       fs.copySync('themes', '/tmp/themes')
       
-      const child = exec(hugo, ['-s', '/tmp', '-c', '/mnt/hugo/content', '-d', '/mnt/hugo/public']);
+      const binPath = await hugo();
+      const child = exec(binPath, ['-s', '/tmp', '-c', '/mnt/hugo/content', '-d', '/mnt/hugo/public']);
       
       child.stdout.on('data', function (data) {
           console.log('stdout: ' + data);
