@@ -1,5 +1,5 @@
 const AWS = require('aws-sdk');
-const fs = require('fs');
+const fs = require('fs-extra');
 const util = require('util');
 const execFile = util.promisify(require('child_process').execFile);
 const hugo = require('hugo-bin');
@@ -14,8 +14,11 @@ exports.handler = async (event, context) => {
       '/OnwardBlog/datasyncSourceTask']}).promise();
     if (event.resources[0].includes(ssmData.Parameters.find(p => p.Name ==='/OnwardBlog/datasyncSourceTask').Value)) {
       console.log('Source Datalink task completed. Start Hugo Generation...');
+      
+      fs.copySync('config.toml', '/tmp/config.toml')
+      fs.copySync('themes', '/tmp/themes')
     
-      const res = await execFile(hugo, ['-c', '/mnt/hugo/content', '-d', '/mnt/hugo/public'])
+      const res = await execFile(hugo, ['-s', '/tmp', '-c', '/mnt/hugo/content', '-d', '/mnt/hugo/public'])
       console.log(res)
       
       var ssm = new AWS.SSM();
