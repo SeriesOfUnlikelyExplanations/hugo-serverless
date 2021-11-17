@@ -1,6 +1,14 @@
 import hugo from "hugo-extended";
 import { exec } from "child_process";
 
+
+function promiseFromChildProcess(child) {
+  return new Promise(function (resolve, reject) {
+    child.addListener("error", reject);
+    child.addListener("exit", resolve);
+  });
+}
+
 const deploy = async () => {
   const binPath = await hugo();
   const child = exec(binPath, ['-s', '/tmp', '-c', '/mnt/hugo/content', '-d', '/mnt/hugo/public']);

@@ -1,14 +1,6 @@
 const AWS = require('aws-sdk');
 const fs = require('fs-extra');
 
-
-function promiseFromChildProcess(child) {
-  return new Promise(function (resolve, reject) {
-    child.addListener("error", reject);
-    child.addListener("exit", resolve);
-  });
-}
-
 exports.handler = async (event, context) => {
   console.log(event)
   var result;
