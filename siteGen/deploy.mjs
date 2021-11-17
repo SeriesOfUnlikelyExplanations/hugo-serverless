@@ -10,7 +10,7 @@ function promiseFromChildProcess(child) {
 }
 
 const deploy = async () => {
-  copySync('config.toml', '/tmp/config.toml')
+  copySync('config', '/tmp/config')
   copySync('themes', '/tmp/themes')
   copySync('node_modules', '/tmp/node_modules')
   process.chdir('/tmp');
