@@ -6,6 +6,9 @@
   "scripts": {},
   "author": "",
   "license": "ISC",
+  "hugo-bin": {
+    "buildTags": "extended"
+  },
   "dependencies": {
     "aws-sdk": "^2.939.0",
     "fs-extra": "^10.0.0",

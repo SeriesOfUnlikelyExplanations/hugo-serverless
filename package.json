@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "build": "tsc",
-    "build-website": "hugo -s siteGen",
+    "build-website": "cd siteGen && hugo && cd ..",
     "serve": "hugo server -s siteGen",
     "new": "hugo new -s static-site",
     "deploy-website": "aws s3 sync siteGen/public s3://blog.always-onward.com --delete",
@@ -33,7 +33,6 @@
     "aws-cdk": "^1.130.0",
     "aws-sdk": "^2.939.0",
     "cdk-assets": "^1.130.0",
-    "hugo-bin": "^0.77.2",
     "toml": "^3.0.0",
     "ts-node": "^9.0.0",
     "typescript": "^3.9.8"
