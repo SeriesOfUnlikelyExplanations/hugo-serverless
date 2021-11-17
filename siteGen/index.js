@@ -1,9 +1,7 @@
 import AWS from 'aws-sdk';
 import fs from 'fs-extra';
-import util from 'util';
 import hugo from "hugo-extended";
 import { exec } from "child_process";
-
 
 function promiseFromChildProcess(child) {
   return new Promise(function (resolve, reject) {
@@ -19,7 +17,8 @@ exports.handler = async (event, context) => {
     AWS.config.update({region: event.region})
     var ssm = new AWS.SSM();
     var ssmData = await ssm.getParameters({Names: ['/OnwardBlog/datasyncWebsiteTask',
-      '/OnwardBlog/datasyncSourceTask']}).promise();
+      '/OnwardBlog/datasyncSourceTask',
+      '/OnwardBlog/deploymentLambda']}).promise();
     if (event.resources[0].includes(ssmData.Parameters.find(p => p.Name ==='/OnwardBlog/datasyncSourceTask').Value)) {
       console.log('Source Datalink task completed. Start Hugo Generation...');
       
@@ -40,11 +39,8 @@ exports.handler = async (event, context) => {
       });
       
       const res = await promiseFromChildProcess(child)
-      
       console.log(res)
       
-      var ssm = new AWS.SSM();
-      var ssmData = await ssm.getParameters({Names: ['/OnwardBlog/deploymentLambda']}).promise();
       var lambda = new AWS.Lambda();
 
       console.log(ssmData.Parameters.find(p => p.Name ==='/OnwardBlog/deploymentLambda').Value)
