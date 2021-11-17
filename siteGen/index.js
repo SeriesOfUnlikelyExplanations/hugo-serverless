@@ -15,6 +15,8 @@ exports.handler = async (event, context) => {
       
       fs.copySync('config.toml', '/tmp/config.toml')
       fs.copySync('themes', '/tmp/themes')
+      fs.copySync('node_modules', '/tmp/node_modules')
+      process.chdir('/tmp');
       
       const deploy = await import('./deploy.mjs')
       const res = await deploy.default();
