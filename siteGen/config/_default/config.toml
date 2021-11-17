@@ -9,11 +9,6 @@ enableInlineShortcodes = true
 footnoteReturnLinkContents = "^"
 ignoreFiles = ['__.*']
 
-# these options are overwridden on deployment
-contentDir = "../../onward-blog/content"
-publishDir  = "../../onward-blog/public"
-
-
 theme = "blog"
 
 [params]
@@ -67,10 +62,3 @@ series = "series"
   [caches.modules]
     dir = ':cacheDir/modules'
     maxAge = -1
-
-[deploy]
-region = 'us-west-2'
-certificateArn = 'arn:aws:acm:us-east-1:718523126320:certificate/759a286c-c57f-44b4-a40f-4c864a8ab447'
-hostedZoneId = 'Z0092175EW0ABPS51GQB'
-siteName = 'blog.always-onward.com'
-zoneName = 'always-onward.com'

@@ -11,7 +11,7 @@ function promiseFromChildProcess(child) {
 
 const deploy = async () => {
   const binPath = await hugo();
-  const child = exec(binPath, ['-s', '/tmp', '-c', '/mnt/hugo/content', '-d', '/mnt/hugo/public']);
+  const child = exec(binPath, ['-e', 'production']);
 
   child.stdout.on('data', function (data) {
       console.log('stdout: ' + data);
