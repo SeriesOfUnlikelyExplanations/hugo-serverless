@@ -7,7 +7,7 @@ import * as toml from 'toml';
 
 const app = new cdk.App();
 
-const config = toml.parse(fs.readFileSync('./siteGen/config.toml', 'utf-8'));
+const config = toml.parse(fs.readFileSync('./siteGen/config/production/config.toml', 'utf-8'));
 
 const env = {
   account: process.env.CDK_DEFAULT_ACCOUNT,
