@@ -1,6 +1,6 @@
-const AWS = require('aws-sdk');
-const fs = require('fs-extra');
-const util = require('util');
+import AWS from 'aws-sdk';
+import fs from 'fs-extra';
+import util from 'util';
 import hugo from "hugo-extended";
 import { exec } from "child_process";
 
