@@ -1,8 +1,8 @@
 const AWS = require('aws-sdk');
 const fs = require('fs-extra');
 const util = require('util');
-const exec = require('child_process').execFile;
-const hugo = require('hugo-extended');
+import hugo from "hugo-extended";
+import { exec } from "child_process";
 
 
 function promiseFromChildProcess(child) {
