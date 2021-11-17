@@ -4,11 +4,10 @@
   "description": "Hugo, powered by EFS, lambda, and S3",
   "main": "index.js",
   "scripts": {
-    "build": "tsc",
-    "build-website": "cd siteGen && hugo && cd ..",
+    "build": "hugo -s siteGen",
     "serve": "hugo server -s siteGen",
     "new": "hugo new -s static-site",
-    "deploy-website": "aws s3 sync siteGen/public s3://blog.always-onward.com --delete",
+    "deploy-website": "aws s3 sync ../onward-blog/public s3://blog.always-onward.com --delete",
     "test-cdk": "cdk synth",
     "predeploy": "node lib/scripts/pre-deploy.js",
     "deploy": "cdk deploy --all --require-approval never",
@@ -16,7 +15,7 @@
     "download-source": "aws s3 sync s3://blog.always-onward.com-source/source source/",
     "upload-source": "aws s3 sync ../onward-blog/content s3://blog.always-onward.com-source/content",
     "test-lambda": "node lambda/test/runIndex.js",
-    "test-vpclambda": "cd site && node test/runIndex.js && cd .."
+    "test-vpclambda": "cd siteGen && node test/runIndex.js && cd .."
   },
   "dependencies": {
     "@aws-cdk/assert": "^1.130.0",
@@ -46,5 +45,8 @@
   "bugs": {
     "url": "https://github.com/SeriesOfUnlikelyExplanations/hugo-serverless/issues"
   },
-  "homepage": "https://github.com/SeriesOfUnlikelyExplanations/hugo-serverless#readme"
+  "homepage": "https://github.com/SeriesOfUnlikelyExplanations/hugo-serverless#readme",
+  "devDependencies": {
+    "hugo-extended": "^0.89.4"
+  }
 }

@@ -235,7 +235,7 @@ export class HugoServerlessStack extends cdk.Stack {
       functionName: `hugoServerlessVpcLambda`,
       code: Code.fromAsset('siteGen'),
       handler: 'index.handler',
-      memorySize: 512,
+      memorySize: 5120,
       timeout: cdk.Duration.seconds(240),
       runtime: Runtime.NODEJS_14_X,
       retryAttempts: 0,

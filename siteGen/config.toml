@@ -9,7 +9,10 @@ enableInlineShortcodes = true
 footnoteReturnLinkContents = "^"
 ignoreFiles = ['__.*']
 
+# these options are overwridden on deployment
 contentDir = "../../onward-blog/content"
+publishDir  = "../../onward-blog/public"
+
 
 theme = "blog"
 

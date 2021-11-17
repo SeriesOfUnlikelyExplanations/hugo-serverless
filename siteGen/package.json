@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
-  "scripts": {},
+  "type": "module",
   "author": "",
   "license": "ISC",
   "hugo-bin": {
@@ -12,7 +12,7 @@
   "dependencies": {
     "aws-sdk": "^2.939.0",
     "fs-extra": "^10.0.0",
-    "hugo-bin": "^0.77.2",
+    "hugo-extended": "^0.89.3",
     "toml": "^3.0.0"
   }
 }

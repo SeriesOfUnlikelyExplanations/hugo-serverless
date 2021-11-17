@@ -1,9 +1,7 @@
-const AWS = require('aws-sdk');
-const fs = require('fs-extra');
-const util = require('util');
-const exec = require('child_process').execFile;
-const hugo = require('hugo-bin');
-
+import AWS from 'aws-sdk';
+import fs from 'fs-extra';
+import hugo from "hugo-extended";
+import { exec } from "child_process";
 
 function promiseFromChildProcess(child) {
   return new Promise(function (resolve, reject) {
@@ -19,17 +17,17 @@ exports.handler = async (event, context) => {
     AWS.config.update({region: event.region})
     var ssm = new AWS.SSM();
     var ssmData = await ssm.getParameters({Names: ['/OnwardBlog/datasyncWebsiteTask',
-      '/OnwardBlog/datasyncSourceTask']}).promise();
+      '/OnwardBlog/datasyncSourceTask',
+      '/OnwardBlog/deploymentLambda']}).promise();
     if (event.resources[0].includes(ssmData.Parameters.find(p => p.Name ==='/OnwardBlog/datasyncSourceTask').Value)) {
       console.log('Source Datalink task completed. Start Hugo Generation...');
       
       fs.copySync('config.toml', '/tmp/config.toml')
       fs.copySync('themes', '/tmp/themes')
       
-      const child = exec(hugo, ['-s', '/tmp', '-c', '/mnt/hugo/content', '-d', '/mnt/hugo/public']);
-
-      const res = await promiseFromChildProcess(child)
-
+      const binPath = await hugo();
+      const child = exec(binPath, ['-s', '/tmp', '-c', '/mnt/hugo/content', '-d', '/mnt/hugo/public']);
+      
       child.stdout.on('data', function (data) {
           console.log('stdout: ' + data);
       });
@@ -40,11 +38,9 @@ exports.handler = async (event, context) => {
           console.log('closing code: ' + code);
       });
       
-      const res = await execFile()
+      const res = await promiseFromChildProcess(child)
       console.log(res)
       
-      var ssm = new AWS.SSM();
-      var ssmData = await ssm.getParameters({Names: ['/OnwardBlog/deploymentLambda']}).promise();
       var lambda = new AWS.Lambda();
 
       console.log(ssmData.Parameters.find(p => p.Name ==='/OnwardBlog/deploymentLambda').Value)
