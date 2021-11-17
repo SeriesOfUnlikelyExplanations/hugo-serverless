@@ -27,9 +27,7 @@ exports.handler = async (event, context) => {
       fs.copySync('themes', '/tmp/themes')
       
       const child = exec(hugo, ['-s', '/tmp', '-c', '/mnt/hugo/content', '-d', '/mnt/hugo/public']);
-
-      const res = await promiseFromChildProcess(child)
-
+      
       child.stdout.on('data', function (data) {
           console.log('stdout: ' + data);
       });
@@ -39,6 +37,8 @@ exports.handler = async (event, context) => {
       child.on('close', function (code) {
           console.log('closing code: ' + code);
       });
+      
+      const res = await promiseFromChildProcess(child)
       
       console.log(res)
       
