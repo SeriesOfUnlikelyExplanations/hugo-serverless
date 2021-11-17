@@ -1,6 +1,6 @@
 import hugo from "hugo-extended";
 import { exec } from "child_process";
-const { copySync } from 'fs-extra';
+import { copySync } from 'fs-extra';
 
 function promiseFromChildProcess(child) {
   return new Promise(function (resolve, reject) {
