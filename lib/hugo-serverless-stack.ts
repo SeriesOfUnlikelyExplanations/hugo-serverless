@@ -248,6 +248,8 @@ export class HugoServerlessStack extends cdk.Stack {
       service: InterfaceVpcEndpointAwsService.LAMBDA,
     });
     callLambda.connections.allowDefaultPortFrom(vpcHandler);
+    handler.grantInvoke(vpcHandler);
+    
     //allow the vpc lambda to access SSM parameters
     const callSSM = vpc.addInterfaceEndpoint('SSM', {
       service: InterfaceVpcEndpointAwsService.SSM,
