@@ -4,7 +4,7 @@
   "description": "Hugo, powered by EFS, lambda, and S3",
   "main": "index.js",
   "scripts": {
-    "build": "hugo -s siteGen",
+    "build": "hugo -s siteGen -e production",
     "serve": "hugo server -s siteGen",
     "new": "hugo new -s static-site",
     "deploy-website": "aws s3 sync ../onward-blog/public s3://blog.always-onward.com --delete",

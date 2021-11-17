@@ -1,6 +1,6 @@
 import hugo from "hugo-extended";
 import { exec } from "child_process";
-
+const { copySync } from 'fs-extra';
 
 function promiseFromChildProcess(child) {
   return new Promise(function (resolve, reject) {
@@ -10,6 +10,11 @@ function promiseFromChildProcess(child) {
 }
 
 const deploy = async () => {
+  copySync('config.toml', '/tmp/config.toml')
+  copySync('themes', '/tmp/themes')
+  copySync('node_modules', '/tmp/node_modules')
+  process.chdir('/tmp');
+      
   const binPath = await hugo();
   const child = exec(binPath, ['-e', 'production']);
 

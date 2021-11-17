@@ -13,11 +13,6 @@ exports.handler = async (event, context) => {
     if (event.resources[0].includes(ssmData.Parameters.find(p => p.Name ==='/OnwardBlog/datasyncSourceTask').Value)) {
       console.log('Source Datalink task completed. Start Hugo Generation...');
       
-      fs.copySync('config.toml', '/tmp/config.toml')
-      fs.copySync('themes', '/tmp/themes')
-      fs.copySync('node_modules', '/tmp/node_modules')
-      process.chdir('/tmp');
-      
       const deploy = await import('./deploy.mjs')
       const res = await deploy.default();
       

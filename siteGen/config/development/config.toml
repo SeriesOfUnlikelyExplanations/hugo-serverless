@@ -1,5 +1,5 @@
-
 # development settings
+
 contentDir = "../../onward-blog/content"
 publishDir  = "../../onward-blog/public"
 
