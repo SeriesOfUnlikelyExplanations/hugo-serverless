@@ -24,8 +24,8 @@ exports.handler = async (event, context) => {
       fs.copySync('config.toml', '/tmp/config.toml')
       fs.copySync('themes', '/tmp/themes')
       
-      const { deploy } = await import('./deploy.mjs')
-      deploy();
+      const deploy = await import('./deploy.mjs')
+      const res = deploy.default();
       
       var lambda = new AWS.Lambda();
 
