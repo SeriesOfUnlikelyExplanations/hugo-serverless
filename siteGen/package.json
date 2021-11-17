@@ -4,10 +4,6 @@
   "description": "",
   "main": "index.js",
   "type": "module",
-  "scripts": {
-    "build": "hugo",
-    
-  },
   "author": "",
   "license": "ISC",
   "dependencies": {
