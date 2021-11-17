@@ -1,11 +1,7 @@
 # settings for deployment
 
-# contentDir = "/mnt/hugo/content"
-# publishDir  = "/mnt/hugo/public"
-
-
-contentDir = "../../onward-blog/content"
-publishDir  = "../../onward-blog/public"
+contentDir = "/mnt/hugo/content"
+publishDir  = "/mnt/hugo/public"
 
 [deploy]
 region = 'us-west-2'
