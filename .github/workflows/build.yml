@@ -21,8 +21,6 @@ jobs:
           npm install
           cd adminLambda
           npm install --production
-          cd ../siteGen
-          npm install --production
           
       - name: Deploy
         run: |
