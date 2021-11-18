@@ -5,7 +5,7 @@ import { Vpc, SubnetType, SecurityGroup, Peer, Port, InterfaceVpcEndpointAwsServ
 import { FileSystem as efsFileSystem }  from '@aws-cdk/aws-efs';
 import { Rule } from'@aws-cdk/aws-events'
 import { LambdaFunction } from '@aws-cdk/aws-events-targets'
-import { Function, Code, Runtime, FileSystem } from '@aws-cdk/aws-lambda';
+import { Function, Code, Runtime, FileSystem, LayerVersion } from '@aws-cdk/aws-lambda';
 import { PolicyStatement, Effect, AnyPrincipal, ServicePrincipal, Role } from '@aws-cdk/aws-iam';
 import { HostedZone, ARecord, RecordTarget } from '@aws-cdk/aws-route53';
 import { CloudFrontTarget } from '@aws-cdk/aws-route53-targets';
@@ -233,11 +233,11 @@ export class HugoServerlessStack extends cdk.Stack {
     // Create the VPC lambda for Hugo generation
     const vpcHandler = new Function(this, 'hugoServerlessVpcLambda', {
       functionName: `hugoServerlessVpcLambda`,
-      code: Code.fromAsset('siteGen'),
-      handler: 'index.handler',
+      code: Code.fromAsset('siteGenerator'),
+      handler: 'handler.lambda_handler',
       memorySize: 10240,
       timeout: cdk.Duration.seconds(600),
-      runtime: Runtime.NODEJS_14_X,
+      runtime: Runtime.PYTHON_3_7,
       retryAttempts: 0,
       vpc: vpc,
       securityGroups: [ dsSG ],
