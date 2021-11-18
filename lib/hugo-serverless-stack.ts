@@ -15,7 +15,7 @@ import { AwsCustomResource, PhysicalResourceId, AwsCustomResourcePolicy } from '
 
 import * as fs from 'fs';
 import * as toml from 'toml';
-const config = toml.parse(fs.readFileSync('./siteGen/config/production/config.toml', 'utf-8'));
+const config = toml.parse(fs.readFileSync('./config.toml', 'utf-8'));
 
 export class HugoServerlessStack extends cdk.Stack {
   constructor(scope: cdk.App, id: string, props: cdk.StackProps) {
