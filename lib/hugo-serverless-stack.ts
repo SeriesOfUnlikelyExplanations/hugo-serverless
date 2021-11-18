@@ -21,15 +21,18 @@ export class HugoServerlessStack extends cdk.Stack {
   constructor(scope: cdk.App, id: string, props: cdk.StackProps) {
     super(scope, id, props);
     //Create a bucket to cache the source info for Hugo
-    const sourceBucket = new Bucket(this, 'Hugo Serverless Source', {
-      bucketName: config.deploy.siteName+'-source',
-      versioned: true,
-      blockPublicAccess: BlockPublicAccess.BLOCK_ALL,
-      removalPolicy: cdk.RemovalPolicy.RETAIN,
-      lifecycleRules: [{
-        noncurrentVersionExpiration: cdk.Duration.days(30)
-      }],
-    });
+    //~ const sourceBucket = new Bucket(this, 'Hugo Serverless Source', {
+      //~ bucketName: config.deploy.siteName+'-source',
+      //~ versioned: true,
+      //~ blockPublicAccess: BlockPublicAccess.BLOCK_ALL,
+      //~ removalPolicy: cdk.RemovalPolicy.RETAIN,
+      //~ lifecycleRules: [{
+        //~ noncurrentVersionExpiration: cdk.Duration.days(30)
+      //~ }],
+    //~ });
+    const sourceBucket = Bucket.fromBucketName(this, 'imported-bucket-from-name',
+      config.deploy.siteName+'-source',
+    );
     sourceBucket.addToResourcePolicy(
       new PolicyStatement({
         effect: Effect.DENY,
