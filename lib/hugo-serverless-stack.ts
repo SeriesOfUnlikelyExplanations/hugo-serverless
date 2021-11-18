@@ -53,22 +53,22 @@ export class HugoServerlessStack extends cdk.Stack {
       autoDeleteObjects: true,
       publicReadAccess: true,
     });
-    //Create the cloudfront distribution to cache the bucket
-    const distribution = new CloudFrontWebDistribution(this, config.deploy.siteName + '-cfront', {
-      originConfigs: [
-        {
-          customOriginSource: {
-            domainName: websiteBucket.bucketWebsiteDomainName,
-            originProtocolPolicy: OriginProtocolPolicy.HTTP_ONLY,
-          },
-          behaviors : [ {isDefaultBehavior: true}]
-        }
-      ],
-      aliasConfiguration: {
-        acmCertRef: config.deploy.certificateArn,
-        names: [config.deploy.siteName]
-      }
-    });
+    //~ //Create the cloudfront distribution to cache the bucket
+    //~ const distribution = new CloudFrontWebDistribution(this, config.deploy.siteName + '-cfront', {
+      //~ originConfigs: [
+        //~ {
+          //~ customOriginSource: {
+            //~ domainName: websiteBucket.bucketWebsiteDomainName,
+            //~ originProtocolPolicy: OriginProtocolPolicy.HTTP_ONLY,
+          //~ },
+          //~ behaviors : [ {isDefaultBehavior: true}]
+        //~ }
+      //~ ],
+      //~ aliasConfiguration: {
+        //~ acmCertRef: config.deploy.certificateArn,
+        //~ names: [config.deploy.siteName]
+      //~ }
+    //~ });
     // Create a file system in EFS to store information
     const vpc = new Vpc(this, 'Vpc', {
       natGateways: 0,
@@ -296,10 +296,10 @@ export class HugoServerlessStack extends cdk.Stack {
       //~ recordName: config.deploy.siteName,
     //~ });
 
-    new StringParameter(this, "distID", {
-      parameterName: '/OnwardBlog/distID',
-      stringValue: distribution.distributionId,
-    });
+    //~ new StringParameter(this, "distID", {
+      //~ parameterName: '/OnwardBlog/distID',
+      //~ stringValue: distribution.distributionId,
+    //~ });
     new StringParameter(this, "sourceBucket", {
       parameterName: '/OnwardBlog/sourceBucket',
       stringValue: sourceBucket.bucketName,
