@@ -287,11 +287,11 @@ export class HugoServerlessStack extends cdk.Stack {
       zoneName: config.deploy.zoneName,
     });
 
-    const aliasRecord = new ARecord(this, config.deploy.siteName + '-alias-record', {
-      target: RecordTarget.fromAlias(new CloudFrontTarget(distribution)),
-      zone: myHostedZone,
-      recordName: config.deploy.siteName,
-    });
+    //~ const aliasRecord = new ARecord(this, config.deploy.siteName + '-alias-record', {
+      //~ target: RecordTarget.fromAlias(new CloudFrontTarget(distribution)),
+      //~ zone: myHostedZone,
+      //~ recordName: config.deploy.siteName,
+    //~ });
 
     new StringParameter(this, "distID", {
       parameterName: '/OnwardBlog/distID',
