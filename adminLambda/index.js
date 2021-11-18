@@ -10,6 +10,8 @@ exports.handler = async (event, context) => {
     var ssmData = await ssm.getParameters({Names: ['/OnwardBlog/datasyncSourceTask']}).promise();
     //Start the initial datasync task - move S3Source bucket into EFS
     const datasync = new AWS.DataSync();
+    await new Promise(resolve => setTimeout(resolve, 30000))
+    
     result = await new Promise(function(resolve, reject) {
       datasync.startTaskExecution({ TaskArn: ssmData.Parameters.find(p => p.Name ==='/OnwardBlog/datasyncSourceTask').Value}, function(err, data) {
         if (err !== null) reject(err);
