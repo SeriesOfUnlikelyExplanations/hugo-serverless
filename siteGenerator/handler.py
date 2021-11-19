@@ -15,7 +15,7 @@ logging.basicConfig(format='%(asctime)s [%(levelname)s]: %(message)s',level=logg
 def run_command(command):
   command_list = command.split(' ')
   try:
-      logger.info("Running shell command: \"{0}\"".format(command))
+    logger.info("Running shell command: \"{0}\"".format(command))
     result = subprocess.run(command_list, stdout=subprocess.PIPE);
     logger.info("Command output:\n---\n{0}\n---".format(result.stdout.decode('UTF-8')))
   except Exception as e:
