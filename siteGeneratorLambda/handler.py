@@ -1,4 +1,4 @@
-import subprocess, os, logging
+import subprocess, os, logging, boto3
 
 # Environment variables
 LOCAL_SOURCE_DIR = '/mnt/hugo'
@@ -25,12 +25,19 @@ def run_command(command):
 
 
 def lambda_handler(event, context):
+  print(event)
+  region = event['Records'][0]['awsRegion']
+  func = boto3.client('lambda', region_name = region)
+  ssm = boto3.client('ssm', region_name = region)
   logger.info("Checking the source directory...")
   run_command('ls -n {}'.format(LOCAL_SOURCE_DIR))
   logger.info("Building Hugo site")
   run_command("hugo/hugo -s {0} -d {1}".format(LOCAL_SOURCE_DIR,LOCAL_BUILD_DIR))
   run_command("ls -l {0}".format(LOCAL_BUILD_DIR))
 
+  parameter = ssm.get_parameter(Name='/AlwaysOnward/datasyncSourceTask', WithDecryption=True)
+  print(parameter['Parameter']['Value'])
+  
   return {"statusCode": 200, \
     "headers": {"Content-Type": "text/html"}, \
     "body": "Build complete"}
