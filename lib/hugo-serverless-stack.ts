@@ -275,7 +275,7 @@ export class HugoServerlessStack extends cdk.Stack {
       actions: ['ssm:GetParameters'],
     }))
     
-    fs.grant(vpcHandler,'elasticfilesystem:*'
+    fs.grant(vpcHandler,'elasticfilesystem:*')
     
     const rule = new Rule(this, 'DataSyncRule', {
       eventPattern: {source: [ "aws.datasync" ],
