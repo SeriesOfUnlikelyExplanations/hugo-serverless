@@ -26,10 +26,10 @@ def run_command(command):
 
 def lambda_handler(event, context):
   logger.info("Checking the source directory...")
-  run_command('ls -l {}'.format(LOCAL_SOURCE_DIR))
+  run_command('ls -n {}'.format(LOCAL_SOURCE_DIR))
   logger.info("Building Hugo site")
   run_command("hugo/hugo -s {0} -d {1}".format(LOCAL_SOURCE_DIR,LOCAL_BUILD_DIR))
-  run_command("ls -l {0}".format(destination_dir))
+  run_command("ls -l {0}".format(LOCAL_BUILD_DIR))
 
   return {"statusCode": 200, \
     "headers": {"Content-Type": "text/html"}, \
