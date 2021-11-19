@@ -93,13 +93,14 @@ export class HugoServerlessStack extends cdk.Stack {
     });
     const accessPoint = fs.addAccessPoint('AccessPoint',{
       createAcl: {
-        ownerGid: '1001',
-        ownerUid: '1001',
-        permissions: '750'
+        ownerGid: '1000',
+        ownerUid: '1000',
+        permissions: '777'
       },
+      path:'/hugo/',
       posixUser: {
-        gid: '1001',
-        uid: '1001'
+        gid: '1000',
+        uid: '1000'
       }
     });
     
