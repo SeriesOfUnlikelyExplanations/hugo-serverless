@@ -25,8 +25,8 @@ def run_command(command):
 
 
 def lambda_handler(event, context):
-  print(event)
-  region = event['Records'][0]['awsRegion']
+  logger.info(event)
+  region = event['region']
   func = boto3.client('lambda', region_name = region)
   ssm = boto3.client('ssm', region_name = region)
   logger.info("Checking the source directory...")
@@ -38,6 +38,14 @@ def lambda_handler(event, context):
   parameter = ssm.get_parameter(Name='/AlwaysOnward/datasyncSourceTask', WithDecryption=True)
   print(parameter['Parameter']['Value'])
   
+  if parameter['Parameter']['Value'] in event['resources'[0]:
+    lambdaFunction = ssm.get_parameter(Name='/AlwaysOnward/datasyncSourceTask', WithDecryption=True)
+    d = {'action': 'deploy'}
+    response = client.invoke(
+      FunctionName=lambdaFunction['Parameter']['Value'],
+      LogType='None',
+      Payload=json.dumps(d)
+    )
   return {"statusCode": 200, \
     "headers": {"Content-Type": "text/html"}, \
     "body": "Build complete"}

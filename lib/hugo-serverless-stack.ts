@@ -308,6 +308,10 @@ export class HugoServerlessStack extends cdk.Stack {
     });
     new StringParameter(this, "deploymentLambda", {
       parameterName: '/OnwardBlog/deploymentLambda',
+      stringValue: vpcHandler.functionName,
+    });
+    new StringParameter(this, "routingLambda", {
+      parameterName: '/OnwardBlog/routingLambda',
       stringValue: handler.functionName,
     });
     new StringParameter(this, "siteName", {
