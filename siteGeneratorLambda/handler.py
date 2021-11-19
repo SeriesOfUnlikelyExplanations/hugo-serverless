@@ -38,7 +38,7 @@ def lambda_handler(event, context):
   parameter = ssm.get_parameter(Name='/AlwaysOnward/datasyncSourceTask', WithDecryption=True)
   print(parameter['Parameter']['Value'])
   
-  if parameter['Parameter']['Value'] in event['resources'[0]:
+  if parameter['Parameter']['Value'] in event['resources'][0]:
     lambdaFunction = ssm.get_parameter(Name='/AlwaysOnward/datasyncSourceTask', WithDecryption=True)
     d = {'action': 'deploy'}
     response = client.invoke(
