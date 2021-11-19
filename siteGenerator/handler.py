@@ -3,8 +3,8 @@ import os
 import logging
 
 # Environment variables
-LOCAL_SOURCE_DIR = '/mnt/hugo/source'
-LOCAL_BUILD_DIR = '/mnt/public'
+LOCAL_SOURCE_DIR = '/mnt/hugo'
+LOCAL_BUILD_DIR = '/mnt/hugo/public'
 SOURCE_S3_BUCKET_PATH = 'blog.always-onward.com-source'
 DESTINATION_BUCKET = 'blog.always-onward.com'
 
@@ -48,9 +48,9 @@ def upload_to_s3(local_path,s3_path):
     run_command('aws/aws s3 ls {0}'.format(s3_path))
 
 def lambda_handler(event, context):
-    download_from_s3(SOURCE_S3_BUCKET_PATH,LOCAL_SOURCE_DIR)
+    # ~ download_from_s3(SOURCE_S3_BUCKET_PATH,LOCAL_SOURCE_DIR)
     build_hugo(LOCAL_SOURCE_DIR,LOCAL_BUILD_DIR)
-    upload_to_s3(LOCAL_BUILD_DIR,DESTINATION_BUCKET)
+    # ~ upload_to_s3(LOCAL_BUILD_DIR,DESTINATION_BUCKET)
 
     return {"statusCode": 200, \
         "headers": {"Content-Type": "text/html"}, \
