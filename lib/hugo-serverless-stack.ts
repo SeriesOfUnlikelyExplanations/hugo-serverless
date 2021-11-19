@@ -97,7 +97,7 @@ export class HugoServerlessStack extends cdk.Stack {
         ownerUid: '1000',
         permissions: '777'
       },
-      path:'/hugo/',
+      path:'/hugo',
       posixUser: {
         gid: '1000',
         uid: '1000'
