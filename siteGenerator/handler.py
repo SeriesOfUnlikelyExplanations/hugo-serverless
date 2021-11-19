@@ -22,11 +22,6 @@ def run_command(command):
     logger.error("Exception: {0}".format(e))
     raise e
   return True
-    
-
-# Builds a hugo website
-def build_hugo(source_dir, destination_dir,debug=False):
-
 
 
 def lambda_handler(event, context):
@@ -37,5 +32,5 @@ def lambda_handler(event, context):
   run_command("ls -l {0}".format(destination_dir))
 
   return {"statusCode": 200, \
-      "headers": {"Content-Type": "text/html"}, \
-      "body": "Build complete"}
+    "headers": {"Content-Type": "text/html"}, \
+    "body": "Build complete"}
