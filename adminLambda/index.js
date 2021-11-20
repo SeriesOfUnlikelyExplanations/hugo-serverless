@@ -21,7 +21,7 @@ exports.handler = async (event, context) => {
     console.log('Source datasync task started.');
   } else if (event.hasOwnProperty('action') && event.action == 'deploy') {
     console.log('Build has been compled - starting Website Datasync task...');
-    AWS.config.update({region: event.Records[0].awsRegion})
+    AWS.config.update({region: event.region})
     var ssm = new AWS.SSM();
     var ssmData = await ssm.getParameters({Names: ['/OnwardBlog/datasyncWebsiteTask']}).promise();
     //Start the initial datasync task - move S3Source bucket into EFS

@@ -40,7 +40,7 @@ def lambda_handler(event, context):
   
   if parameter['Parameter']['Value'] in event['resources'][0]:
     lambdaFunction = ssm.get_parameter(Name='/OnwardBlog/routingLambda', WithDecryption=True)
-    d = {'action': 'deploy'}
+    d = {'action': 'deploy', 'region': region}
     func = boto3.client('lambda', region_name = region)
     response = func.invoke(
       FunctionName=lambdaFunction['Parameter']['Value'],
