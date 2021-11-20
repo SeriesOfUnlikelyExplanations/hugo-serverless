@@ -4,15 +4,6 @@ const mustacheMjml  = require('mustache.mjml')
 const fs = require('fs')
 var { SiteChecker } = require("broken-link-checker");
 
-const Parser = require('rss-parser');
-const htmlToText = require('html-to-text')
-const mustacheMjml  = require('mustache.mjml')
-const fs = require('fs')
-const mkdirp = require('mkdirp');
-var path = require("path");
-const yaml = require('js-yaml')
-var { SiteChecker } = require("broken-link-checker");
-
 async function checkBrokenLinks(site) {
   //Crawl the site for broken links
   const uniqueLinks = await new Promise((resolve, reject) => {

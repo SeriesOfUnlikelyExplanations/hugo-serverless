@@ -44,7 +44,12 @@ exports.handler = async (event, context) => {
       '/OnwardBlog/datasyncWebsiteTask'
       ]}).promise();
     if (event.resources[0].includes(ssmData.Parameters.find(p => p.Name ==='/OnwardBlog/datasyncWebsiteTask').Value)) {
-      console.log('Website Datasync task was the one completed. Starting the broken link checker...')
+      console.log('Website Datasync task was the one completed. Starting cloudfront Invalidation')
+      
+      
+      
+      
+      console.log('Starting the broken link checker...')
       const result = await checkBrokenLinks('https://' + ssmData.Parameters.find(p => p.Name === '/OnwardBlog/siteName').Value);
       console.log('Broken Link Checker complete.');
       console.log(result);

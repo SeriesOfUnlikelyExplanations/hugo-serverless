@@ -23,22 +23,24 @@ def run_command(command):
     raise e
   return True
 
-
 def lambda_handler(event, context):
   logger.info(event)
-
   logger.info("Checking the source directory...")
   run_command('ls -n {}'.format(LOCAL_SOURCE_DIR))
-  logger.info("Building Hugo site")
-  run_command("hugo/hugo -s {0} -d {1}".format(LOCAL_SOURCE_DIR,LOCAL_BUILD_DIR))
-  run_command("ls -l {0}".format(LOCAL_BUILD_DIR))
   
+  logger.info("Getting SSM parameters...")
   region = event['region']
   ssm = boto3.client('ssm', region_name = region)
   parameter = ssm.get_parameter(Name='/OnwardBlog/datasyncSourceTask', WithDecryption=True)
   print(parameter['Parameter']['Value'])
   
+  logger.info('Checking which task was completed...')
   if parameter['Parameter']['Value'] in event['resources'][0]:
+    logger.info("Source Datasync Task. Building Hugo site...")
+    run_command("hugo/hugo -s {0} -d {1}".format(LOCAL_SOURCE_DIR,LOCAL_BUILD_DIR))
+    run_command("ls -l {0}".format(LOCAL_BUILD_DIR))
+    
+    logger.info("Build complete. Starting Website Datasync task through admin Lambda...")
     lambdaFunction = ssm.get_parameter(Name='/OnwardBlog/routingLambda', WithDecryption=True)
     d = {'action': 'deploy', 'region': region}
     func = boto3.client('lambda', region_name = region)
@@ -47,8 +49,11 @@ def lambda_handler(event, context):
       LogType='None',
       Payload=json.dumps(d)
     )
+    logger.info("Completed invoking admin Lambda.")
   else:
+    logger.info("Website Datasync Task. Deleting the EFS directory...")
     run_command('rm -rf {0}/{*,.*}'.format(LOCAL_SOURCE_DIR))
+    logger.info("Delete Complete.")
     
   return {"statusCode": 200, \
     "headers": {"Content-Type": "text/html"}, \
