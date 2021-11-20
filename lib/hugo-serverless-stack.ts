@@ -272,7 +272,7 @@ export class HugoServerlessStack extends cdk.Stack {
     vpcHandler.addToRolePolicy(new PolicyStatement({
       resources: [`arn:aws:ssm:${props.env?.region}:${props.env?.account}:parameter/AlwaysOnward/*`,
         `arn:aws:ssm:${props.env?.region}:${props.env?.account}:parameter/OnwardBlog/*`],
-      actions: ['ssm:GetParameters'],
+      actions: ['ssm:GetParameters', 'ssm:GetParameter'],
     }))
     
     fs.grant(vpcHandler,'elasticfilesystem:*')
