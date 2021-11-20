@@ -35,11 +35,11 @@ def lambda_handler(event, context):
   run_command("hugo/hugo -s {0} -d {1}".format(LOCAL_SOURCE_DIR,LOCAL_BUILD_DIR))
   run_command("ls -l {0}".format(LOCAL_BUILD_DIR))
 
-  parameter = ssm.get_parameter(Name='/AlwaysOnward/datasyncSourceTask', WithDecryption=True)
+  parameter = ssm.get_parameter(Name='/OnwardBlog/datasyncSourceTask', WithDecryption=True)
   print(parameter['Parameter']['Value'])
   
   if parameter['Parameter']['Value'] in event['resources'][0]:
-    lambdaFunction = ssm.get_parameter(Name='/AlwaysOnward/datasyncSourceTask', WithDecryption=True)
+    lambdaFunction = ssm.get_parameter(Name='/OnwardBlog/routingLambda', WithDecryption=True)
     d = {'action': 'deploy'}
     response = client.invoke(
       FunctionName=lambdaFunction['Parameter']['Value'],
