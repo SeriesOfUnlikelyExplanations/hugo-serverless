@@ -48,7 +48,7 @@ def lambda_handler(event, context):
       Payload=json.dumps(d)
     )
   else:
-    run_command('rm -r {0}'.format(LOCAL_SOURCE_DIR))
+    run_command('rm -r {0}/*'.format(LOCAL_SOURCE_DIR))
     
   return {"statusCode": 200, \
     "headers": {"Content-Type": "text/html"}, \

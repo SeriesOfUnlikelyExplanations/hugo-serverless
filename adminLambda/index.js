@@ -1,4 +1,5 @@
 const AWS = require('aws-sdk');
+const { checkBrokenLinks } = require('./deploy.js');
 
 exports.handler = async (event, context) => {
   console.log(event);
@@ -44,8 +45,11 @@ exports.handler = async (event, context) => {
       ]}).promise();
     if (event.resources[0].includes(ssmData.Parameters.find(p => p.Name ==='/OnwardBlog/datasyncWebsiteTask').Value)) {
       console.log('Website Datasync task was the one completed. Starting the broken link checker...')
-      //complete the deployment tasks after launching the 
       const result = await checkBrokenLinks('https://' + ssmData.Parameters.find(p => p.Name === '/OnwardBlog/siteName').Value);
+      console.log('Broken Link Checker complete.'
+      console.log(result)
+           
+      
     } else {
       console.log('Datalink task not supported');
       result = 'pass';
