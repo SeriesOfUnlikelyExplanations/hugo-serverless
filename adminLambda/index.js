@@ -1,5 +1,5 @@
 const AWS = require('aws-sdk');
-const { checkBrokenLinks } = require('./deploy.js');
+const { checkBrokenLinks, invalidate } = require('./deploy.js');
 
 exports.handler = async (event, context) => {
   console.log(event);
@@ -47,7 +47,7 @@ exports.handler = async (event, context) => {
     if (event.resources[0].includes(ssmData.Parameters.find(p => p.Name ==='/OnwardBlog/datasyncWebsiteTask').Value)) {
       console.log('Website Datasync task was the one completed. Starting cloudfront Invalidation...'
       var cloudfront = new AWS.CloudFront();
-      await invalidate(cloudfront, ssmData.Parameters.find(p => p.Name === '/OnwardBlog/distID').Value)
+      await invalidate(cloudfront, ssmData.Parameters.find(p => p.Name === '/OnwardBlog/distID').Value);
 
       console.log('Invalidation complete. Starting the broken link checker...')
       const result = await checkBrokenLinks('https://' + ssmData.Parameters.find(p => p.Name === '/OnwardBlog/siteName').Value);

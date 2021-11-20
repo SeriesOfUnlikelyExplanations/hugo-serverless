@@ -77,7 +77,7 @@ async function sendEmail(uniqueLinks, site, fromEmail, toEmail, adminEmail) {
   }
 };
 
-async function invalidate(cloudfront, distId){
+async function invalidate(cloudfront, distId) {
   async function _check(cf, distId, id) {
     const r = await cf
       .getInvalidation({ DistributionId: distId, Id: id })
@@ -91,7 +91,7 @@ async function invalidate(cloudfront, distId){
     return check(cf, distId, id)
   }
   const r = await cloudfront.createInvalidation({
-    DistributionId: ,
+    DistributionId: distId,
     InvalidationBatch: {
       CallerReference: new Date().toISOString(),
       Paths: {
