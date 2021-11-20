@@ -1,4 +1,4 @@
-import subprocess, os, logging, boto3
+import subprocess, os, logging, boto3, json
 
 # Environment variables
 LOCAL_SOURCE_DIR = '/mnt/hugo'

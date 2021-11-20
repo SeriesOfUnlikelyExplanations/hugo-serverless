@@ -4,7 +4,7 @@ exports.handler = async (event, context) => {
   console.log(event);
   var result;
   if (event.hasOwnProperty('Records') && event.Records[0].eventName == 'ObjectCreated:Put') {
-    console.log('Source bucket has been updated - starting Datasync task...');
+    console.log('Source bucket has been updated - starting Source Datasync task...');
     AWS.config.update({region: event.Records[0].awsRegion})
     var ssm = new AWS.SSM();
     var ssmData = await ssm.getParameters({Names: ['/OnwardBlog/datasyncSourceTask']}).promise();
@@ -18,7 +18,22 @@ exports.handler = async (event, context) => {
         else resolve(data);
       });
     });
-    console.log('Datasync task started.');
+    console.log('Source datasync task started.');
+  } else if (event.hasOwnProperty('action') && event.action == 'deploy') {
+    console.log('Build has been compled - starting Website Datasync task...');
+    AWS.config.update({region: event.Records[0].awsRegion})
+    var ssm = new AWS.SSM();
+    var ssmData = await ssm.getParameters({Names: ['/OnwardBlog/datasyncWebsiteTask']}).promise();
+    //Start the initial datasync task - move S3Source bucket into EFS
+    const datasync = new AWS.DataSync();
+    
+    result = await new Promise(function(resolve, reject) {
+      datasync.startTaskExecution({ TaskArn: ssmData.Parameters.find(p => p.Name ==='/OnwardBlog/datasyncWebsiteTask').Value}, function(err, data) {
+        if (err !== null) reject(err);
+        else resolve(data);
+      });
+    });
+    console.log('Website datasync task started.');
   } else if (event.hasOwnProperty('source') && event.source == 'aws.datasync') {
     console.log('Datasync task completed. Checking which task it was...');
     AWS.config.update({region: event.region})
