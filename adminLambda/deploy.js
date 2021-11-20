@@ -19,7 +19,7 @@ async function checkBrokenLinks(site) {
   })
 };
 
-async function sendEmail(site) {
+async function sendEmail(uniqueLinks, site, fromEmail, toEmail, adminEmail) {
   //Send an email to either me (if there are broken links) or to everyone with a link to the new post
   var html, toEmail, subject
   var emailParams = { Source: ssmData.Parameters.find(p => p.Name === '/AlwaysOnward/noReplyEmail').Value };

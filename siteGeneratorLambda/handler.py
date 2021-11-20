@@ -52,7 +52,8 @@ def lambda_handler(event, context):
     logger.info("Completed invoking admin Lambda.")
   else:
     logger.info("Website Datasync Task. Deleting the EFS directory...")
-    run_command('rm -rf {0}/{*,.*}'.format(LOCAL_SOURCE_DIR))
+    run_command('rm -rf {0}/*'.format(LOCAL_SOURCE_DIR))
+    run_command('rm -rf {0}/.*'.format(LOCAL_SOURCE_DIR))
     logger.info("Delete Complete.")
     
   return {"statusCode": 200, \
