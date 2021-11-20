@@ -6,16 +6,16 @@ var { SiteChecker } = require("broken-link-checker");
 
 async function checkBrokenLinks(site) {
   //Crawl the site for broken links
-  const uniqueLinks = await new Promise((resolve, reject) => {
-  let brokenLinks = []
-  const _siteChecker = new SiteChecker({ excludedKeywords: ["gaiagps.com", "amazon.com"] },
-    {
-      "error": error => reject,
-      "link": (result, customData) => {if (result.broken) { brokenLinks.push(result.url.original) }},
-      "end": () => resolve([...new Set(brokenLinks)])
-    }
-  );
-  return _siteChecker.enqueue(site)
+  return await new Promise((resolve, reject) => {
+    let brokenLinks = []
+    const _siteChecker = new SiteChecker({ excludedKeywords: ["gaiagps.com", "amazon.com"] },
+      {
+        "error": error => reject,
+        "link": (result, customData) => {if (result.broken) { brokenLinks.push(result.url.original) }},
+        "end": () => resolve([...new Set(brokenLinks)])
+      }
+    );
+    _siteChecker.enqueue(site)
   })
 };
 
@@ -78,6 +78,6 @@ async function sendEmail(site) {
 };
 
 module.exports = {
-  start_datasync,
+  sendEmail,
   checkBrokenLinks
 };
