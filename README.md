@@ -4,7 +4,6 @@ Hugo deployment package for static site generation through serverless
 
 TODO:
 Run cloudfront invalidation
-Determine if broken link checker worked
 Send email on deploy complete
 
 Move email & deploy variables to toml file

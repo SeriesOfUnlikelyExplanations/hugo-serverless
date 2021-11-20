@@ -41,20 +41,19 @@ exports.handler = async (event, context) => {
     var ssm = new AWS.SSM();
     var ssmData = await ssm.getParameters({Names: [
       '/OnwardBlog/siteName',
-      '/OnwardBlog/datasyncWebsiteTask'
-      ]}).promise();
+      '/OnwardBlog/datasyncWebsiteTask',
+      '/OnwardBlog/distID'
+    ]}).promise();
     if (event.resources[0].includes(ssmData.Parameters.find(p => p.Name ==='/OnwardBlog/datasyncWebsiteTask').Value)) {
-      console.log('Website Datasync task was the one completed. Starting cloudfront Invalidation')
-      
-      
-      
-      
-      console.log('Starting the broken link checker...')
+      console.log('Website Datasync task was the one completed. Starting cloudfront Invalidation...'
+      var cloudfront = new AWS.CloudFront();
+      await invalidate(cloudfront, ssmData.Parameters.find(p => p.Name === '/OnwardBlog/distID').Value)
+
+      console.log('Invalidation complete. Starting the broken link checker...')
       const result = await checkBrokenLinks('https://' + ssmData.Parameters.find(p => p.Name === '/OnwardBlog/siteName').Value);
       console.log('Broken Link Checker complete.');
       console.log(result);
            
-      
     } else {
       console.log('Datalink task not supported');
       result = 'pass';
@@ -62,4 +61,3 @@ exports.handler = async (event, context) => {
   };
   return {status: 'ok', result: result}
 };
- 
