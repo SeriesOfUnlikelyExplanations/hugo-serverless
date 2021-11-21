@@ -43,7 +43,10 @@ exports.handler = async (event, context) => {
       '/OnwardBlog/siteName',
       '/OnwardBlog/datasyncWebsiteTask',
       '/OnwardBlog/datasyncSourceTask',
-      '/OnwardBlog/distID'
+      '/OnwardBlog/distID',
+      '/AlwaysOnward/noReplyEmail',
+      '/AlwaysOnward/emailsTable',
+      '/AlwaysOnward/myEmail'
     ]}).promise();
     if (event.resources[0].includes(ssmData.Parameters.find(p => p.Name ==='/OnwardBlog/datasyncWebsiteTask').Value)) {
       console.log('Website Datasync task was the one completed. Starting cloudfront Invalidation...');
@@ -65,7 +68,7 @@ exports.handler = async (event, context) => {
       }
       result = sendEmail(brokenLinks,'https://' + ssmData.Parameters.find(p => p.Name === '/OnwardBlog/siteName').Value, email);
     } else if (event.resources[0].includes(ssmData.Parameters.find(p => p.Name ==='/OnwardBlog/datasyncSourceTask').Value)){
-      console.log('Emptying the website bucket so it is ready for deployment...');
+      console.log('Source Datasync task completed. Emptying the website bucket so it is ready for deployment...');
       Bucket = ssmData.Parameters.find(p => p.Name === '/OnwardBlog/siteName').Value;
       var s3 = new AWS.S3();
       const { Contents } = await s3.listObjects({ Bucket }).promise();
@@ -79,10 +82,14 @@ exports.handler = async (event, context) => {
           })
           .promise();
       }
+      console.log('Website Bucket has been emptied.');
     } else {
       console.log('Datalink task not supported');
-      result = 'pass';
+      result = 'Fail';
     };
+  } else {
+    console.log('Event not supported');
+    result = 'Fail';
   };
   return {status: 'ok', result: result}
 };
