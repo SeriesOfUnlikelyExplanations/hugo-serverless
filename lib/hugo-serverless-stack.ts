@@ -159,8 +159,8 @@ export class HugoServerlessStack extends cdk.Stack {
       functionName: 'hugoServerlessLambda',
       code: Code.fromAsset('adminLambda'),
       handler: 'index.handler',
-      memorySize: 512,
-      timeout: cdk.Duration.seconds(240),
+      memorySize: 128 ,
+      timeout: cdk.Duration.seconds(600),
       runtime: Runtime.NODEJS_14_X,
       retryAttempts: 0,
     });
