@@ -50,10 +50,19 @@ exports.handler = async (event, context) => {
       await invalidate(cloudfront, ssmData.Parameters.find(p => p.Name === '/OnwardBlog/distID').Value);
 
       console.log('Invalidation complete. Starting the broken link checker...')
-      const result = await checkBrokenLinks('https://' + ssmData.Parameters.find(p => p.Name === '/OnwardBlog/siteName').Value);
+      const brokenLinks = await checkBrokenLinks('https://' + ssmData.Parameters.find(p => p.Name === '/OnwardBlog/siteName').Value);
       console.log('Broken Link Checker complete.');
-      console.log(result);
-           
+      console.log(brokenLinks);
+      const ddb = new AWS.DynamoDB({signatureVersion: 'v4', region: event.awsRegion})
+      email = { 
+        fromEmail: ssmData.Parameters.find(p => p.Name === '/AlwaysOnward/noReplyEmail').Value,
+        toEmail: await ddb.getItem({
+          Key: { 'listId': {'S': 'OnwardBlog' } },
+          TableName: ssmData.Parameters.find(p => p.Name === '/AlwaysOnward/emailsTable').Value
+        }).promise().then((r) => r.Item.emails.L.map(a => a.M.email.S)),
+        adminEmail: ssmData.Parameters.find(p => p.Name === '/AlwaysOnward/myEmail').Value
+      }
+      result = sendEmail(brokenLinks,'https://' + ssmData.Parameters.find(p => p.Name === '/OnwardBlog/siteName').Value, email);
     } else {
       console.log('Datalink task not supported');
       result = 'pass';

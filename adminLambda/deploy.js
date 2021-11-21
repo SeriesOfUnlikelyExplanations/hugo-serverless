@@ -19,32 +19,26 @@ async function checkBrokenLinks(site) {
   })
 };
 
-async function sendEmail(uniqueLinks, site, fromEmail, toEmail, adminEmail) {
+async function sendEmail(uniqueLinks, site, email) {
   //Send an email to either me (if there are broken links) or to everyone with a link to the new post
   var html, toEmail, subject
-  var emailParams = { Source: ssmData.Parameters.find(p => p.Name === '/AlwaysOnward/noReplyEmail').Value };
+  var emailParams = { Source: email.fromEmail };
   console.log('Broken Links:')
   console.log(uniqueLinks)
   if (uniqueLinks.length === 0) {
     //create email for everyone
     let parser = new Parser({ customFields: {item: ['image','subtitle']}});
 
-    let feed = await parser.parseURL('https://' + ssmData.Parameters.find(p => p.Name === '/OnwardBlog/siteName').Value + '/atom.xml');
+    let feed = await parser.parseURL('https://' + ssmData.Parameters.find(p => p.Name === '/OnwardBlog/siteName').Value + '/index.xml');
     const { template, errors } = mustacheMjml(fs.readFileSync('./template.mjml').toString());
     console.log('template warnings', errors);
 
     html = template(feed);
-
-    const ddb = new AWS.DynamoDB({signatureVersion: 'v4', region: event.awsRegion})
-    toEmail = await ddb.getItem({
-      Key: { 'listId': {'S': 'OnwardBlog' } },
-      TableName: ssmData.Parameters.find(p => p.Name === '/AlwaysOnward/emailsTable').Value
-    }).promise().then((r) => r.Item.emails.L.map(a => a.M.email.S))
-
+    toEmail = email.toEmail
     subject = 'Always-Onward - a new Blog Post is available to view';
   } else {
     html = "Blog has broken links - blog email not sent<br><br>" + uniqueLinks.join('<br>');
-    toEmail = [ ssmData.Parameters.find(p => p.Name === '/AlwaysOnward/myEmail').Value ]
+    toEmail = [ email.adminEmail ]
     subject = 'Broken Links';
   }
   console.log(html);
