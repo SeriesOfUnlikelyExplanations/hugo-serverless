@@ -179,6 +179,12 @@ export class HugoServerlessStack extends cdk.Stack {
         'ec2:DescribeInstances',
         'ec2:AttachNetworkInterface'],
     }))
+    // Allwo Lambda to invalidate cloudfront
+    handler.addToRolePolicy(new PolicyStatement({
+      resources: ['*'],
+      actions: ['cloudfront:CreateInvalidation'],
+    }))
+    
     // Allow Lambda to get SSM parameters
     handler.addToRolePolicy(new PolicyStatement({
       resources: [`arn:aws:ssm:${props.env?.region}:${props.env?.account}:parameter/AlwaysOnward/*`,
