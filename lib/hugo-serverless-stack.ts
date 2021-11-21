@@ -164,6 +164,7 @@ export class HugoServerlessStack extends cdk.Stack {
       runtime: Runtime.NODEJS_14_X,
       retryAttempts: 0,
     });
+    websiteBucket.grantReadWrite(handler);
     //allow lambda to trigger dataSync
     handler.addToRolePolicy(new PolicyStatement({
       resources: [dsSourceTask.attrTaskArn,

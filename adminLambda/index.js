@@ -1,11 +1,12 @@
 const AWS = require('aws-sdk');
-const { checkBrokenLinks, invalidate } = require('./deploy.js');
+const { checkBrokenLinks, invalidate, sendEmail } = require('./deploy.js');
 
 exports.handler = async (event, context) => {
   console.log(event);
   var result;
   if (event.hasOwnProperty('Records') && event.Records[0].eventName == 'ObjectCreated:Put') {
     console.log('Source bucket has been updated - starting Source Datasync task...');
+    console.log(event.Records[0].s3);
     AWS.config.update({region: event.Records[0].awsRegion})
     var ssm = new AWS.SSM();
     var ssmData = await ssm.getParameters({Names: ['/OnwardBlog/datasyncSourceTask']}).promise();
