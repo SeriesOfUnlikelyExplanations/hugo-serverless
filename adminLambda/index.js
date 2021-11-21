@@ -42,6 +42,7 @@ exports.handler = async (event, context) => {
     var ssmData = await ssm.getParameters({Names: [
       '/OnwardBlog/siteName',
       '/OnwardBlog/datasyncWebsiteTask',
+      '/OnwardBlog/datasyncSourceTask',
       '/OnwardBlog/distID'
     ]}).promise();
     if (event.resources[0].includes(ssmData.Parameters.find(p => p.Name ==='/OnwardBlog/datasyncWebsiteTask').Value)) {
@@ -63,6 +64,21 @@ exports.handler = async (event, context) => {
         adminEmail: ssmData.Parameters.find(p => p.Name === '/AlwaysOnward/myEmail').Value
       }
       result = sendEmail(brokenLinks,'https://' + ssmData.Parameters.find(p => p.Name === '/OnwardBlog/siteName').Value, email);
+    } else if (event.resources[0].includes(ssmData.Parameters.find(p => p.Name ==='/OnwardBlog/datasyncSourceTask').Value)){
+      console.log('Emptying the website bucket so it is ready for deployment...');
+      Bucket = ssmData.Parameters.find(p => p.Name === '/OnwardBlog/siteName').Value;
+      var s3 = new AWS.S3();
+      const { Contents } = await s3.listObjects({ Bucket }).promise();
+      if (Contents.length > 0) {
+        await s3
+          .deleteObjects({
+            Bucket,
+            Delete: {
+              Objects: Contents.map(({ Key }) => ({ Key }))
+            }
+          })
+          .promise();
+      }
     } else {
       console.log('Datalink task not supported');
       result = 'pass';
