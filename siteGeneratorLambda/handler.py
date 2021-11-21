@@ -1,8 +1,8 @@
 import subprocess, os, logging, boto3, json
 
 # Environment variables
-LOCAL_SOURCE_DIR = '/mnt/hugo/source'
-LOCAL_BUILD_DIR = '/mnt/hugo//source/public'
+LOCAL_SOURCE_DIR = '/mnt/hugo'
+LOCAL_BUILD_DIR = '/mnt/hugo/public'
 
 # Setting up a logger with a more readable format
 logger = logging.getLogger()
@@ -52,10 +52,10 @@ def lambda_handler(event, context):
     logger.info("Completed invoking admin Lambda.")
   else:
     logger.info("Website Datasync Task. Deleting the EFS directory...")
-    run_command('rm -r {0}'.format(LOCAL_SOURCE_DIR))
     
-    for f in ['archetypes', 'config', 'content', 'package.json','package-lock.json','public','README.md','resources','scripts','themes']:
-      run_command('rm -r /mnt/hugo/'+f)
+    for f in os.listdir(LOCAL_SOURCE_DIR):
+       logger.info(f)
+      run_command('rm -r {0}/{1}'.format(LOCAL_SOURCE_DIR, f)
     
     logger.info('Checking to see if it was deleted...')
     run_command('ls -n {}'.format(LOCAL_SOURCE_DIR))
