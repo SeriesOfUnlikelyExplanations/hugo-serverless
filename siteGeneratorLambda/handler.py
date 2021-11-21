@@ -54,7 +54,7 @@ def lambda_handler(event, context):
     logger.info("Website Datasync Task. Deleting the EFS directory...")
     
     for f in os.listdir(LOCAL_SOURCE_DIR):
-       logger.info(f)
+      logger.info(f)
       run_command('rm -r {0}/{1}'.format(LOCAL_SOURCE_DIR, f)
     
     logger.info('Checking to see if it was deleted...')
