@@ -55,7 +55,7 @@ def lambda_handler(event, context):
     
     for f in os.listdir(LOCAL_SOURCE_DIR):
       logger.info(f)
-      run_command('rm -r {0}/{1}'.format(LOCAL_SOURCE_DIR, f)
+      run_command('rm -r {0}/{1}'.format(LOCAL_SOURCE_DIR, f))
     
     logger.info('Checking to see if it was deleted...')
     run_command('ls -n {}'.format(LOCAL_SOURCE_DIR))
