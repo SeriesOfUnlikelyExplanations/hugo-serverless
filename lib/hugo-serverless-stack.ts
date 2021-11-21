@@ -202,6 +202,11 @@ export class HugoServerlessStack extends cdk.Stack {
             LambdaFunctionConfigurations: [{
               Events: ['s3:ObjectCreated:*'],
               LambdaFunctionArn: handler.functionArn
+              Filter: {
+                Key: {
+                  FilterRules: [{ Name: 'suffix', Value: 'md' }]
+                }
+              }
             }]
           }
         },
