@@ -182,7 +182,8 @@ export class HugoServerlessStack extends cdk.Stack {
     // Allwo Lambda to invalidate cloudfront
     handler.addToRolePolicy(new PolicyStatement({
       resources: ['*'],
-      actions: ['cloudfront:CreateInvalidation'],
+      actions: ['cloudfront:CreateInvalidation',
+        'cloudfront:GetInvalidation'],
     }))
     
     // Allow Lambda to get SSM parameters
