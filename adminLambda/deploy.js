@@ -59,15 +59,13 @@ async function sendEmail(uniqueLinks, site, email) {
       Data: subject
     }
   }
-  if (event.sendEmail == 'Y') {
-    for (const email of toEmail) {
-      emailParams.Destination = { ToAddresses: [ email ]}
-      await new AWS.SES().sendEmail(emailParams).promise().then((data) => {
-        console.log(data.MessageId);
-      }).catch((err) => {
-        console.error(err, err.stack);
-      });
-    }
+  for (const email of toEmail) {
+    emailParams.Destination = { ToAddresses: [ email ]}
+    await new AWS.SES().sendEmail(emailParams).promise().then((data) => {
+      console.log(data.MessageId);
+    }).catch((err) => {
+      console.error(err, err.stack);
+    });
   }
 };
 
