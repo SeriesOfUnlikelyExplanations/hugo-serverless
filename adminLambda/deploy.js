@@ -77,11 +77,11 @@ async function sendEmail(uniqueLinks, site, fromEmail, toEmail, adminEmail) {
   }
 };
 
-async function invalidate(cloudfront, distId) {
+async function invalidate(cf, distId) {
   async function _check(cf, distId, id) {
-    const r = await cf
-      .getInvalidation({ DistributionId: distId, Id: id })
-      .promise()
+    const r = await cf.getInvalidation({ 
+      DistributionId: distId, Id: id 
+    }).promise()
     console.log(r);
     if (r.Invalidation && r.Invalidation.Status === 'Completed') {
       await new Promise(resolve => setTimeout(resolve, 10000));
@@ -90,7 +90,7 @@ async function invalidate(cloudfront, distId) {
     await new Promise(resolve => setTimeout(resolve, 1000));
     return check(cf, distId, id)
   }
-  const r = await cloudfront.createInvalidation({
+  const r = await cf.createInvalidation({
     DistributionId: distId,
     InvalidationBatch: {
       CallerReference: new Date().toISOString(),
@@ -106,7 +106,7 @@ async function invalidate(cloudfront, distId) {
     console.log(r)
     throw new Error('Bad response')
   }
-  return await _check(distId, r.Invalidation.Id)
+  return await _check(cf, distId, r.Invalidation.Id)
 }
 
 
