@@ -88,7 +88,7 @@ async function invalidate(cf, distId) {
       return true
     }
     await new Promise(resolve => setTimeout(resolve, 1000));
-    return check(cf, distId, id)
+    return _check(cf, distId, id)
   }
   const r = await cf.createInvalidation({
     DistributionId: distId,
