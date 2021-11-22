@@ -195,7 +195,7 @@ export class HugoServerlessStack extends cdk.Stack {
     }))
     
     // Create the s3 trigger
-    const rsrc = new AwsCustomResource(this, 'S3Notification', {
+    const rsrc = new AwsCustomResource(this, 'SourceS3Notification', {
       policy: AwsCustomResourcePolicy.fromStatements([new PolicyStatement({
         actions: ["S3:PutBucketNotification"],
         resources: [sourceBucket.bucketArn],
