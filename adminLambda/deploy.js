@@ -25,6 +25,7 @@ async function sendEmail(uniqueLinks, site, email, ses) {
   var emailParams = { Source: email.fromEmail };
   if (uniqueLinks.length === 0) {
     //create email for everyone
+    console.log('Parsing RSS feed for email...');
     let parser = new Parser({ customFields: {item: ['featureImage']}});
 
     let feed = await parser.parseURL('https://' + site + '/index.xml');
