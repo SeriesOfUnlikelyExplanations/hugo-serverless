@@ -27,9 +27,10 @@ async function sendEmail(uniqueLinks, site, email, ses) {
   console.log(uniqueLinks)
   if (uniqueLinks.length === 0) {
     //create email for everyone
-    let parser = new Parser({ customFields: {item: ['image','subtitle']}});
+    let parser = new Parser({ customFields: {item: ['featureImage']}});
 
     let feed = await parser.parseURL('https://' + site + '/index.xml');
+    console.log(feed);
     const { template, errors } = mustacheMjml(fs.readFileSync('./template.mjml').toString());
     console.log('template warnings', errors);
 
