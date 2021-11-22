@@ -28,7 +28,7 @@ async function sendEmail(uniqueLinks, site, email, ses) {
     console.log('Parsing RSS feed for email...');
     let parser = new Parser({ customFields: {item: ['featureImage']}});
 
-    let feed = await parser.parseURL('https://' + site + '/index.xml');
+    let feed = await parser.parseURL(site + '/index.xml');
     console.log(feed);
     const { template, errors } = mustacheMjml(fs.readFileSync('./template.mjml').toString());
     console.log('template warnings', errors);
