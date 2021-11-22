@@ -29,7 +29,7 @@ async function sendEmail(uniqueLinks, site, email, ses) {
     //create email for everyone
     let parser = new Parser({ customFields: {item: ['image','subtitle']}});
 
-    let feed = await parser.parseURL('https://' + ssmData.Parameters.find(p => p.Name === '/OnwardBlog/siteName').Value + '/index.xml');
+    let feed = await parser.parseURL('https://' + site + '/index.xml');
     const { template, errors } = mustacheMjml(fs.readFileSync('./template.mjml').toString());
     console.log('template warnings', errors);
 
