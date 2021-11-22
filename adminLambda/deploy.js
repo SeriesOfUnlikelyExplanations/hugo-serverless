@@ -19,7 +19,7 @@ async function checkBrokenLinks(site) {
   })
 };
 
-async function sendEmail(uniqueLinks, site, email) {
+async function sendEmail(uniqueLinks, site, email, ses) {
   //Send an email to either me (if there are broken links) or to everyone with a link to the new post
   var html, toEmail, subject
   var emailParams = { Source: email.fromEmail };
@@ -61,7 +61,7 @@ async function sendEmail(uniqueLinks, site, email) {
   }
   for (const email of toEmail) {
     emailParams.Destination = { ToAddresses: [ email ]}
-    await new AWS.SES().sendEmail(emailParams).promise().then((data) => {
+    await ses.sendEmail(emailParams).promise().then((data) => {
       console.log(data.MessageId);
     }).catch((err) => {
       console.error(err, err.stack);
