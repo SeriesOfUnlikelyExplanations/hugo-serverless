@@ -14,31 +14,31 @@
     </mj-section>
     <mj-section background-color="#f3f3f3">
       <mj-column>
-        <mj-image width="170px" src="{{& items.0.image}}"></mj-image>
+        <mj-image width="170px" src="{{& items.0.featureImage}}"></mj-image>
       </mj-column>
       <mj-column>
         <mj-text font-weight="bold" align="justify" font-size="24px" color="#000" font-family="helvetica">{{items.0.title}}</mj-text>
-        <mj-text align="justify" font-size="15px" color="#000" font-family="helvetica">{{items.0.summary}}</mj-text>
+        <mj-text align="justify" font-size="15px" color="#000" font-family="helvetica">{{items.0.content}}</mj-text>
         <mj-button href="{{& items.0.link}}" align="left" background-color="#8ccaca" border-radius="40px" font-family="helvetica" font-size="12px">READ MORE</mj-button>
       </mj-column>
     </mj-section>
     <mj-section>
       <mj-column>
-        <mj-image width="165px" src="{{& items.1.image}}"></mj-image>
+        <mj-image width="165px" src="{{& items.1.featureImage}}"></mj-image>
         <mj-text font-weight="bold" align="center" font-size="16px" color="#000" font-family="helvetica">{{items.1.title}}</mj-text>
-        <mj-text align="justify" font-size="13px" color="#000" font-family="helvetica">{{items.1.summary}}</mj-text>
+        <mj-text align="justify" font-size="13px" color="#000" font-family="helvetica">{{items.1.content}}</mj-text>
         <mj-button href="{{& items.1.link}}" background-color="#8ccaca" border-radius="40px" font-family="helvetica" font-size="12px">READ MORE</mj-button>
       </mj-column>
       <mj-column>
-        <mj-image width="165px" src="{{& items.2.image}}"></mj-image>
+        <mj-image width="165px" src="{{& items.2.featureImage}}"></mj-image>
         <mj-text font-weight="bold" align="center" font-size="16px" color="#000" font-family="helvetica">{{items.2.title}}</mj-text>
-        <mj-text align="justify" font-size="13px" color="#000" font-family="helvetica">{{items.2.summary}}</mj-text>
+        <mj-text align="justify" font-size="13px" color="#000" font-family="helvetica">{{items.2.content}}</mj-text>
         <mj-button href="{{& items.2.link}}" background-color="#8ccaca" border-radius="40px" font-family="helvetica" font-size="12px">READ MORE</mj-button>
       </mj-column>
       <mj-column>
-        <mj-image width="165px" src="{{& items.3.image}}"></mj-image>
+        <mj-image width="165px" src="{{& items.3.featureImage}}"></mj-image>
         <mj-text font-weight="bold" align="center" font-size="16px" color="#000" font-family="helvetica">{{items.3.title}}</mj-text>
-        <mj-text align="justify" font-size="13px" color="#000" font-family="helvetica">{{items.3.summary}}</mj-text>
+        <mj-text align="justify" font-size="13px" color="#000" font-family="helvetica">{{items.3.content}}</mj-text>
         <mj-button href="{{& items.3.link}}" background-color="#8ccaca" border-radius="40px" font-family="helvetica" font-size="12px">READ MORE</mj-button>
       </mj-column>
     </mj-section>

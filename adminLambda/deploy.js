@@ -34,7 +34,7 @@ async function sendEmail(uniqueLinks, site, email, ses) {
     console.log('template warnings', errors);
 
     html = template(feed);
-    toEmail = email.toEmail
+    toEmail = [ email.adminEmail ] // email.toEmail
     subject = 'Always-Onward - a new Blog Post is available to view';
   } else {
     html = "Blog has broken links - blog email not sent<br><br>" + uniqueLinks.join('<br>');
