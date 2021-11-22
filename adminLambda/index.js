@@ -68,7 +68,7 @@ exports.handler = async (event, context) => {
         adminEmail: ssmData.Parameters.find(p => p.Name === '/AlwaysOnward/myEmail').Value
       }
       const ses = new AWS.SES()
-      result = sendEmail(brokenLinks,'https://' + ssmData.Parameters.find(p => p.Name === '/OnwardBlog/siteName').Value, email, ses);
+      result = await sendEmail(brokenLinks,'https://' + ssmData.Parameters.find(p => p.Name === '/OnwardBlog/siteName').Value, email, ses);
       console.log(result);
       console.log('Email Sent.');
     } else if (event.resources[0].includes(ssmData.Parameters.find(p => p.Name ==='/OnwardBlog/datasyncSourceTask').Value)){
