@@ -67,9 +67,9 @@ exports.handler = async (event, context) => {
         }).promise().then((r) => r.Item.emails.L.map(a => a.M.email.S)),
         adminEmail: ssmData.Parameters.find(p => p.Name === '/AlwaysOnward/myEmail').Value
       }
-      
       const ses = new AWS.SES()
       result = sendEmail(brokenLinks,'https://' + ssmData.Parameters.find(p => p.Name === '/OnwardBlog/siteName').Value, email, ses);
+      console.log(result);
       console.log('Email Sent.');
     } else if (event.resources[0].includes(ssmData.Parameters.find(p => p.Name ==='/OnwardBlog/datasyncSourceTask').Value)){
       console.log('Source Datasync task completed. Emptying the website bucket so it is ready for deployment...');

@@ -23,8 +23,6 @@ async function sendEmail(uniqueLinks, site, email, ses) {
   //Send an email to either me (if there are broken links) or to everyone with a link to the new post
   var html, toEmail, subject
   var emailParams = { Source: email.fromEmail };
-  console.log('Broken Links:')
-  console.log(uniqueLinks)
   if (uniqueLinks.length === 0) {
     //create email for everyone
     let parser = new Parser({ customFields: {item: ['featureImage']}});
