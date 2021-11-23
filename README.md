@@ -11,11 +11,6 @@ I've deployed it and it works for my purpose, but I haven't tried it with someon
 1. After this second Datasync job is complete, a cloudfront invalidation is run to clear out the cache and your website is live. 
 1. Once the invalidation is complete, the smaller lambda triggers a broken link checker on the website to make sure all the links/images work. If this fails, and email is sent to you with a list of the broken links. If it succeeds (eg no broken links) then an email is sent to everyone in your dynamo DB distro list that highlights the last 4 blog posts.
 
-### Couple of notes about how it works:
-1. 
-1. The project extensively uses AWS [SSM parameter store]{https://docs.aws.amazon.com/systems-manager/latest/userguide/systems-manager-parameter-store.html} for parameters. You will need to put some of your secrets in there before you start this project.
-1. The project uses github actions to run CDK/build the website. Check the build file in the github folder to see how it works. You will need to use github secrets for AWS credentials if you want to go that route.
-
 ### Config file
 There is a config.toml file in the root of the project that houses all of the configuration stuff. I added some comments in the file on how to use them, but more info is here:
 1. region - AWS region you want to deploy to
@@ -45,6 +40,13 @@ There is a config.toml file in the root of the project that houses all of the co
  ]
 }
 ```
+
+### Couple of other notes about how it works:
+1. 1. The project extensively uses AWS [SSM parameter store]{https://docs.aws.amazon.com/systems-manager/latest/userguide/systems-manager-parameter-store.html} for parameters. You will need to put some of your secrets in there before you start this project.
+1. The project uses github actions to run CDK/build the website. Check the build file in the github folder to see how it works. You will need to use github secrets for AWS credentials if you want to go that route.
+
+Good luck! Please reach out if you want to give it a try!
+
 TODO:
 - [ ] Add 404 error page
 - [ ] Delete cloudwatch logs on deploy
