@@ -58,6 +58,7 @@ export class HugoServerlessStack extends cdk.Stack {
       publicReadAccess: true,
     });
     //Create the cloudfront distribution to cache the bucket
+    const certificateArn = StringParameter.valueForStringParameter(this, config.deploy.certificateArnSSM)
     const distribution = new CloudFrontWebDistribution(this, config.deploy.siteName + '-cfront', {
       originConfigs: [
         {
@@ -69,7 +70,7 @@ export class HugoServerlessStack extends cdk.Stack {
         }
       ],
       aliasConfiguration: {
-        acmCertRef: config.deploy.certificateArn,
+        acmCertRef: certificateArn,
         names: [config.deploy.siteName]
       }
     });
@@ -301,8 +302,9 @@ export class HugoServerlessStack extends cdk.Stack {
     });
    
     // setup route53 for website
+    const hostedZoneId = StringParameter.valueForStringParameter(this, config.deploy.hostedZoneIdSSM)
     const myHostedZone = HostedZone.fromHostedZoneAttributes(this, config.deploy.siteName + '-hosted-zone', {
-      hostedZoneId: config.deploy.hostedZoneId,
+      hostedZoneId: hostedZoneId,
       zoneName: config.deploy.zoneName,
     });
 
