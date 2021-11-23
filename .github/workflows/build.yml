@@ -23,9 +23,9 @@ jobs:
       - name: Configure NPM
         run: |
           npm install
-          cd adminLambda
+          cd functions/adminLambda
           npm install --production
-          cd ../siteGeneratorLambda
+          cd ../functions/siteGeneratorLambda
           pip install pipenv
           pipenv install
           cp -r $(pipenv --venv)/lib/python3.8/site-packages/. .
