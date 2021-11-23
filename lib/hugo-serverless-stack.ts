@@ -20,9 +20,10 @@ const config = toml.parse(fs.readFileSync('./config.toml', 'utf-8'));
 export class HugoServerlessStack extends cdk.Stack {
   constructor(scope: cdk.App, id: string, props: cdk.StackProps) {
     super(scope, id, props);
+    var sourceBucket;
     if (config.deploy.createNew) {
       //~ //Create a bucket to cache the source info for Hugo
-      const sourceBucket = new Bucket(this, 'Hugo Serverless Source', {
+      sourceBucket = new Bucket(this, 'Hugo Serverless Source', {
         bucketName: config.deploy.siteName+'-source',
         versioned: true,
         blockPublicAccess: BlockPublicAccess.BLOCK_ALL,
@@ -32,7 +33,7 @@ export class HugoServerlessStack extends cdk.Stack {
         }],
       });
     } else {
-      const sourceBucket = Bucket.fromBucketName(this, 'imported-bucket-from-name',
+      sourceBucket = Bucket.fromBucketName(this, 'imported-bucket-from-name',
         config.deploy.siteName+'-source',
       );
     }

@@ -4,7 +4,7 @@ Hugo deployment package for static site generation through serverless. This proj
 I've deployed it and it works for my purpose, but I haven't tried it with someone new/fresh install yet. If you want to give it a try, I'm happy to support you - open an issue if you run into any problems. 
 
 ### How to edit your website:
-1. The CDK process creates a s3 bucket called {your site name}-Source. That bucket is where your Hugo website source directory goes. Making changes or uploading any new '.md' files to the S3 bucket will start the website build process.
+1. The CDK process creates a s3 bucket called {your site name}-Source. That bucket is where your Hugo website source directory goes. Making changes or uploading any new '.md' files to the S3 bucket will start the website build process. My [blog repo]() is an example of what needs to go in the source S3 bucket
 1. The build process starts with a AWS Datasync task to move everything in the source S3 bucket into an [EFS drive](https://aws.amazon.com/efs/). I use EFS because the available lambda memory is too small for a bigger blog (mine is 4.3GB).
 1. Once this first datasync job is complete, the build lambda is triggered. This lambda is a bit bigger (default is 5240 MB of memory, but you can change it in the config file). This lambda is strictly used for building the HUGO site and it runs in a VPC with the EFS drive. 
 1. Once build is complete, a second Datasync job is kicked off to move the build output into an S3 bucket that hosts the website. The bucket has the same name as your website. CDK has already provisioned a cloudfront link to this S3 bucket and created the necessary route53 rules to make the website go live.
