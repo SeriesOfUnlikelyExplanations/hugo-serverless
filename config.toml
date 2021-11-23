@@ -7,5 +7,6 @@ zoneName = 'always-onward.com'
 createNew = false
 
 [email]
-noReplyEmailSSM = ''
-emailDynamoSSM = ''
+noReplyEmailSSM = '/AlwaysOnward/noReplyEmail'
+emailDynamoSSM = '/AlwaysOnward/emailsTable'
+myEmailSSM = '/AlwaysOnward/myEmail'
