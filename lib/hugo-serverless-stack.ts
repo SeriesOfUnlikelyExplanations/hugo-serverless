@@ -192,8 +192,7 @@ export class HugoServerlessStack extends cdk.Stack {
     
     // Allow Lambda to get SSM parameters
     handler.addToRolePolicy(new PolicyStatement({
-      resources: [`arn:aws:ssm:${props.env?.region}:${props.env?.account}:parameter/AlwaysOnward/*`,
-        `arn:aws:ssm:${props.env?.region}:${props.env?.account}:parameter/OnwardBlog/*`],
+      resources: [`arn:aws:ssm:${props.env?.region}:${props.env?.account}:parameter/hugoServerless/*`],
       actions: ['ssm:GetParameters'],
     }))
     
@@ -233,7 +232,7 @@ export class HugoServerlessStack extends cdk.Stack {
     rsrc.node.addDependency(handler.permissionsNode.findChild('AllowS3Invocation'));
     
     //Lambda permisions for DynamoDB
-    const emailsTable = StringParameter.valueForStringParameter(this, '/AlwaysOnward/emailsTable');
+    const emailsTable = StringParameter.valueForStringParameter(this, config.email.emailDynamoSSM);
     handler.addToRolePolicy(new PolicyStatement({
       resources: [`arn:aws:dynamodb:${props.env?.region}:${props.env?.account}:table/${emailsTable}`],
       actions: ["dynamodb:GetItem",
@@ -243,7 +242,6 @@ export class HugoServerlessStack extends cdk.Stack {
     }));
     
     //Let Lambda send email
-    const noreplyemail = StringParameter.valueForStringParameter(this, '/AlwaysOnward/noReplyEmail');
     handler.addToRolePolicy(new PolicyStatement({
       resources: ['arn:aws:ses:us-west-2:718523126320:identity/'+config.deploy.zoneName],
       actions: ['ses:SendEmail', 'ses:SendRawEmail'],
@@ -254,8 +252,8 @@ export class HugoServerlessStack extends cdk.Stack {
       functionName: `hugoServerlessVpcLambda`,
       code: Code.fromAsset('functions/siteGeneratorLambda'),
       handler: 'handler.lambda_handler',
-      memorySize: 5240,
-      timeout: cdk.Duration.seconds(500),
+      memorySize: config.deploy.buildMemory,
+      timeout: cdk.Duration.seconds(600),
       runtime: Runtime.PYTHON_3_7,
       retryAttempts: 0,
       vpc: vpc,
@@ -286,8 +284,7 @@ export class HugoServerlessStack extends cdk.Stack {
 
     // Allow Lambda to get SSM parameters
     vpcHandler.addToRolePolicy(new PolicyStatement({
-      resources: [`arn:aws:ssm:${props.env?.region}:${props.env?.account}:parameter/AlwaysOnward/*`,
-        `arn:aws:ssm:${props.env?.region}:${props.env?.account}:parameter/OnwardBlog/*`],
+      resources: [`arn:aws:ssm:${props.env?.region}:${props.env?.account}:parameter/hugoServerless/*`],
       actions: ['ssm:GetParameters', 'ssm:GetParameter'],
     }))
     
@@ -315,33 +312,47 @@ export class HugoServerlessStack extends cdk.Stack {
     });
 
     new StringParameter(this, "distID", {
-      parameterName: '/OnwardBlog/distID',
+      parameterName: '/hugoServerless/distID',
       stringValue: distribution.distributionId,
     });
     new StringParameter(this, "sourceBucket", {
-      parameterName: '/OnwardBlog/sourceBucket',
+      parameterName: '/hugoServerless/sourceBucket',
       stringValue: sourceBucket.bucketName,
     });
     new StringParameter(this, "deploymentLambda", {
-      parameterName: '/OnwardBlog/deploymentLambda',
+      parameterName: '/hugoServerless/deploymentLambda',
       stringValue: vpcHandler.functionName,
     });
     new StringParameter(this, "routingLambda", {
-      parameterName: '/OnwardBlog/routingLambda',
+      parameterName: '/hugoServerless/routingLambda',
       stringValue: handler.functionName,
     });
     new StringParameter(this, "siteName", {
-      parameterName: '/OnwardBlog/siteName',
+      parameterName: '/hugoServerless/siteName',
       stringValue: config.deploy.siteName,
     });
     new StringParameter(this, "datasyncSourceTask", {
-      parameterName: '/OnwardBlog/datasyncSourceTask',
+      parameterName: '/hugoServerless/datasyncSourceTask',
       stringValue: dsSourceTask.attrTaskArn,
     });
     new StringParameter(this, "datasyncWebsiteTask", {
-      parameterName: '/OnwardBlog/datasyncWebsiteTask',
+      parameterName: '/hugoServerless/datasyncWebsiteTask',
       stringValue: dsWebsiteTask.attrTaskArn,
     });
+    new StringParameter(this, "emailDynamoSSM", {
+      parameterName: '/hugoServerless/emailDynamoSSM',
+      stringValue: emailsTable,
+    });
     
+    const noReplyEmail = StringParameter.valueForStringParameter(this, config.email.noReplyEmailSSM)
+    new StringParameter(this, "noReplyEmail", {
+      parameterName: '/hugoServerless/noReplyEmail',
+      stringValue: noReplyEmail,
+    });
+    const myEmailSSM = StringParameter.valueForStringParameter(this, config.email.myEmailSSM)
+    new StringParameter(this, "myEmailSSM", {
+      parameterName: '/hugoServerless/myEmailSSM',
+      stringValue: myEmailSSM,
+    });   
   }
 }

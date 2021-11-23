@@ -1,12 +1,13 @@
 [deploy]
-region = 'us-west-2'
-certificateArnSSM = '/AlwaysOnward/certificateArn'
-hostedZoneIdSSM = '/AlwaysOnward/hostedZoneId'
-siteName = 'blog.always-onward.com'
-zoneName = 'always-onward.com'
-createNew = false
+region = 'us-west-2' # AWS region you want to deploy to
+certificateArnSSM = '/AlwaysOnward/certificateArn' # SSM parameter name where you store your route53 certificateARN
+hostedZoneIdSSM = '/AlwaysOnward/hostedZoneId' # SSM parameter name where you store your route53 hostedZoneID
+siteName = 'blog.always-onward.com' # Name of your site
+zoneName = 'always-onward.com' # name of your Zone. This is a route53 construct as well.
+buildMemory = 5240 # Memory size of the build lambda. Increase this for bigger websites.
+createNew = false # flag if you want CDK to create a new Source bucket or if you already have one.
 
-[email]
-noReplyEmailSSM = '/AlwaysOnward/noReplyEmail'
-emailDynamoSSM = '/AlwaysOnward/emailsTable'
-myEmailSSM = '/AlwaysOnward/myEmail'
+[email] # relevant parameters for sending emails after new post is created. Delete/comment this section if you want to disable that feature.
+noReplyEmailSSM = '/AlwaysOnward/noReplyEmail' # email address you want to send the distro email from. You need to have SES configured to allow you to send from this email address.
+emailDynamoSSM = '/AlwaysOnward/emailsTable' # DynamoDB table where you store the email distro list.
+myEmailSSM = '/AlwaysOnward/myEmail' # Your email. This is where you will receive the email alert if there are broken links.
