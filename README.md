@@ -17,12 +17,34 @@ I've deployed it and it works for my purpose, but I haven't tried it with someon
 1. The project uses github actions to run CDK/build the website. Check the build file in the github folder to see how it works. You will need to use github secrets for AWS credentials if you want to go that route.
 
 ### Config file
-There is a config.toml file in the root of the project that houses all of the configuration stuff. I added some comments in the file on how to use it, but more info is here:
-1. 
+There is a config.toml file in the root of the project that houses all of the configuration stuff. I added some comments in the file on how to use them, but more info is here:
+1. region - AWS region you want to deploy to
+1. certificateArnSSM - name of the SSM parameter where you store your route53 certificateARN
+1. hostedZoneIdSSM - SSM parameter name where you store your route53 hostedZoneID
+1. siteName - Name of your site. This is used for a bunch of resource naming in addition to cloudfront/route53.
+1. zoneName - Name of your route53 Zone. This is a route53 construct as well.
+1. buildMemory - Memory size of the build lambda. Increase this for bigger websites. Max is [10GB](https://aws.amazon.com/about-aws/whats-new/2020/12/aws-lambda-supports-10gb-memory-6-vcpu-cores-lambda-functions/#:~:text=AWS%20Lambda%20customers%20can%20now,previous%20limit%20of%203%2C008%20MB.)
+1. createNew -  flag if you want CDK to create a new Source bucket or if you already have one.
 
+1. noReplyEmailSSM - SSM parameter where you store the email address you want to send the distro email from. You need to have SES configured to allow you to send from this email address.
+1. myEmailSSM - SSM parameter where you store your email. This is where you will receive the email alert if there are broken links.
+1. emailDynamoSSM - SSM parameter with the name of the DynamoDB table where you store the email distro list. The distro list needs to have one item with a key that matches your site name (we only use one item in the table). Sample data is below:
+
+{
+ "listId": "blog.always-onward.com",
+ "emails": [
+  {
+   "name": "XX",
+   "email": "XX@gmail.com"
+  },
+  {
+   "name": "YY",
+   "email": "YY@yahoo.com"
+  }
+ ]
+}
 
 TODO:
-Move email & deploy variables to toml file
-Add 404 error page
-Delete cloudwatch on deploy
-Add comment capability
+- [ ] Add 404 error page
+- [ ] Delete cloudwatch logs on deploy
+- [ ] Add comment capability
