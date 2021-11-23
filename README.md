@@ -30,7 +30,7 @@ There is a config.toml file in the root of the project that houses all of the co
 1. myEmailSSM - SSM parameter where you store your email. This is where you will receive the email alert if there are broken links.
 1. emailDynamoSSM - SSM parameter with the name of the DynamoDB table where you store the email distro list. The distro list needs to have one item with a key that matches your site name (we only use one item in the table). Sample data is below:
 
-``
+```
 {
  "listId": "blog.always-onward.com",
  "emails": [
@@ -44,7 +44,7 @@ There is a config.toml file in the root of the project that houses all of the co
   }
  ]
 }
-``
+```
 TODO:
 - [ ] Add 404 error page
 - [ ] Delete cloudwatch logs on deploy
