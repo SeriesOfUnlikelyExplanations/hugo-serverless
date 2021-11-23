@@ -157,7 +157,7 @@ export class HugoServerlessStack extends cdk.Stack {
     // Create the lambda for all of the backend support
     const handler = new Function(this, 'hugoServerlessLambda', {
       functionName: 'hugoServerlessLambda',
-      code: Code.fromAsset('adminLambda'),
+      code: Code.fromAsset('functions/adminLambda'),
       handler: 'index.handler',
       memorySize: 128 ,
       timeout: cdk.Duration.seconds(600),
@@ -249,7 +249,7 @@ export class HugoServerlessStack extends cdk.Stack {
     // Create the VPC lambda for Hugo generation
     const vpcHandler = new Function(this, 'hugoServerlessVpcLambda', {
       functionName: `hugoServerlessVpcLambda`,
-      code: Code.fromAsset('siteGeneratorLambda'),
+      code: Code.fromAsset('functions/siteGeneratorLambda'),
       handler: 'handler.lambda_handler',
       memorySize: 5240,
       timeout: cdk.Duration.seconds(500),
