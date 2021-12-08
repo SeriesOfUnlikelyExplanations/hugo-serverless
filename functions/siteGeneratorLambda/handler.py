@@ -31,7 +31,7 @@ def lambda_handler(event, context):
   logger.info("Getting SSM parameters...")
   region = event['region']
   ssm = boto3.client('ssm', region_name = region)
-  parameter = ssm.get_parameter(Name='/OnwardBlog/datasyncSourceTask', WithDecryption=True)
+  parameter = ssm.get_parameter(Name='/hugoServerless/datasyncSourceTask', WithDecryption=True)
   print(parameter['Parameter']['Value'])
   
   logger.info('Checking which task was completed...')
@@ -41,7 +41,7 @@ def lambda_handler(event, context):
     run_command("ls -l {0}".format(LOCAL_BUILD_DIR))
     
     logger.info("Build complete. Starting Website Datasync task through admin Lambda...")
-    lambdaFunction = ssm.get_parameter(Name='/OnwardBlog/routingLambda', WithDecryption=True)
+    lambdaFunction = ssm.get_parameter(Name='/hugoServerless/routingLambda', WithDecryption=True)
     d = {'action': 'deploy', 'region': region}
     func = boto3.client('lambda', region_name = region)
     response = func.invoke(
