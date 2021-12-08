@@ -46,8 +46,8 @@ exports.handler = async (event, context) => {
       '/hugoServerless/datasyncSourceTask',
       '/hugoServerless/distID',
       '/hugoServerless/noReplyEmail',
-      '/hugoServerless/emailsTable',
-      '/hugoServerless/myEmail'
+      '/hugoServerless/emailDynamoSSM',
+      '/hugoServerless/myEmailSSM'
     ]}).promise();
     if (event.resources[0].includes(ssmData.Parameters.find(p => p.Name ==='/hugoServerless/datasyncWebsiteTask').Value)) {
       console.log('Website Datasync task was the one completed. Starting cloudfront Invalidation...');
@@ -64,9 +64,9 @@ exports.handler = async (event, context) => {
           fromEmail: ssmData.Parameters.find(p => p.Name === '/hugoServerless/noReplyEmail').Value,
           toEmail: await ddb.getItem({
             Key: { 'listId': {'S': ssmData.Parameters.find(p => p.Name === '/hugoServerless/siteName').Value } },
-            TableName: ssmData.Parameters.find(p => p.Name === '/hugoServerless/emailsTable').Value
+            TableName: ssmData.Parameters.find(p => p.Name === '/hugoServerless/emailDynamoSSM').Value
           }).promise().then((r) => r.Item.emails.L.map(a => a.M.email.S)),
-          adminEmail: ssmData.Parameters.find(p => p.Name === '/hugoServerless/myEmail').Value
+          adminEmail: ssmData.Parameters.find(p => p.Name === '/hugoServerless/myEmailSSM').Value
         }
         const ses = new AWS.SES()
         result = await sendEmail(brokenLinks,'https://' + ssmData.Parameters.find(p => p.Name === '/hugoServerless/siteName').Value, email, ses);
