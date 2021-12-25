@@ -20,15 +20,15 @@ export class HugoPhotosStack extends cdk.Stack {
       }],
     });
     const uploadUser = new User(this, 'uploadUser', {
-      userName: 'uploadUser',
-      managedPolicies: [ new PolicyStatement({
+      userName: 'uploadUser'
+    });
+    uploadUser.addToPrincipalPolicy(new PolicyStatement({
         resources: [
           photoBucket.arnForObjects("*"),
           photoBucket.bucketArn,
         ],
-        actions: ["s3:*"],
-        principals: [new AnyPrincipal()],
-      })],
-    });
+        actions: ["s3:*"]
+      })
+    )
   }
 }
