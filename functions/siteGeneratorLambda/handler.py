@@ -28,7 +28,7 @@ def lambda_handler(event, context):
   logger.info("Checking the source directory...")
   run_command('ls -n {}'.format(LOCAL_SOURCE_DIR))
   
-  logger.info("Getting SSM parameters...")
+  logger.info("Getting SSM parameter...")
   region = event['region']
   ssm = boto3.client('ssm', region_name = region)
   parameter = ssm.get_parameter(Name='/hugoServerless/datasyncSourceTask', WithDecryption=True)
