@@ -1,6 +1,7 @@
 import * as cdk from '@aws-cdk/core';
 import { Bucket, BlockPublicAccess } from '@aws-cdk/aws-s3';
 import { User, AnyPrincipal, PolicyStatement } from '@aws-cdk/aws-iam';
+import { StringParameter } from '@aws-cdk/aws-ssm';
 
 import * as fs from 'fs';
 import * as toml from 'toml';
@@ -23,12 +24,19 @@ export class HugoPhotosStack extends cdk.Stack {
       userName: 'uploadUser'
     });
     uploadUser.addToPrincipalPolicy(new PolicyStatement({
-        resources: [
-          photoBucket.arnForObjects("*"),
-          photoBucket.bucketArn,
-        ],
-        actions: ["s3:*"]
-      })
-    )
+      resources: [
+        photoBucket.arnForObjects("*"),
+        photoBucket.bucketArn,
+      ],
+      actions: ["s3:*"]
+    }));
+    uploadUser.addToPrincipalPolicy(new PolicyStatement({
+      resources: ['*'],
+      actions: ["s3:ListAllMyBuckets"]
+    }));
+    new StringParameter(this, "photosBucket", {
+      parameterName: '/hugoServerless/photosBucket',
+      stringValue: photoBucket.bucketName,
+    });
   }
 }

@@ -1,5 +1,5 @@
 import * as cdk from '@aws-cdk/core';
-import { CloudFrontWebDistribution, OriginAccessIdentity, OriginProtocolPolicy } from '@aws-cdk/aws-cloudfront'
+import { CloudFrontWebDistribution, OriginAccessIdentity, CloudFrontAllowedMethods } from '@aws-cdk/aws-cloudfront'
 import { Bucket, BlockPublicAccess } from '@aws-cdk/aws-s3';
 import { Vpc, SubnetType, SecurityGroup, Peer, Port, InterfaceVpcEndpointAwsService } from '@aws-cdk/aws-ec2';
 import { FileSystem as efsFileSystem }  from '@aws-cdk/aws-efs';
@@ -12,14 +12,20 @@ import { CloudFrontTarget } from '@aws-cdk/aws-route53-targets';
 import { StringParameter } from '@aws-cdk/aws-ssm';
 import { CfnLocationS3, CfnLocationEFS , CfnTask } from '@aws-cdk/aws-datasync';
 import { AwsCustomResource, PhysicalResourceId, AwsCustomResourcePolicy } from '@aws-cdk/custom-resources';
+import { LambdaRestApi } from '@aws-cdk/aws-apigateway';
 
 import * as fs from 'fs';
 import * as toml from 'toml';
 const config = toml.parse(fs.readFileSync('./config.toml', 'utf-8'));
 
+interface myStackProps extends cdk.StackProps {
+  apigw: LambdaRestApi;
+}
+
 export class HugoServerlessStack extends cdk.Stack {
-  constructor(scope: cdk.App, id: string, props: cdk.StackProps) {
+  constructor(scope: cdk.App, id: string, props: myStackProps) {
     super(scope, id, props);
+    const { apigw } = props;
     var sourceBucket;
     if (config.deploy.createNew) {
       //~ //Create a bucket to cache the source info for Hugo
@@ -48,7 +54,7 @@ export class HugoServerlessStack extends cdk.Stack {
         principals: [new AnyPrincipal()],
       })
     );
-    
+   
     //Create the website bucket
     const websiteBucket = new Bucket(this, config.deploy.siteName + '-website', {
       websiteIndexDocument: 'index.html',
@@ -57,23 +63,62 @@ export class HugoServerlessStack extends cdk.Stack {
       autoDeleteObjects: true,
       publicReadAccess: true,
     });
-    //Create the cloudfront distribution to cache the bucket
+    const oia = new OriginAccessIdentity(this, 'OIA', {
+      comment: "Created by CDK"
+    });
+    websiteBucket.grantRead(oia);
     const certificateArn = StringParameter.valueForStringParameter(this, config.deploy.certificateArnSSM)
     const distribution = new CloudFrontWebDistribution(this, config.deploy.siteName + '-cfront', {
       originConfigs: [
         {
           customOriginSource: {
-            domainName: websiteBucket.bucketWebsiteDomainName,
-            originProtocolPolicy: OriginProtocolPolicy.HTTP_ONLY,
+            domainName: `${apigw.restApiId}.execute-api.${this.region}.${this.urlSuffix}`,
+            //~ originProtocolPolicy: cf.OriginProtocolPolicy.MATCH_VIEWER
+          },
+          originPath: `/${apigw.deploymentStage.stageName}`,
+          behaviors: [{
+            pathPattern: '/api/*',
+            allowedMethods: CloudFrontAllowedMethods.ALL,
+            maxTtl: cdk.Duration.minutes(0),
+            minTtl: cdk.Duration.minutes(0),
+            defaultTtl: cdk.Duration.minutes(0),
+            forwardedValues: {
+              queryString: true,
+              cookies: { forward: 'all'},
+              headers: [ "Referer", "Authorization" ]
+            },
+          }]
+        },
+        {
+          s3OriginSource: {
+            s3BucketSource: websiteBucket,
+            originAccessIdentity: oia
           },
           behaviors : [ {isDefaultBehavior: true}]
-        }
+        },
       ],
       aliasConfiguration: {
-        acmCertRef: certificateArn,
+        acmCertRef: config.certificateArn,
         names: [config.deploy.siteName]
       }
     });
+    
+    //Create the cloudfront distribution to cache the bucket
+    //~ const distribution = new CloudFrontWebDistribution(this, config.deploy.siteName + '-cfront', {
+      //~ originConfigs: [
+        //~ {
+          //~ customOriginSource: {
+            //~ domainName: websiteBucket.bucketWebsiteDomainName,
+            //~ originProtocolPolicy: OriginProtocolPolicy.HTTP_ONLY,
+          //~ },
+          //~ behaviors : [ {isDefaultBehavior: true}]
+        //~ }
+      //~ ],
+      //~ aliasConfiguration: {
+        //~ acmCertRef: certificateArn,
+        //~ names: [config.deploy.siteName]
+      //~ }
+    //~ });
     // Create a file system in EFS to store information
     const vpc = new Vpc(this, 'Vpc', {
       natGateways: 0,

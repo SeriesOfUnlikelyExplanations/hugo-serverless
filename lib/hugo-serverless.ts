@@ -3,6 +3,7 @@ import 'source-map-support/register';
 import * as cdk from '@aws-cdk/core';
 import { HugoServerlessStack } from './hugo-serverless-stack';
 import { HugoPhotosStack } from './hugo-photos-stack';
+import { HugoApiStack } from './hugo-api-stack';
 
 const app = new cdk.App();
 
@@ -20,8 +21,16 @@ new HugoPhotosStack(app, 'HugoPhotosStack', {
   env: env
 });
 
+const api = new HugoApiStack(app, 'HugoApiStack', {
+  stackName: 'HugoApiStack',
+  env: env
+});
+
 new HugoServerlessStack(app, 'HugoServerlessStack', {
+  apigw: api.apigw,
   stackName: 'HugoServerlessStack',
   env: env
 });
+
+
 
