@@ -63,10 +63,6 @@ export class HugoServerlessStack extends cdk.Stack {
       autoDeleteObjects: true,
       publicReadAccess: true,
     });
-    const oia = new OriginAccessIdentity(this, 'OIA', {
-      comment: "Created by CDK"
-    });
-    websiteBucket.grantRead(oia);
     const certificateArn = StringParameter.valueForStringParameter(this, config.deploy.certificateArnSSM)
     const distribution = new CloudFrontWebDistribution(this, config.deploy.siteName + '-cfront', {
       originConfigs: [
@@ -90,9 +86,9 @@ export class HugoServerlessStack extends cdk.Stack {
           }]
         },
         {
-          s3OriginSource: {
-            s3BucketSource: websiteBucket,
-            originAccessIdentity: oia
+          customOriginSource: {
+            domainName: websiteBucket.bucketWebsiteDomainName,
+            originProtocolPolicy: OriginProtocolPolicy.HTTP_ONLY,
           },
           behaviors : [ {isDefaultBehavior: true}]
         },
