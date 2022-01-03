@@ -69,8 +69,8 @@ exports.handler = async (event, context) => {
           adminEmail: ssmData.Parameters.find(p => p.Name === '/hugoServerless/myEmailSSM').Value
         }
         const ses = new AWS.SES()
-        result = await sendEmail(brokenLinks,'https://' + ssmData.Parameters.find(p => p.Name === '/hugoServerless/siteName').Value, email, ses);
-        console.log(result);
+        //~ result = await sendEmail(brokenLinks,'https://' + ssmData.Parameters.find(p => p.Name === '/hugoServerless/siteName').Value, email, ses);
+        //~ console.log(result);
         console.log('Email Sent. All done.');
       } else {
         console.log('Invalidation complete. All done.')
