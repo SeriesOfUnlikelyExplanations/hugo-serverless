@@ -41,9 +41,11 @@ def lambda_handler(event, context):
     run_command("ls -l {0}".format(LOCAL_BUILD_DIR))
     
     logger.info("Build complete.")
-    return {"statusCode": 200, \
-      "headers": {"Content-Type": "text/html"}, \
-      "body": "Build complete"}
+    return {"statusCode": 200,
+      "headers": {"Content-Type": "text/html"},
+      "body": "Build complete", 
+      "action": "deploy"
+    }
   else:
     logger.info("Website Datasync Task. Deleting the EFS directory...")
     
