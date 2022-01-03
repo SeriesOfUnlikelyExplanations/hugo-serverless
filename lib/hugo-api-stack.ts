@@ -2,7 +2,7 @@ import * as cdk from '@aws-cdk/core';
 import { Function, Code, Runtime } from "@aws-cdk/aws-lambda";
 import { StringParameter } from '@aws-cdk/aws-ssm';
 import { PolicyStatement, ServicePrincipal } from '@aws-cdk/aws-iam';
-import { Table, AttributeType } from '@aws-cdk/aws-dynamodb';
+import { Table, AttributeType, BillingMode } from '@aws-cdk/aws-dynamodb';
 import { LambdaRestApi, AuthorizationType } from '@aws-cdk/aws-apigateway';
 
 //~ import console = require('console');
