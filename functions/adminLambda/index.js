@@ -28,7 +28,7 @@ exports.handler = async (event, context) => {
       ServiceName: `com.amazonaws.${event.Records[0].awsRegion}.ssm`, /* required */
       VpcId: ssmData.Parameters.find(p => p.Name ==='/hugoServerless/vpcID').Value, /* required */
       SecurityGroupIds: [ssmData.Parameters.find(p => p.Name ==='/hugoServerless/securityGroupID').Value],
-      SubnetId: [ssmData.Parameters.find(p => p.Name ==='/hugoServerless/subnetID').Value],
+      SubnetIds: [ssmData.Parameters.find(p => p.Name ==='/hugoServerless/subnetID').Value],
       VpcEndpointType: 'Interface'
     };
     await new Promise(function(resolve, reject) {
