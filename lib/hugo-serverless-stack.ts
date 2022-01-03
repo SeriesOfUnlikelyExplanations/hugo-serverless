@@ -131,6 +131,7 @@ export class HugoServerlessStack extends cdk.Stack {
       allowAllOutbound: true,
     });
     dsSG.addIngressRule(Peer.anyIpv4(), Port.tcp(2049), 'datasync Ingress');
+    dsSG.addIngressRule(Peer.anyIpv4(), Port.tcp(443), 'datasync Ingress');
     
     const fs = new efsFileSystem(this, 'FileSystem', {
       vpc: vpc,
