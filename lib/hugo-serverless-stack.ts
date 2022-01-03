@@ -224,13 +224,15 @@ export class HugoServerlessStack extends cdk.Stack {
         'ec2:CreateNetworkInterface',
         'ec2:DeleteNetworkInterface',
         'ec2:DescribeInstances',
-        'ec2:AttachNetworkInterface'],
-    }))
-    // Allwo Lambda to invalidate cloudfront
-    handler.addToRolePolicy(new PolicyStatement({
-      resources: ['*'],
-      actions: ['cloudfront:CreateInvalidation',
-        'cloudfront:GetInvalidation'],
+        'ec2:AttachNetworkInterface',
+        //invalidate cloudfront
+        'cloudfront:CreateInvalidation',
+        'cloudfront:GetInvalidation',
+        //manage vpc endpoints
+        'ec2:CreateVpcEndpoint',
+        'ec2:DescribeVpcEndpoint',
+        'ec2:DeleteVpcEndpoint'
+       ],
     }))
     
     // Allow Lambda to get SSM parameters
