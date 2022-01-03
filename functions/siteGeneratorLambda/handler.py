@@ -57,6 +57,8 @@ def lambda_handler(event, context):
     run_command('ls -n {}'.format(LOCAL_SOURCE_DIR))
     logger.info("Delete Complete.")
     
-    return {"statusCode": 200, \
-      "headers": {"Content-Type": "text/html"}, \
-      "body": "Delete complete"}
+    return {"statusCode": 200,
+      "headers": {"Content-Type": "text/html"},
+      "body": "Delete complete",
+      "action": "None"
+    }
