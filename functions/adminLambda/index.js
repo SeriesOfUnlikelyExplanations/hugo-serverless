@@ -22,7 +22,7 @@ exports.handler = async (event, context) => {
     });
     console.log('Source datasync task started.');
     // CREATE VPC endpoints here
-    const ec2 = new AWS.ec2();
+    const ec2 = new AWS.EC2();
     console.log('Creating VPC endpoints...');
     var params = [  
       {
@@ -59,7 +59,7 @@ exports.handler = async (event, context) => {
     });
     console.log('Website datasync task started.');
     // REMOVE VPC endpoints here
-    const ec2 = new AWS.ec2();
+    const ec2 = new AWS.EC2();
     console.log('Deleting VPC endpoints...');
     ec2.describeVpcEndpoints({}, async function(err, data) {
       if (err) console.log(err, err.stack); // an error occurred
