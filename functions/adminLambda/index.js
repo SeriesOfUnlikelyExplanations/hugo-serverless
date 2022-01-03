@@ -9,33 +9,78 @@ exports.handler = async (event, context) => {
     console.log(event.Records[0].s3);
     AWS.config.update({region: event.Records[0].awsRegion})
     var ssm = new AWS.SSM();
-    var ssmData = await ssm.getParameters({Names: ['/hugoServerless/datasyncSourceTask']}).promise();
+    var ssmData = await ssm.getParameters({Names: ['/hugoServerless/datasyncSourceTask', '/hugoServerless/vpcID']}).promise();
     //Start the initial datasync task - move S3Source bucket into EFS
     const datasync = new AWS.DataSync();
     await new Promise(resolve => setTimeout(resolve, 30000))
     
-    result = await new Promise(function(resolve, reject) {
+    await new Promise(function(resolve, reject) {
       datasync.startTaskExecution({ TaskArn: ssmData.Parameters.find(p => p.Name ==='/hugoServerless/datasyncSourceTask').Value}, function(err, data) {
         if (err !== null) reject(err);
         else resolve(data);
       });
     });
     console.log('Source datasync task started.');
+    // CREATE VPC endpoints here
+    const ec2 = new AWS.ec2();
+    console.log('Creating VPC endpoints...');
+    var params = [  
+      {
+        ServiceName: `com.amazonaws.${event.Records[0].awsRegion}.ssm`, /* required */
+        VpcId: ssmData.Parameters.find(p => p.Name ==='/hugoServerless/vpcID').Value, /* required */
+      },
+      {
+        ServiceName: `com.amazonaws.${event.Records[0].awsRegion}.lambda`, /* required */
+        VpcId: ssmData.Parameters.find(p => p.Name ==='/hugoServerless/vpcID').Value, /* required */
+      }
+    ];
+    for(const param of params) {
+      await new Promise(function(resolve, reject) {
+        ec2.createVpcEndpoint(param, function(err, data) {
+          if (err !== null) reject(err);
+          else resolve(data);
+        });
+      });
+    }
+    console.log('VPC endpoints created.');
   } else if (event.hasOwnProperty('action') && event.action == 'deploy') {
-    console.log('Build has been compled - starting Website Datasync task...');
+    console.log('Build has been completed - starting Website Datasync task...');
     AWS.config.update({region: event.region})
     var ssm = new AWS.SSM();
     var ssmData = await ssm.getParameters({Names: ['/hugoServerless/datasyncWebsiteTask']}).promise();
     //Start the initial datasync task - move S3Source bucket into EFS
     const datasync = new AWS.DataSync();
     
-    result = await new Promise(function(resolve, reject) {
-      datasync.startTaskExecution({ TaskArn: ssmData.Parameters.find(p => p.Name ==='/hugoServerless/datasyncWebsiteTask').Value}, function(err, data) {
+    await new Promise(function(resolve, reject) {
+      datasync.startTaskExecution({ TaskArn: ssmData.Parameters.find(({ Name }) => Name ==='/hugoServerless/datasyncWebsiteTask').Value}, function(err, data) {
         if (err !== null) reject(err);
         else resolve(data);
       });
     });
     console.log('Website datasync task started.');
+    // REMOVE VPC endpoints here
+    const ec2 = new AWS.ec2();
+    console.log('Deleting VPC endpoints...');
+    ec2.describeVpcEndpoints({}, function(err, data) {
+      if (err) console.log(err, err.stack); // an error occurred
+      else {
+        console.log(data);
+        await new Promise(function(resolve, reject) {
+          var params = {
+            data.VpcEndpoints.map(({VpcEndpointId}) => VpcEndpointId)
+          }
+          ec2.deleteVpcEndpoint(param, function(err, data) {
+            if (err !== null) reject(err);
+            else resolve(data);
+          });
+        });
+      }
+    });
+    console.log('VPC endpoints deleted.');
+});
+    
+    
+    
   } else if (event.hasOwnProperty('source') && event.source == 'aws.datasync') {
     console.log('Datasync task completed. Checking which task it was...');
     AWS.config.update({region: event.region})

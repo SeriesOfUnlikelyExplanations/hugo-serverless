@@ -391,6 +391,10 @@ export class HugoServerlessStack extends cdk.Stack {
       parameterName: '/hugoServerless/emailDynamoSSM',
       stringValue: emailsTable,
     });
+    new StringParameter(this, "vpcID", {
+      parameterName: '/hugoServerless/vpcID',
+      stringValue: vpc.vpcId,
+    });
     
     const noReplyEmail = StringParameter.valueForStringParameter(this, config.email.noReplyEmailSSM)
     new StringParameter(this, "noReplyEmail", {
