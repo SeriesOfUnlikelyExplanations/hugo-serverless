@@ -14,12 +14,7 @@ exports.handler = async (event, context) => {
     const datasync = new AWS.DataSync();
     await new Promise(resolve => setTimeout(resolve, 30000))
     
-    await new Promise(function(resolve, reject) {
-      datasync.startTaskExecution({ TaskArn: ssmData.Parameters.find(p => p.Name ==='/hugoServerless/datasyncSourceTask').Value}, function(err, data) {
-        if (err !== null) reject(err);
-        else resolve(data);
-      });
-    });
+    await datasync.startTaskExecution({ TaskArn: ssmData.Parameters.find(p => p.Name ==='/hugoServerless/datasyncSourceTask').Value}).promise();
     console.log('Source datasync task started.');
     // CREATE VPC endpoints here
     const ec2 = new AWS.EC2();
@@ -31,12 +26,7 @@ exports.handler = async (event, context) => {
       SubnetIds: [ssmData.Parameters.find(p => p.Name ==='/hugoServerless/subnetID').Value],
       VpcEndpointType: 'Interface'
     };
-    await new Promise(function(resolve, reject) {
-      ec2.createVpcEndpoint(params, function(err, data) {
-        if (err !== null) reject(err);
-        else resolve(data);
-      });
-    });
+    await ec2.createVpcEndpoint(params).promise()
     
     console.log('VPC endpoints created.');
   } else if (event.hasOwnProperty('action') && event.action == 'deploy') {
@@ -47,17 +37,12 @@ exports.handler = async (event, context) => {
     //Start the initial datasync task - move S3Source bucket into EFS
     const datasync = new AWS.DataSync();
     
-    await new Promise(function(resolve, reject) {
-      datasync.startTaskExecution({ TaskArn: ssmData.Parameters.find(({ Name }) => Name ==='/hugoServerless/datasyncWebsiteTask').Value}, function(err, data) {
-        if (err !== null) reject(err);
-        else resolve(data);
-      });
-    });
+    await datasync.startTaskExecution({ TaskArn: ssmData.Parameters.find(({ Name }) => Name ==='/hugoServerless/datasyncWebsiteTask').Value}).promise();
     console.log('Website datasync task started.');
     // REMOVE VPC endpoints here
     const ec2 = new AWS.EC2();
     console.log('Deleting VPC endpoints...');
-    const vpcData = ec2.describeVpcEndpoints({}).promise();
+    const vpcData = await ec2.describeVpcEndpoints({}).promise();
     console.log(vpcData);
     var params = {
       VpcEndpointIds: vpcData.VpcEndpoints.map(({VpcEndpointId}) => VpcEndpointId)
