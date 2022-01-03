@@ -122,7 +122,7 @@ export class HugoServerlessStack extends cdk.Stack {
         {
           cidrMask: 24,
           name: 'Ingress',
-          subnetType: SubnetType.PUBLIC,
+          subnetType: SubnetType.PRIVATE,
         }
       ]
     });
@@ -303,7 +303,6 @@ export class HugoServerlessStack extends cdk.Stack {
       runtime: Runtime.PYTHON_3_7,
       retryAttempts: 0,
       vpc: vpc,
-      allowPublicSubnet: true,
       securityGroups: [ dsSG ],
       filesystem: FileSystem.fromEfsAccessPoint(accessPoint, '/mnt/hugo')
     });
