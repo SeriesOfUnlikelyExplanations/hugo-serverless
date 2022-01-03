@@ -1,5 +1,5 @@
 import * as cdk from '@aws-cdk/core';
-import { CloudFrontWebDistribution, OriginAccessIdentity, CloudFrontAllowedMethods } from '@aws-cdk/aws-cloudfront'
+import { CloudFrontWebDistribution, OriginProtocolPolicy, CloudFrontAllowedMethods } from '@aws-cdk/aws-cloudfront'
 import { Bucket, BlockPublicAccess } from '@aws-cdk/aws-s3';
 import { Vpc, SubnetType, SecurityGroup, Peer, Port, InterfaceVpcEndpointAwsService } from '@aws-cdk/aws-ec2';
 import { FileSystem as efsFileSystem }  from '@aws-cdk/aws-efs';
