@@ -28,10 +28,12 @@ exports.handler = async (event, context) => {
       {
         ServiceName: `com.amazonaws.${event.Records[0].awsRegion}.ssm`, /* required */
         VpcId: ssmData.Parameters.find(p => p.Name ==='/hugoServerless/vpcID').Value, /* required */
+        VpcEndpointType: 'Interface'
       },
       {
         ServiceName: `com.amazonaws.${event.Records[0].awsRegion}.lambda`, /* required */
         VpcId: ssmData.Parameters.find(p => p.Name ==='/hugoServerless/vpcID').Value, /* required */
+        VpcEndpointType: 'Interface'
       }
     ];
     for(const param of params) {
