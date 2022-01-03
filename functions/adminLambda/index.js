@@ -61,7 +61,7 @@ exports.handler = async (event, context) => {
     // REMOVE VPC endpoints here
     const ec2 = new AWS.ec2();
     console.log('Deleting VPC endpoints...');
-    ec2.describeVpcEndpoints({}, function(err, data) {
+    ec2.describeVpcEndpoints({}, async function(err, data) {
       if (err) console.log(err, err.stack); // an error occurred
       else {
         console.log(data);
