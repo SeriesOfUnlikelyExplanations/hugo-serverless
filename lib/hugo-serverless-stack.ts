@@ -122,7 +122,7 @@ export class HugoServerlessStack extends cdk.Stack {
         {
           cidrMask: 24,
           name: 'Ingress',
-          subnetType: SubnetType.PRIVATE,
+          subnetType: SubnetType.ISOLATED,
         }
       ]
     });
