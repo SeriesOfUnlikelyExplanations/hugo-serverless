@@ -23,28 +23,28 @@ exports.handler = async (event, context) => {
     console.log('Source datasync task started.');
     // CREATE VPC endpoints here
     const ec2 = new AWS.EC2();
-    //~ console.log('Creating VPC endpoints...');
-    //~ var params = [  
-      //~ {
-        //~ ServiceName: `com.amazonaws.${event.Records[0].awsRegion}.ssm`, /* required */
-        //~ VpcId: ssmData.Parameters.find(p => p.Name ==='/hugoServerless/vpcID').Value, /* required */
-        //~ VpcEndpointType: 'Interface'
-      //~ },
-      //~ {
-        //~ ServiceName: `com.amazonaws.${event.Records[0].awsRegion}.lambda`, /* required */
-        //~ VpcId: ssmData.Parameters.find(p => p.Name ==='/hugoServerless/vpcID').Value, /* required */
-        //~ VpcEndpointType: 'Interface'
-      //~ }
-    //~ ];
-    //~ for(const param of params) {
-      //~ await new Promise(function(resolve, reject) {
-        //~ ec2.createVpcEndpoint(param, function(err, data) {
-          //~ if (err !== null) reject(err);
-          //~ else resolve(data);
-        //~ });
-      //~ });
-    //~ }
-    //~ console.log('VPC endpoints created.');
+    console.log('Creating VPC endpoints...');
+    var params = [  
+      {
+        ServiceName: `com.amazonaws.${event.Records[0].awsRegion}.ssm`, /* required */
+        VpcId: ssmData.Parameters.find(p => p.Name ==='/hugoServerless/vpcID').Value, /* required */
+        VpcEndpointType: 'Interface'
+      },
+      {
+        ServiceName: `com.amazonaws.${event.Records[0].awsRegion}.lambda`, /* required */
+        VpcId: ssmData.Parameters.find(p => p.Name ==='/hugoServerless/vpcID').Value, /* required */
+        VpcEndpointType: 'Interface'
+      }
+    ];
+    for(const param of params) {
+      await new Promise(function(resolve, reject) {
+        ec2.createVpcEndpoint(param, function(err, data) {
+          if (err !== null) reject(err);
+          else resolve(data);
+        });
+      });
+    }
+    console.log('VPC endpoints created.');
   } else if (event.hasOwnProperty('action') && event.action == 'deploy') {
     console.log('Build has been completed - starting Website Datasync task...');
     AWS.config.update({region: event.region})
@@ -61,24 +61,24 @@ exports.handler = async (event, context) => {
     });
     console.log('Website datasync task started.');
     // REMOVE VPC endpoints here
-    //~ const ec2 = new AWS.EC2();
-    //~ console.log('Deleting VPC endpoints...');
-    //~ ec2.describeVpcEndpoints({}, async function(err, data) {
-      //~ if (err) console.log(err, err.stack); // an error occurred
-      //~ else {
-        //~ console.log(data);
-        //~ await new Promise(function(resolve, reject) {
-          //~ var params = {
-            //~ VpcEndpointIds: data.VpcEndpoints.map(({VpcEndpointId}) => VpcEndpointId)
-          //~ }
-          //~ ec2.deleteVpcEndpoint(param, function(err, data) {
-            //~ if (err !== null) reject(err);
-            //~ else resolve(data);
-          //~ });
-        //~ });
-      //~ }
-    //~ });
-    //~ console.log('VPC endpoints deleted.');
+    const ec2 = new AWS.EC2();
+    console.log('Deleting VPC endpoints...');
+    ec2.describeVpcEndpoints({}, async function(err, data) {
+      if (err) console.log(err, err.stack); // an error occurred
+      else {
+        console.log(data);
+        await new Promise(function(resolve, reject) {
+          var params = {
+            VpcEndpointIds: data.VpcEndpoints.map(({VpcEndpointId}) => VpcEndpointId)
+          }
+          ec2.deleteVpcEndpoint(param, function(err, data) {
+            if (err !== null) reject(err);
+            else resolve(data);
+          });
+        });
+      }
+    });
+    console.log('VPC endpoints deleted.');
   } else if (event.hasOwnProperty('source') && event.source == 'aws.datasync') {
     console.log('Datasync task completed. Checking which task it was...');
     AWS.config.update({region: event.region})
