@@ -98,7 +98,7 @@ export class HugoServerlessStack extends cdk.Stack {
         },
       ],
       aliasConfiguration: {
-        acmCertRef: config.certificateArn,
+        acmCertRef: certificateArn,
         names: [config.deploy.siteName]
       }
     });
