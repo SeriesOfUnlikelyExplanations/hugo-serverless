@@ -5,7 +5,8 @@ import { Vpc, SubnetType, SecurityGroup, Peer, Port, InterfaceVpcEndpointAwsServ
 import { FileSystem as efsFileSystem }  from '@aws-cdk/aws-efs';
 import { Rule } from'@aws-cdk/aws-events'
 import { LambdaFunction } from '@aws-cdk/aws-events-targets'
-import { Function, Code, Runtime, FileSystem, LayerVersion, destinations } from '@aws-cdk/aws-lambda';
+import { Function, Code, Runtime, FileSystem, LayerVersion} from '@aws-cdk/aws-lambda';
+import { LambdaDestination } from '@aws-cdk/aws-lambda-destinations';
 import { PolicyStatement, Effect, AnyPrincipal, ServicePrincipal, Role } from '@aws-cdk/aws-iam';
 import { HostedZone, ARecord, RecordTarget } from '@aws-cdk/aws-route53';
 import { CloudFrontTarget } from '@aws-cdk/aws-route53-targets';
@@ -303,23 +304,11 @@ export class HugoServerlessStack extends cdk.Stack {
       retryAttempts: 0,
       vpc: vpc,
       securityGroups: [ dsSG ],
-      onSuccess: new destinations.LambdaDestination(destinationFn, {
+      onSuccess: new LambdaDestination(handler, {
         responseOnly: true,
       }),
       filesystem: FileSystem.fromEfsAccessPoint(accessPoint, '/mnt/hugo')
     });
-    //~ //allow the vpc lambda to call other lambda
-    //~ const callLambda = vpc.addInterfaceEndpoint('lambda', {
-      //~ service: InterfaceVpcEndpointAwsService.LAMBDA,
-    //~ });
-    //~ callLambda.connections.allowDefaultPortFrom(vpcHandler);
-    //~ handler.grantInvoke(vpcHandler);
-    
-    //~ //allow the vpc lambda to access SSM parameters
-    //~ const callSSM = vpc.addInterfaceEndpoint('SSM', {
-      //~ service: InterfaceVpcEndpointAwsService.SSM,
-    //~ });
-    //~ callSSM.connections.allowDefaultPortFrom(vpcHandler);
     
     vpcHandler.addToRolePolicy(new PolicyStatement({
       resources: ['*'],
