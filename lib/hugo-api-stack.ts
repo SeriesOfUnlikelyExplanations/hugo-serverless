@@ -42,7 +42,12 @@ export class HugoApiStack extends cdk.Stack {
     const commentsTable = new Table(this, 'CommentsTable', {
       partitionKey: { name: 'postPath', type: AttributeType.STRING },
       sortKey: {name: 'commentId', type: AttributeType.STRING},
+      billingMode: BillingMode.PROVISIONED,
     });
+    commentsTable.autoScaleWriteCapacity({
+      minCapacity: 1,
+      maxCapacity: 5,
+    }).scaleOnUtilization({ targetUtilizationPercent: 75 });
     commentsTable.grantReadWriteData(handler)
   }
 }
