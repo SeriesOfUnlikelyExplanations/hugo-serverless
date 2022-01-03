@@ -9,7 +9,7 @@ exports.handler = async (event, context) => {
     console.log(event.Records[0].s3);
     AWS.config.update({region: event.Records[0].awsRegion})
     var ssm = new AWS.SSM();
-    var ssmData = await ssm.getParameters({Names: ['/hugoServerless/datasyncSourceTask', '/hugoServerless/vpcID']}).promise();
+    var ssmData = await ssm.getParameters({Names: ['/hugoServerless/datasyncSourceTask', '/hugoServerless/vpcID','/hugoServerless/securityGroupID','/hugoServerless/subnetID']}).promise();
     //Start the initial datasync task - move S3Source bucket into EFS
     const datasync = new AWS.DataSync();
     await new Promise(resolve => setTimeout(resolve, 30000))
@@ -24,26 +24,20 @@ exports.handler = async (event, context) => {
     // CREATE VPC endpoints here
     const ec2 = new AWS.EC2();
     console.log('Creating VPC endpoints...');
-    var params = [  
-      {
-        ServiceName: `com.amazonaws.${event.Records[0].awsRegion}.ssm`, /* required */
-        VpcId: ssmData.Parameters.find(p => p.Name ==='/hugoServerless/vpcID').Value, /* required */
-        VpcEndpointType: 'Interface'
-      },
-      {
-        ServiceName: `com.amazonaws.${event.Records[0].awsRegion}.lambda`, /* required */
-        VpcId: ssmData.Parameters.find(p => p.Name ==='/hugoServerless/vpcID').Value, /* required */
-        VpcEndpointType: 'Interface'
-      }
-    ];
-    for(const param of params) {
-      await new Promise(function(resolve, reject) {
-        ec2.createVpcEndpoint(param, function(err, data) {
-          if (err !== null) reject(err);
-          else resolve(data);
-        });
+    var params = {
+      ServiceName: `com.amazonaws.${event.Records[0].awsRegion}.ssm`, /* required */
+      VpcId: ssmData.Parameters.find(p => p.Name ==='/hugoServerless/vpcID').Value, /* required */
+      SecurityGroupId: [ssmData.Parameters.find(p => p.Name ==='/hugoServerless/securityGroupID').Value]
+      SubnetId: [ssmData.Parameters.find(p => p.Name ==='/hugoServerless/subnetID').Value]
+      VpcEndpointType: 'Interface'
+    };
+    await new Promise(function(resolve, reject) {
+      ec2.createVpcEndpoint(params, function(err, data) {
+        if (err !== null) reject(err);
+        else resolve(data);
       });
-    }
+    });
+    
     console.log('VPC endpoints created.');
   } else if (event.hasOwnProperty('action') && event.action == 'deploy') {
     console.log('Build has been completed - starting Website Datasync task...');

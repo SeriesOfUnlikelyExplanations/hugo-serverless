@@ -385,6 +385,14 @@ export class HugoServerlessStack extends cdk.Stack {
       parameterName: '/hugoServerless/vpcID',
       stringValue: vpc.vpcId,
     });
+    new StringParameter(this, "subnetID", {
+      parameterName: '/hugoServerless/subnetID',
+      stringValue: vpc.privateSubnets[0],
+    });
+    new StringParameter(this, "securityGroupID", {
+      parameterName: '/hugoServerless/securityGroupID',
+      stringValue: dsSG.securityGroupId,
+    });
     
     const noReplyEmail = StringParameter.valueForStringParameter(this, config.email.noReplyEmailSSM)
     new StringParameter(this, "noReplyEmail", {
