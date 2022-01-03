@@ -57,21 +57,13 @@ exports.handler = async (event, context) => {
     // REMOVE VPC endpoints here
     const ec2 = new AWS.EC2();
     console.log('Deleting VPC endpoints...');
-    ec2.describeVpcEndpoints({}, async function(err, data) {
-      if (err) console.log(err, err.stack); // an error occurred
-      else {
-        console.log(data);
-        await new Promise(function(resolve, reject) {
-          var params = {
-            VpcEndpointIds: data.VpcEndpoints.map(({VpcEndpointId}) => VpcEndpointId)
-          }
-          ec2.deleteVpcEndpoint(param, function(err, data) {
-            if (err !== null) reject(err);
-            else resolve(data);
-          });
-        });
-      }
-    });
+    const vpcData = ec2.describeVpcEndpoints({}).promise();
+    console.log(vpcData);
+    var params = {
+      VpcEndpointIds: vpcData.VpcEndpoints.map(({VpcEndpointId}) => VpcEndpointId)
+    }
+    const result = await ec2.deleteVpcEndpoint(params).promise();
+    console.log(result);
     console.log('VPC endpoints deleted.');
   } else if (event.hasOwnProperty('source') && event.source == 'aws.datasync') {
     console.log('Datasync task completed. Checking which task it was...');
