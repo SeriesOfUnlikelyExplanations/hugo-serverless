@@ -9,7 +9,7 @@ exports.handler = async (event, context) => {
     console.log(event.Records[0].s3);
     AWS.config.update({region: event.Records[0].awsRegion})
     var ssm = new AWS.SSM();
-    var ssmData = await ssm.getParameters({Names: ['/hugoServerless/datasyncSourceTask', '/hugoServerless/vpcID','/hugoServerless/securityGroupID','/hugoServerless/subnetID']}).promise();
+    var ssmData = await ssm.getParameters({Names: ['/hugoServerless/datasyncSourceTask', '/hugoServerless/vpcID','/hugoServerless/securityGroupID']}).promise(); //,'/hugoServerless/subnetID'
     //Start the initial datasync task - move S3Source bucket into EFS
     const datasync = new AWS.DataSync();
     await new Promise(resolve => setTimeout(resolve, 30000))
@@ -27,8 +27,8 @@ exports.handler = async (event, context) => {
     var params = {
       ServiceName: `com.amazonaws.${event.Records[0].awsRegion}.ssm`, /* required */
       VpcId: ssmData.Parameters.find(p => p.Name ==='/hugoServerless/vpcID').Value, /* required */
-      SecurityGroupId: [ssmData.Parameters.find(p => p.Name ==='/hugoServerless/securityGroupID').Value]
-      SubnetId: [ssmData.Parameters.find(p => p.Name ==='/hugoServerless/subnetID').Value]
+      SecurityGroupId: [ssmData.Parameters.find(p => p.Name ==='/hugoServerless/securityGroupID').Value],
+      //~ SubnetId: [ssmData.Parameters.find(p => p.Name ==='/hugoServerless/subnetID').Value]
       VpcEndpointType: 'Interface'
     };
     await new Promise(function(resolve, reject) {

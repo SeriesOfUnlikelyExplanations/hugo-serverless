@@ -385,10 +385,10 @@ export class HugoServerlessStack extends cdk.Stack {
       parameterName: '/hugoServerless/vpcID',
       stringValue: vpc.vpcId,
     });
-    new StringParameter(this, "subnetID", {
-      parameterName: '/hugoServerless/subnetID',
-      stringValue: vpc.privateSubnets[0].subnetId,
-    });
+    //~ new StringParameter(this, "subnetID", {
+      //~ parameterName: '/hugoServerless/subnetID',
+      //~ stringValue: vpc.privateSubnets[0].subnetId,
+    //~ });
     new StringParameter(this, "securityGroupID", {
       parameterName: '/hugoServerless/securityGroupID',
       stringValue: dsSG.securityGroupId,
