@@ -307,18 +307,18 @@ export class HugoServerlessStack extends cdk.Stack {
       securityGroups: [ dsSG ],
       filesystem: FileSystem.fromEfsAccessPoint(accessPoint, '/mnt/hugo')
     });
-    //allow the vpc lambda to call other lambda
-    const callLambda = vpc.addInterfaceEndpoint('lambda', {
-      service: InterfaceVpcEndpointAwsService.LAMBDA,
-    });
-    callLambda.connections.allowDefaultPortFrom(vpcHandler);
-    handler.grantInvoke(vpcHandler);
+    //~ //allow the vpc lambda to call other lambda
+    //~ const callLambda = vpc.addInterfaceEndpoint('lambda', {
+      //~ service: InterfaceVpcEndpointAwsService.LAMBDA,
+    //~ });
+    //~ callLambda.connections.allowDefaultPortFrom(vpcHandler);
+    //~ handler.grantInvoke(vpcHandler);
     
-    //allow the vpc lambda to access SSM parameters
-    const callSSM = vpc.addInterfaceEndpoint('SSM', {
-      service: InterfaceVpcEndpointAwsService.SSM,
-    });
-    callSSM.connections.allowDefaultPortFrom(vpcHandler);
+    //~ //allow the vpc lambda to access SSM parameters
+    //~ const callSSM = vpc.addInterfaceEndpoint('SSM', {
+      //~ service: InterfaceVpcEndpointAwsService.SSM,
+    //~ });
+    //~ callSSM.connections.allowDefaultPortFrom(vpcHandler);
     
     vpcHandler.addToRolePolicy(new PolicyStatement({
       resources: ['*'],
