@@ -303,7 +303,7 @@ export class HugoServerlessStack extends cdk.Stack {
       retryAttempts: 0,
       vpc: vpc,
       vpcSubnets: {
-        subnetType: ec2.SubnetType.PUBIC,
+        subnetType: SubnetType.PUBIC,
       },
       securityGroups: [ dsSG ],
       filesystem: FileSystem.fromEfsAccessPoint(accessPoint, '/mnt/hugo')
