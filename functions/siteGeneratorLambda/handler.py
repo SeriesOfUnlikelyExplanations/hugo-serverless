@@ -40,16 +40,10 @@ def lambda_handler(event, context):
     run_command("hugo/hugo -s {0} -d {1}".format(LOCAL_SOURCE_DIR,LOCAL_BUILD_DIR))
     run_command("ls -l {0}".format(LOCAL_BUILD_DIR))
     
-    logger.info("Build complete. Starting Website Datasync task through admin Lambda...")
-    lambdaFunction = ssm.get_parameter(Name='/hugoServerless/routingLambda', WithDecryption=True)
-    d = {'action': 'deploy', 'region': region}
-    func = boto3.client('lambda', region_name = region)
-    response = func.invoke(
-      FunctionName=lambdaFunction['Parameter']['Value'],
-      LogType='None',
-      Payload=json.dumps(d)
-    )
-    logger.info("Completed invoking admin Lambda.")
+    logger.info("Build complete.")
+    return {"statusCode": 200, \
+      "headers": {"Content-Type": "text/html"}, \
+      "body": "Build complete"}
   else:
     logger.info("Website Datasync Task. Deleting the EFS directory...")
     
@@ -61,6 +55,6 @@ def lambda_handler(event, context):
     run_command('ls -n {}'.format(LOCAL_SOURCE_DIR))
     logger.info("Delete Complete.")
     
-  return {"statusCode": 200, \
-    "headers": {"Content-Type": "text/html"}, \
-    "body": "Build complete"}
+    return {"statusCode": 200, \
+      "headers": {"Content-Type": "text/html"}, \
+      "body": "Delete complete"}

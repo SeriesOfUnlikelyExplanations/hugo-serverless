@@ -5,7 +5,7 @@ import { Vpc, SubnetType, SecurityGroup, Peer, Port, InterfaceVpcEndpointAwsServ
 import { FileSystem as efsFileSystem }  from '@aws-cdk/aws-efs';
 import { Rule } from'@aws-cdk/aws-events'
 import { LambdaFunction } from '@aws-cdk/aws-events-targets'
-import { Function, Code, Runtime, FileSystem, LayerVersion } from '@aws-cdk/aws-lambda';
+import { Function, Code, Runtime, FileSystem, LayerVersion, destinations } from '@aws-cdk/aws-lambda';
 import { PolicyStatement, Effect, AnyPrincipal, ServicePrincipal, Role } from '@aws-cdk/aws-iam';
 import { HostedZone, ARecord, RecordTarget } from '@aws-cdk/aws-route53';
 import { CloudFrontTarget } from '@aws-cdk/aws-route53-targets';
@@ -131,7 +131,6 @@ export class HugoServerlessStack extends cdk.Stack {
       allowAllOutbound: true,
     });
     dsSG.addIngressRule(Peer.anyIpv4(), Port.tcp(2049), 'datasync Ingress');
-    dsSG.addIngressRule(Peer.anyIpv4(), Port.tcp(443), 'datasync Ingress');
     
     const fs = new efsFileSystem(this, 'FileSystem', {
       vpc: vpc,
@@ -304,6 +303,9 @@ export class HugoServerlessStack extends cdk.Stack {
       retryAttempts: 0,
       vpc: vpc,
       securityGroups: [ dsSG ],
+      onSuccess: new destinations.LambdaDestination(destinationFn, {
+        responseOnly: true,
+      }),
       filesystem: FileSystem.fromEfsAccessPoint(accessPoint, '/mnt/hugo')
     });
     //~ //allow the vpc lambda to call other lambda
