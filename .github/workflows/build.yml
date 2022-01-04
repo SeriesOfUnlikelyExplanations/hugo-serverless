@@ -25,6 +25,8 @@ jobs:
           npm install --production
           cd functions/adminLambda
           npm install --production
+          cd ../apiLambda
+          npm install --production
           cd ../siteGeneratorLambda
           pip install pipenv
           pipenv install

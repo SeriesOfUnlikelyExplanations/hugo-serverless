@@ -393,16 +393,10 @@ export class HugoServerlessStack extends cdk.Stack {
       parameterName: '/hugoServerless/securityGroupID',
       stringValue: dsSG.securityGroupId,
     });
-    
-    const noReplyEmail = StringParameter.valueForStringParameter(this, config.email.noReplyEmailSSM)
+     
     new StringParameter(this, "noReplyEmail", {
       parameterName: '/hugoServerless/noReplyEmail',
-      stringValue: noReplyEmail,
+      stringValue: StringParameter.valueForStringParameter(this, config.email.noReplyEmailSSM),
     });
-    const myEmailSSM = StringParameter.valueForStringParameter(this, config.email.myEmailSSM)
-    new StringParameter(this, "myEmailSSM", {
-      parameterName: '/hugoServerless/myEmailSSM',
-      stringValue: myEmailSSM,
-    });   
   }
 }

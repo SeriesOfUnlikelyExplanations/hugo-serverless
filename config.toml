@@ -11,3 +11,8 @@ createNew = false # flag if you want CDK to create a new Source bucket or if you
 noReplyEmailSSM = '/AlwaysOnward/noReplyEmail' # email address you want to send the distro email from. You need to have SES configured to allow you to send from this email address.
 emailDynamoSSM = '/AlwaysOnward/emailsTable' # DynamoDB table where you store the email distro list.
 myEmailSSM = '/AlwaysOnward/myEmail' # Your email. This is where you will receive the email alert if there are broken links.
+
+
+[email] # relevant parameters for exposing a comments API. Delete/comment this section if you want to disable that feature.
+UserPoolIdSSM = '/AlwaysOnward/UserPoolId' # Cognito User Pool ID (in SSM parameter)
+UserPoolClientIdSSM = '/AlwaysOnward/UserPoolClientId' # Cognito User Pool Client ID (in SSM parameter)

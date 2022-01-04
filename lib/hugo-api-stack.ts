@@ -49,5 +49,14 @@ export class HugoApiStack extends cdk.Stack {
       maxCapacity: 5,
     }).scaleOnUtilization({ targetUtilizationPercent: 75 });
     commentsTable.grantReadWriteData(handler)
+    
+    new StringParameter(this, "UserPoolId", {
+      parameterName: '/hugoServerless/UserPoolId',
+      stringValue: StringParameter.valueForStringParameter(this, config.email.UserPoolIdSSM),
+    });   
+    const myEmailSSM =     new StringParameter(this, "UserPoolClientId", {
+      parameterName: '/hugoServerless/UserPoolClientId',
+      stringValue: StringParameter.valueForStringParameter(this, config.email.UserPoolClientIdSSM),
+    });   
   }
 }
