@@ -63,6 +63,10 @@ export class HugoApiStack extends cdk.Stack {
         parameterName: '/hugoServerless/UserPoolClientId',
         stringValue: StringParameter.valueForStringParameter(this, config.cognito.UserPoolClientIdSSM),
       });   
+      new StringParameter(this, "AuthDomain", {
+        parameterName: '/hugoServerless/AuthDomain',
+        stringValue: StringParameter.valueForStringParameter(this, config.cognito.AuthDomain),
+      });   
     }
   }
 }
