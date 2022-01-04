@@ -16,4 +16,5 @@ myEmailSSM = '/AlwaysOnward/myEmail' # Your email. This is where you will receiv
 [cognito] # relevant parameters for exposing a comments API. Delete/comment this section if you want to disable that feature.
 UserPoolIdSSM = '/AlwaysOnward/UserPoolId' # Cognito User Pool ID (in SSM parameter)
 UserPoolClientIdSSM = '/AlwaysOnward/UserPoolClientId' # Cognito User Pool Client ID (in SSM parameter)
+UserPoolClientSecretSSM = '/AlwaysOnward/UserPoolClientSecret' # Cognito User Pool Client Secret (in SSM parameter)
 AuthDomain = 'auth.always-onward.com'
