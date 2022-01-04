@@ -14,6 +14,8 @@
   },
   "dependencies": {
     "aws-sdk": "^2.939.0",
-    "lambda-api": "^0.11.2"
+    "lambda-api": "^0.11.2",
+    "@southlane/cognito-jwt-verifier": "^0.1.7",
+    "jose": "^1.28.1"
   }
 }
