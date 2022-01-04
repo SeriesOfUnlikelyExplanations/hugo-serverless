@@ -42,8 +42,10 @@ module.exports = (api, opts) => {
 
   api.get('/callback', async (req,res) => {
     auth = new Auth(req)
+    console.log(req.query)
     if ('code' in req.query) {
       var tokens = await auth.authCode(req.query.code, req.config.host+'/api/auth/callback');
+      console.log(tokens);
       if ('error' in tokens) {
         auth.clearCookies(res)
       } else {
@@ -96,6 +98,7 @@ class Auth {
       'client_id': this.config['UserPoolClientId'],
       'redirect_uri': 'https://'+host
     });
+    console.log(postData);
     return this._callTokenApi(postData).then(res => res.body)
   }
 
