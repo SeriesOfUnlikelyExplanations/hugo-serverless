@@ -391,7 +391,7 @@ export class HugoServerlessStack extends cdk.Stack {
       
       //Let Lambda send email
       handler.addToRolePolicy(new PolicyStatement({
-        resources: ['arn:aws:ses:${props.env?.region}:${props.env?.account}:identity/'+config.deploy.zoneName],
+        resources: [`arn:aws:ses:${props.env?.region}:${props.env?.account}:identity/${config.deploy.zoneName}`],
         actions: ['ses:SendEmail', 'ses:SendRawEmail'],
       }))
       new StringParameter(this, "emailDynamoSSM", {
