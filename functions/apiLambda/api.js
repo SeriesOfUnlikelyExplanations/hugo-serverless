@@ -32,8 +32,6 @@ module.exports = (api, opts) => {
   api.get('/authStatus', async (req,res) => {
     return res.sendStatus(200)
   })
-  //Realestate offers
-  api.register(require('./routes/offers'), { prefix: '/offers' })
   api.get('/adminStatus', async (req,res) => {
     return res.sendStatus(200)
   })
