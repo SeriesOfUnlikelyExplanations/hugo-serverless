@@ -232,7 +232,7 @@ export class HugoServerlessStack extends cdk.Stack {
         //manage vpc endpoints
         'ec2:CreateVpcEndpoint',
         'ec2:describeVpcEndpoints',
-        'ec2:DeleteVpcEndpoint'
+        'ec2:DeleteVpcEndpoints'
        ],
     }))
     
