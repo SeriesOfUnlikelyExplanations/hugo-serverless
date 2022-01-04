@@ -65,7 +65,7 @@ export class HugoApiStack extends cdk.Stack {
       });   
       new StringParameter(this, "AuthDomain", {
         parameterName: '/hugoServerless/AuthDomain',
-        stringValue: StringParameter.valueForStringParameter(this, config.cognito.AuthDomain),
+        stringValue:config.cognito.AuthDomain,
       });   
     }
   }
