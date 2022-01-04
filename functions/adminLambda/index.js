@@ -47,6 +47,7 @@ exports.handler = async (event, context) => {
     var params = {
       VpcEndpointIds: vpcData.VpcEndpoints.map(({VpcEndpointId}) => VpcEndpointId)
     }
+    console.log(params);
     const result = await ec2.deleteVpcEndpoints(params).promise();
     console.log(result);
     console.log('VPC endpoints deleted.');
