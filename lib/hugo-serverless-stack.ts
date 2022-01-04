@@ -277,22 +277,6 @@ export class HugoServerlessStack extends cdk.Stack {
     });
     rsrc.node.addDependency(handler.permissionsNode.findChild('AllowS3Invocation'));
     
-    //Lambda permisions for DynamoDB
-    const emailsTable = StringParameter.valueForStringParameter(this, config.email.emailDynamoSSM);
-    handler.addToRolePolicy(new PolicyStatement({
-      resources: [`arn:aws:dynamodb:${props.env?.region}:${props.env?.account}:table/${emailsTable}`],
-      actions: ["dynamodb:GetItem",
-        "dynamodb:PutItem",
-        "dynamodb:UpdateItem"
-      ],
-    }));
-    
-    //Let Lambda send email
-    handler.addToRolePolicy(new PolicyStatement({
-      resources: ['arn:aws:ses:${props.env?.region}:${props.env?.account}:identity/'+config.deploy.zoneName],
-      actions: ['ses:SendEmail', 'ses:SendRawEmail'],
-    }))
-    
     // Create the VPC lambda for Hugo generation
     const vpcHandler = new Function(this, 'hugoServerlessVpcLambda', {
       functionName: `hugoServerlessVpcLambda`,
@@ -377,10 +361,6 @@ export class HugoServerlessStack extends cdk.Stack {
       parameterName: '/hugoServerless/datasyncWebsiteTask',
       stringValue: dsWebsiteTask.attrTaskArn,
     });
-    new StringParameter(this, "emailDynamoSSM", {
-      parameterName: '/hugoServerless/emailDynamoSSM',
-      stringValue: emailsTable,
-    });
     new StringParameter(this, "vpcID", {
       parameterName: '/hugoServerless/vpcID',
       stringValue: vpc.vpcId,
@@ -393,10 +373,31 @@ export class HugoServerlessStack extends cdk.Stack {
       parameterName: '/hugoServerless/securityGroupID',
       stringValue: dsSG.securityGroupId,
     });
-     
-    new StringParameter(this, "noReplyEmail", {
-      parameterName: '/hugoServerless/noReplyEmail',
-      stringValue: StringParameter.valueForStringParameter(this, config.email.noReplyEmailSSM),
-    });
+    
+    if (config.email) {
+      new StringParameter(this, "noReplyEmail", {
+        parameterName: '/hugoServerless/noReplyEmail',
+        stringValue: StringParameter.valueForStringParameter(this, config.email.noReplyEmailSSM),
+      });
+      //Lambda permisions for DynamoDB
+      const emailsTable = StringParameter.valueForStringParameter(this, config.email.emailDynamoSSM);
+      handler.addToRolePolicy(new PolicyStatement({
+        resources: [`arn:aws:dynamodb:${props.env?.region}:${props.env?.account}:table/${emailsTable}`],
+        actions: ["dynamodb:GetItem",
+          "dynamodb:PutItem",
+          "dynamodb:UpdateItem"
+        ],
+      }));
+      
+      //Let Lambda send email
+      handler.addToRolePolicy(new PolicyStatement({
+        resources: ['arn:aws:ses:${props.env?.region}:${props.env?.account}:identity/'+config.deploy.zoneName],
+        actions: ['ses:SendEmail', 'ses:SendRawEmail'],
+      }))
+      new StringParameter(this, "emailDynamoSSM", {
+        parameterName: '/hugoServerless/emailDynamoSSM',
+        stringValue: emailsTable,
+      });
+    }
   }
 }

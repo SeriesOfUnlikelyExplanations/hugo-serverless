@@ -24,13 +24,9 @@ module.exports = (api, opts) => {
   api.get('/status', async (req,res) => {
     return res.sendStatus(200)
   })
-
   // define the auth paths
   api.register(require('./routes/auth'), { prefix: '/auth' })
-
-  // define the device paths
-  api.register(require('./routes/device'), { prefix: '/device' })
-
+  
   //Check for Authorization
   api.use(Authorizer);
   api.get('/authStatus', async (req,res) => {
@@ -38,7 +34,9 @@ module.exports = (api, opts) => {
   })
   //Realestate offers
   api.register(require('./routes/offers'), { prefix: '/offers' })
-
+  api.get('/adminStatus', async (req,res) => {
+    return res.sendStatus(200)
+  })
   //Register admin endpoints
   api.use(adminCheck);
   api.get('/adminStatus', async (req,res) => {
@@ -46,7 +44,7 @@ module.exports = (api, opts) => {
   })
   api.register(require('./routes/manageDevices'), { prefix: '/managedevices' })
   api.any('/*', async (req,res) => {
-    return res.redirect('/index.html')
+    return res.redirect('/')
   })
 }
 
