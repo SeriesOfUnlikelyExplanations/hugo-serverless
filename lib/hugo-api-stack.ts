@@ -5,6 +5,10 @@ import { PolicyStatement, ServicePrincipal } from '@aws-cdk/aws-iam';
 import { Table, AttributeType, BillingMode } from '@aws-cdk/aws-dynamodb';
 import { LambdaRestApi, AuthorizationType } from '@aws-cdk/aws-apigateway';
 
+import * as fs from 'fs';
+import * as toml from 'toml';
+const config = toml.parse(fs.readFileSync('./config.toml', 'utf-8'));
+
 //~ import console = require('console');
 
 export class HugoApiStack extends cdk.Stack {
@@ -52,11 +56,11 @@ export class HugoApiStack extends cdk.Stack {
     
     new StringParameter(this, "UserPoolId", {
       parameterName: '/hugoServerless/UserPoolId',
-      stringValue: StringParameter.valueForStringParameter(this, config.email.UserPoolIdSSM),
+      stringValue: StringParameter.valueForStringParameter(this, config.cognito.UserPoolIdSSM),
     });   
-    const myEmailSSM =     new StringParameter(this, "UserPoolClientId", {
+    new StringParameter(this, "UserPoolClientId", {
       parameterName: '/hugoServerless/UserPoolClientId',
-      stringValue: StringParameter.valueForStringParameter(this, config.email.UserPoolClientIdSSM),
+      stringValue: StringParameter.valueForStringParameter(this, config.cognito.UserPoolClientIdSSM),
     });   
   }
 }
