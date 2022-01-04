@@ -40,7 +40,6 @@ module.exports = (api, opts) => {
   api.get('/adminStatus', async (req,res) => {
     return res.sendStatus(200)
   })
-  api.register(require('./routes/manageDevices'), { prefix: '/managedevices' })
   api.any('/*', async (req,res) => {
     return res.redirect('/')
   })
