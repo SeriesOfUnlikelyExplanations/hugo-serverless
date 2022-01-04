@@ -10,10 +10,10 @@ module.exports = (api, opts) => {
       maxAge: 84000000
     })
     var ssm = new SSM({signatureVersion: 'v4', region: 'us-west-2'});
-    const data = await getSSM(ssm, '/HugoServerless')
+    const data = await getSSM(ssm, '/hugoServerless')
     const config = {}
     for (const i of data) {
-      config[i.Name.replace("/HugoServerless/","")] = i.Value;
+      config[i.Name.replace("/hugoServerless/","")] = i.Value;
     }
     req.config = config;
     req.config.host = ((req.headers.host === 'localhost:3000') ? 'localhost:3000' : 'blog.always-onward.com')
