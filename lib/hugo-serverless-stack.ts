@@ -231,7 +231,7 @@ export class HugoServerlessStack extends cdk.Stack {
         'cloudfront:GetInvalidation',
         //manage vpc endpoints
         'ec2:CreateVpcEndpoint',
-        'ec2:DescribeVpcEndpoint',
+        'ec2:describeVpcEndpoints',
         'ec2:DeleteVpcEndpoint'
        ],
     }))
