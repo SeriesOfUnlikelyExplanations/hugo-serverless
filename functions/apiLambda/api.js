@@ -32,13 +32,16 @@ module.exports = (api, opts) => {
         content:"Thank you!!"
       }
     ]
-    
     return res.status(200).json(comments)
   })
   //Check for Authorization
   api.use(Authorizer);
   api.get('/authStatus', async (req,res) => {
     return res.sendStatus(200)
+  })
+  api.get('/getInfo', async (req,res) => {
+    
+    return res.status(200).json(req.idTokenPayload)
   })
   
   //Register admin endpoints
