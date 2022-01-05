@@ -54,7 +54,7 @@ module.exports = (api, opts) => {
     }
     await ddb.update({
       TableName: req.config.commentsTable,
-      Key: { id: re.body.postPath },
+      Key: { id: req.body.postPath },
       ReturnValues: 'ALL_NEW',
       UpdateExpression: 'set #comments = list_append(if_not_exists(#comments, :empty_list), :comment)',
       ExpressionAttributeNames: {
