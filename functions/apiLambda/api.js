@@ -45,7 +45,27 @@ module.exports = (api, opts) => {
   })
   api.post('/post_comment', async (req,res) => {
     console.log(req.body);
-    return res.status(200).json(req.body)
+    console.log(req.idTokenPayload);
+    const ddb = new DynamoDB.DocumentClient({signatureVersion: 'v4', region: req.config.region})
+    const comment = {
+      author: "name
+      userId: req.userId 
+      content: req.body.content 
+    }
+    ddb.update({
+      TableName: req.config.commentsTable
+      Key: { id: re.body.postPath },
+      ReturnValues: 'ALL_NEW',
+      UpdateExpression: 'set #comments = list_append(if_not_exists(#comments, :empty_list), :comment)',
+      ExpressionAttributeNames: {
+        '#comments': 'comments'
+      },
+      ExpressionAttributeValues: {
+        ':comment': [comment],
+        ':empty_list': []
+      }
+    }).promise()
+    return res.redirect(req.headers.referrer)
   })
   
   //Register admin endpoints
