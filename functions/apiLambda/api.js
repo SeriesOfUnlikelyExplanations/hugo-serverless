@@ -48,8 +48,8 @@ module.exports = (api, opts) => {
     console.log(req.idTokenPayload);
     const ddb = new DynamoDB.DocumentClient({signatureVersion: 'v4', region: req.config.region})
     const comment = {
-      author: "name
-      userId: req.userId 
+      author: "name",
+      userId: req.userId,
       content: req.body.content 
     }
     await ddb.update({
