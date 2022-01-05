@@ -55,7 +55,7 @@ export class HugoApiStack extends cdk.Stack {
       commentsTable.grantReadWriteData(handler)
       
       new StringParameter(this, 'commentsTable', {
-        parameterName: '/AlwaysOnward/commentsTable',
+        parameterName: '/hugoServerless/commentsTable',
         stringValue: commentsTable.tableName
       });
       new StringParameter(this, "UserPoolId", {
