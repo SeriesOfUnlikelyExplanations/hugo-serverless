@@ -27,13 +27,16 @@ module.exports = (api, opts) => {
     var comments = []
     if ('post' in req.query) {
       const ddb = new DynamoDB.DocumentClient({signatureVersion: 'v4', region: req.config.region})
-      comments = await ddb.query({
+      const response = await ddb.query({
         KeyConditionExpression: 'postPath = :postPath',
         ExpressionAttributeValues: {
             ':postPath': req.query.post
         },
         TableName: req.config.commentsTable
-       }).promise().then((r) => r.Items[0].comments)
+       }).promise().then((r) => r.Items)
+       if (comments.length) {
+         comments = response[0].comments
+       }
        console.log(comments);
      }
     return res.status(200).json(comments)
