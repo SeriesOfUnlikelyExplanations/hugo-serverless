@@ -32,8 +32,19 @@ module.exports = (api, opts) => {
   api.get('/authStatus', async (req,res) => {
     return res.sendStatus(200)
   })
-  api.get('/adminStatus', async (req,res) => {
-    return res.sendStatus(200)
+  api.get('/get_comments', async (req,res) => {
+    const comments = [
+      {
+        author:"Katie",
+        content:"Thank you!!"
+      },
+      {
+        author:"Tom",
+        content:"Thank you!!"
+      }
+    ]
+    
+    return res.status(200).json(comments)
   })
   //Register admin endpoints
   api.use(adminCheck);
