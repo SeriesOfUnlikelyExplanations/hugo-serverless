@@ -39,15 +39,6 @@ exports.handler = async (event, context) => {
     
     await datasync.startTaskExecution({ TaskArn: ssmData.Parameters.find(({ Name }) => Name ==='/hugoServerless/datasyncWebsiteTask').Value}).promise();
     console.log('Website datasync task started.');
-    // REMOVE VPC endpoints here
-    const ec2 = new AWS.EC2();
-    console.log('Deleting VPC endpoints...');
-    const vpcData = await ec2.describeVpcEndpoints({}).promise();
-    var params = {
-      VpcEndpointIds: vpcData.VpcEndpoints.map(({VpcEndpointId}) => VpcEndpointId)
-    }
-    await ec2.deleteVpcEndpoints(params).promise();
-    console.log('VPC endpoints deleted.');
   } else if (event.hasOwnProperty('source') && event.source == 'aws.datasync') {
     console.log('Datasync task completed. Checking which task it was...');
     AWS.config.update({region: event.region})
@@ -68,8 +59,9 @@ exports.handler = async (event, context) => {
 
       console.log('Invalidation complete. Starting the broken link checker...')
       const brokenLinks = await checkBrokenLinks('https://' + ssmData.Parameters.find(p => p.Name === '/hugoServerless/siteName').Value);
+      console.log('Broken Link Checker complete.');
       if (ssmData.Parameters.find(p => p.Name === '/hugoServerless/noReplyEmail').Value) {
-        console.log('Broken Link Checker complete. Sending email...');
+        console.log('Sending email...');
         console.log(brokenLinks);
         const ddb = new AWS.DynamoDB({signatureVersion: 'v4', region: event.awsRegion})
         email = { 
@@ -83,10 +75,17 @@ exports.handler = async (event, context) => {
         const ses = new AWS.SES()
         //~ result = await sendEmail(brokenLinks,'https://' + ssmData.Parameters.find(p => p.Name === '/hugoServerless/siteName').Value, email, ses);
         //~ console.log(result);
-        console.log('Email Sent. All done.');
-      } else {
-        console.log('Invalidation complete. All done.')
+        console.log('Email Sent.');
       }
+      // REMOVE VPC endpoints here
+      const ec2 = new AWS.EC2();
+      console.log('Deleting VPC endpoints...');
+      const vpcData = await ec2.describeVpcEndpoints({}).promise();
+      var params = {
+        VpcEndpointIds: vpcData.VpcEndpoints.map(({VpcEndpointId}) => VpcEndpointId)
+      }
+      await ec2.deleteVpcEndpoints(params).promise();
+      console.log('VPC endpoints deleted. All done.');
     } else if (event.resources[0].includes(ssmData.Parameters.find(p => p.Name ==='/hugoServerless/datasyncSourceTask').Value)){
       console.log('Source Datasync task completed. Emptying the website bucket so it is ready for deployment...');
       Bucket = ssmData.Parameters.find(p => p.Name === '/hugoServerless/siteName').Value;
