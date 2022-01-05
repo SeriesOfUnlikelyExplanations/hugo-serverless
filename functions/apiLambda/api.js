@@ -6,7 +6,7 @@ const SSM = AWS.SSM;
 module.exports = (api, opts) => {
   api.use(async (req,res,next) => {
     res.cors()
-    var ssm = new SSM({signatureVersion: 'v4', region: 'us-west-2'}});
+    var ssm = new SSM({signatureVersion: 'v4', region: 'us-west-2'});
     const data = await getSSM(ssm, '/hugoServerless')
     const config = {}
     for (const i of data) {
