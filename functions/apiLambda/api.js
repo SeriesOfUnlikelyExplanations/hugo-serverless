@@ -1,4 +1,6 @@
-var { SSM } = require("aws-sdk");
+const AWS = require('aws-sdk')
+const DynamoDB = AWS.DynamoDB;
+const SSM = AWS.SSM;
 
 // Comments - api
 module.exports = (api, opts) => {
@@ -22,16 +24,18 @@ module.exports = (api, opts) => {
   // define the auth paths
   api.register(require('./routes/auth'), { prefix: '/auth' })
   api.get('/get_comments', async (req,res) => {
-    const comments = [
-      {
-        author:"Katie",
-        content:"Thank you!!"
-      },
-      {
-        author:"Tom",
-        content:"Thank you!!"
-      }
-    ]
+    var comments = []
+    if ('post' in req.query) {
+      const ddb = new DynamoDB.DocumentClient({signatureVersion: 'v4', region: req.config.region})
+      const comments = await ddb.query({
+        KeyConditionExpression: 'postPath = :postPath',
+        ExpressionAttributeValues: {
+            ':postPath': req.query.post
+        },
+        TableName: req.config.commentsTable
+       }).promise().then((r) => r.Items.comments)
+       console.log(comments);
+     }
     return res.status(200).json(comments)
   })
   //Check for Authorization

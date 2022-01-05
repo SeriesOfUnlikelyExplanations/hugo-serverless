@@ -46,7 +46,6 @@ export class HugoApiStack extends cdk.Stack {
       // Create Dynamo DB table to store comments
       const commentsTable = new Table(this, 'CommentsTable', {
         partitionKey: { name: 'postPath', type: AttributeType.STRING },
-        sortKey: {name: 'commentId', type: AttributeType.STRING},
         billingMode: BillingMode.PROVISIONED,
       });
       commentsTable.autoScaleWriteCapacity({
@@ -55,6 +54,10 @@ export class HugoApiStack extends cdk.Stack {
       }).scaleOnUtilization({ targetUtilizationPercent: 75 });
       commentsTable.grantReadWriteData(handler)
       
+      new StringParameter(this, 'commentsTable', {
+        parameterName: '/AlwaysOnward/commentsTable',
+        stringValue: commentsTable.tableName
+      });
       new StringParameter(this, "UserPoolId", {
         parameterName: '/hugoServerless/UserPoolId',
         stringValue: StringParameter.valueForStringParameter(this, config.cognito.UserPoolIdSSM),
