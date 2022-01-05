@@ -43,8 +43,8 @@ module.exports = (api, opts) => {
   api.get('/authStatus', async (req,res) => {
     return res.sendStatus(200)
   })
-  api.get('/post_comment', async (req,res) => {
-    
+  api.post('/post_comment', async (req,res) => {
+    console.log(req.body);
     return res.status(200).json(req.body)
   })
   
