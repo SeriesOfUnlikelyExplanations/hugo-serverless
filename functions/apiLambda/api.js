@@ -34,7 +34,7 @@ module.exports = (api, opts) => {
         },
         TableName: req.config.commentsTable
        }).promise().then((r) => r.Items)
-       if (comments.length) {
+       if (response.length) {
          comments = response[0].comments
        }
        console.log(comments);
