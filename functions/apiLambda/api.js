@@ -6,7 +6,7 @@ const SSM = AWS.SSM;
 module.exports = (api, opts) => {
   api.use(async (req,res,next) => {
     res.cors()
-    var ssm = new SSM({signatureVersion: 'v4', region: 'us-west-2'});
+    var ssm = new SSM({signatureVersion: 'v4', region: req.config.region});
     const data = await getSSM(ssm, '/hugoServerless')
     const config = {}
     for (const i of data) {
@@ -48,7 +48,7 @@ module.exports = (api, opts) => {
     console.log(req.idTokenPayload);
     const ddb = new DynamoDB.DocumentClient({signatureVersion: 'v4', region: req.config.region})
     const comment = {
-      author: "name",
+      author: req.idTokenPayload.name.split(" ")[0],
       userId: req.userId,
       content: req.body.content 
     }
@@ -65,7 +65,7 @@ module.exports = (api, opts) => {
         ':empty_list': []
       }
     }).promise()
-    return res.redirect(req.headers.referrer)
+    return res.sendStatus(200)
   })
   
   //Register admin endpoints
