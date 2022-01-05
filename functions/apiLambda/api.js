@@ -43,9 +43,9 @@ module.exports = (api, opts) => {
   api.get('/authStatus', async (req,res) => {
     return res.sendStatus(200)
   })
-  api.get('/getInfo', async (req,res) => {
+  api.get('/post_comment', async (req,res) => {
     
-    return res.status(200).json(req.idTokenPayload)
+    return res.status(200).json(req.body)
   })
   
   //Register admin endpoints
