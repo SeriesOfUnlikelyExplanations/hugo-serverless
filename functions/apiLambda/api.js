@@ -3,12 +3,7 @@ var { SSM } = require("aws-sdk");
 // Comments - api
 module.exports = (api, opts) => {
   api.use(async (req,res,next) => {
-    res.cors({
-      origin: 'Access-Control-Allow-Origin',
-      methods: 'GET, POST, OPTIONS',
-      headers: 'content-type, authorization',
-      maxAge: 84000000
-    })
+    res.cors()
     var ssm = new SSM({signatureVersion: 'v4', region: 'us-west-2'});
     const data = await getSSM(ssm, '/hugoServerless')
     const config = {}
