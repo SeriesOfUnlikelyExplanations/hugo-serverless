@@ -21,12 +21,6 @@ module.exports = (api, opts) => {
   })
   // define the auth paths
   api.register(require('./routes/auth'), { prefix: '/auth' })
-  
-  //Check for Authorization
-  api.use(Authorizer);
-  api.get('/authStatus', async (req,res) => {
-    return res.sendStatus(200)
-  })
   api.get('/get_comments', async (req,res) => {
     const comments = [
       {
@@ -41,6 +35,12 @@ module.exports = (api, opts) => {
     
     return res.status(200).json(comments)
   })
+  //Check for Authorization
+  api.use(Authorizer);
+  api.get('/authStatus', async (req,res) => {
+    return res.sendStatus(200)
+  })
+  
   //Register admin endpoints
   api.use(adminCheck);
   api.get('/adminStatus', async (req,res) => {
