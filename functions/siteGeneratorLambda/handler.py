@@ -36,7 +36,15 @@ def lambda_handler(event, context):
   
   logger.info('Checking which task was completed...')
   if parameter['Parameter']['Value'] in event['resources'][0]:
-    logger.info("Source Datasync Task. Building Hugo site...")
+    logger.info("It was the Source Datasync Task."
+    logger.info("Checking if there was a theme folder in the source bucket..."
+    theme_present = os.path.isdir(LOCAL_SOURCE_DIR + 'themes')
+    logger.info(theme_present);   
+    if !theme_present:
+      console.log('No theme. Using Default...');
+      
+      #probably need to retrieve the theme from an S3 bucket
+    logger.info("Building Hugo site...")
     run_command("hugo/hugo -s {0} -d {1}".format(LOCAL_SOURCE_DIR,LOCAL_BUILD_DIR))
     run_command("ls -l {0}".format(LOCAL_BUILD_DIR))
     

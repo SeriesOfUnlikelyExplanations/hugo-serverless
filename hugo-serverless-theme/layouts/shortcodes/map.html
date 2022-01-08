@@ -1,0 +1,18 @@
+<div class="map_title">{{ replace (replace (.Get 0) "_" " ") "-" " " | title }}</div> 
+<div class="map" id="{{ .Get 0 }}"></div>
+<table class="map_table">
+  <tr>
+    <td>
+      <img src="/images/distance.png">
+      <div id="{{ .Get 0 }}_distance"></div>
+    </td>
+    <td id="{{ .Get 0 }}_time" ></td> 
+    <td>
+      <img src="/images/elevation.png">
+      <div id="{{ .Get 0 }}_elevation"></div>
+    </td>
+  </tr>
+</table>
+<br>
+ 
+ 
