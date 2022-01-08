@@ -9,7 +9,6 @@
     "new": "hugo new -s static-site",
     "deploy-website": "aws s3 sync ../onward-blog/public s3://blog.always-onward.com --delete",
     "test-cdk": "cdk synth",
-    "predeploy": "node lib/scripts/pre-deploy.js",
     "deploy": "cdk deploy --all --require-approval never",
     "test-service": "aws s3 cp ../onward-blog/content/_index.md s3://blog.always-onward.com-source/content/_index.md",
     "download-source": "aws s3 sync s3://blog.always-onward.com-source/source source/",
