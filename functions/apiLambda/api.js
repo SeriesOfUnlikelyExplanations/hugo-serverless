@@ -32,7 +32,7 @@ module.exports = (api, opts) => {
         ExpressionAttributeValues: {
             ':postPath': req.query.post
         },
-        TableName: req.config.commentsTable
+        TableName: req.config.postsTable
        }).promise().then((r) => r.Items)
        if (response.length) {
          comments = response[0].comments
@@ -56,7 +56,7 @@ module.exports = (api, opts) => {
       content: req.body.content 
     }
     await ddb.update({
-      TableName: req.config.commentsTable,
+      TableName: req.config.postsTable,
       Key: { postPath: req.body.postPath },
       ReturnValues: 'ALL_NEW',
       UpdateExpression: 'set #comments = list_append(if_not_exists(#comments, :empty_list), :comment)',
