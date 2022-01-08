@@ -53,7 +53,6 @@ exports.handler = async (event, context) => {
       '/hugoServerless/myEmailSSM'
     ]}).promise();
     if (event.resources[0].includes(ssmData.Parameters.find(p => p.Name ==='/hugoServerless/datasyncWebsiteTask').Value)) {
-    if (event.resources[0].includes(ssmData.Parameters.find(p => p.Name ==='/hugoServerless/datasyncWebsiteTask').Value)) {
       console.log('Website Datasync task was the one completed. Starting cloudfront Invalidation...');
       var cloudfront = new AWS.CloudFront();
       await invalidate(cloudfront, ssmData.Parameters.find(p => p.Name === '/hugoServerless/distID').Value);
@@ -78,18 +77,17 @@ exports.handler = async (event, context) => {
           //~ result = await sendEmail(brokenLinks,'https://' + ssmData.Parameters.find(p => p.Name === '/hugoServerless/siteName').Value, email, ses);
           //~ console.log(result);
           console.log('Email Sent.');
-        } catch (error) {
-          console.error(error);
+        } catch (e) {
+          console.error(e);
         }
       }
       // REMOVE VPC endpoints here
       const ec2 = new AWS.EC2();
       console.log('Deleting VPC endpoints...');
       const vpcData = await ec2.describeVpcEndpoints({}).promise();
-      var params = {
+      await ec2.deleteVpcEndpoints({
         VpcEndpointIds: vpcData.VpcEndpoints.map(({VpcEndpointId}) => VpcEndpointId)
-      }
-      await ec2.deleteVpcEndpoints(params).promise();
+      }).promise();
       console.log('VPC endpoints deleted. All done.');
     } else if (event.resources[0].includes(ssmData.Parameters.find(p => p.Name ==='/hugoServerless/datasyncSourceTask').Value)){
       console.log('Source Datasync task completed. Emptying the website bucket so it is ready for deployment...');
