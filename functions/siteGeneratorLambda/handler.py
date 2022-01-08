@@ -31,45 +31,49 @@ def lambda_handler(event, context):
   logger.info("Getting SSM parameter...")
   region = event['region']
   ssm = boto3.client('ssm', region_name = region)
-  parameter = ssm.get_parameter(Name='/hugoServerless/datasyncSourceTask', WithDecryption=True)
-  
+  parameters = ssm.get_parameters(Name= [
+    '/hugoServerless/datasyncSourceTask',
+    '/hugoServerless/themeBucket'
+  ])
+  sourceTask = next(item for item in parameters if item["Name"] == '/hugoServerless/datasyncSourceTask')
   logger.info('Checking which task was completed...')
   if parameter['Parameter']['Value'] in event['resources'][0]:
     logger.info("It was the Source Datasync Task."
     logger.info("Checking if there was a theme folder in the source bucket..."
-    theme_present = os.path.isdir(LOCAL_SOURCE_DIR + 'themes')
+    THEMEPATH = LOCAL_SOURCE_DIR+'/themes/hugo-serverless-theme'
+    theme_present = os.path.isdir(THEMEPATH)
     logger.info(theme_present);   
     if !theme_present:
       console.log('No theme. Using Default...');
       s3_client = boto3.client('s3')
-      themeBucket = ssm.get_parameter(Name='/hugoServerless/themeBucket', WithDecryption=True)
+      themeBucket = next(item for item in parameters if item["Name"] == '/hugoServerless/themeBucket')
       keys = []
       dirs = []
       next_token = ''
-      base_kwargs = {'Bucket':themeBucket['Parameter']['Value']}
       while next_token is not None:
-          kwargs = base_kwargs.copy()
-          if next_token != '':
-              kwargs.update({'ContinuationToken': next_token})
-          results = s3_client.list_objects_v2(**kwargs)
-          contents = results.get('Contents')
-          for i in contents:
-              k = i.get('Key')
-              if k[-1] != '/':
-                  keys.append(k)
-              else:
-                  dirs.append(k)
-          next_token = results.get('NextContinuationToken')
+        if next_token == '':
+          results = s3_client.list_objects_v2(bucket = themeBucket)
+        else:
+          results = s3_client.list_objects_v2(bucket = themeBucket, ContinuationToken = next_token)
+        contents = results.get('Contents')
+        for i in contents:
+            k = i.get('Key')
+            if k[-1] != '/':
+                keys.append(k)
+            else:
+                dirs.append(k)
+        next_token = results.get('NextContinuationToken')
       for d in dirs:
-          dest_pathname = os.path.join(local, d)
-          if not os.path.exists(os.path.dirname(dest_pathname)):
-              os.makedirs(os.path.dirname(dest_pathname))
+        dest_pathname = os.path.join(THEMEPATH, d)
+        if not os.path.exists(os.path.dirname(dest_pathname)):
+          os.makedirs(os.path.dirname(dest_pathname))
       for k in keys:
-          dest_pathname = os.path.join(local, k)
-          if not os.path.exists(os.path.dirname(dest_pathname)):
-              os.makedirs(os.path.dirname(dest_pathname))
-          s3_client.download_file(bucket, k, dest_pathname)
-      #probably need to retrieve the theme from an S3 bucket
+        dest_pathname = os.path.join(THEMEPATH, k)
+        if not os.path.exists(os.path.dirname(dest_pathname)):
+          os.makedirs(os.path.dirname(dest_pathname))
+        s3_client.download_file(themeBucket, k, dest_pathname)
+      console.log('Downloaded default theme.');
+      
     logger.info("Building Hugo site...")
     run_command("hugo/hugo -s {0} -d {1}".format(LOCAL_SOURCE_DIR,LOCAL_BUILD_DIR))
     run_command("ls -l {0}".format(LOCAL_BUILD_DIR))
