@@ -1,6 +1,7 @@
 import * as cdk from '@aws-cdk/core';
 import { CloudFrontWebDistribution, OriginProtocolPolicy, CloudFrontAllowedMethods } from '@aws-cdk/aws-cloudfront'
 import { Bucket, BlockPublicAccess } from '@aws-cdk/aws-s3';
+import { BucketDeployment } from '@aws-cdk/aws-s3-deployment';
 import { Vpc, SubnetType, SecurityGroup, Peer, Port, InterfaceVpcEndpointAwsService } from '@aws-cdk/aws-ec2';
 import { FileSystem as efsFileSystem }  from '@aws-cdk/aws-efs';
 import { Rule } from'@aws-cdk/aws-events'
@@ -55,6 +56,17 @@ export class HugoServerlessStack extends cdk.Stack {
         principals: [new AnyPrincipal()],
       })
     );
+    
+    //Create the theme bucket
+    const themeBucket = new Bucket(this, config.deploy.siteName + '-theme', {
+      bucketName: config.deploy.siteName+'-theme',
+      removalPolicy: cdk.RemovalPolicy.DESTROY,
+      autoDeleteObjects: true
+    });
+    new BucketDeployment(this, 'DeployWebsite', {
+      sources: [s3deploy.Source.asset('./hugo-serverless-theme')],
+      destinationBucket: themeBucket
+    });
    
     //Create the website bucket
     const websiteBucket = new Bucket(this, config.deploy.siteName + '-website', {
@@ -324,6 +336,10 @@ export class HugoServerlessStack extends cdk.Stack {
     new StringParameter(this, "sourceBucket", {
       parameterName: '/hugoServerless/sourceBucket',
       stringValue: sourceBucket.bucketName,
+    });
+    new StringParameter(this, "themeBucket", {
+      parameterName: '/hugoServerless/themeBucket',
+      stringValue: themeBucket.bucketName,
     });
     new StringParameter(this, "deploymentLambda", {
       parameterName: '/hugoServerless/deploymentLambda',
