@@ -53,6 +53,7 @@ exports.handler = async (event, context) => {
       '/hugoServerless/myEmailSSM'
     ]}).promise();
     if (event.resources[0].includes(ssmData.Parameters.find(p => p.Name ==='/hugoServerless/datasyncWebsiteTask').Value)) {
+    if (event.resources[0].includes(ssmData.Parameters.find(p => p.Name ==='/hugoServerless/datasyncWebsiteTask').Value)) {
       console.log('Website Datasync task was the one completed. Starting cloudfront Invalidation...');
       var cloudfront = new AWS.CloudFront();
       await invalidate(cloudfront, ssmData.Parameters.find(p => p.Name === '/hugoServerless/distID').Value);
@@ -63,19 +64,23 @@ exports.handler = async (event, context) => {
       if (ssmData.Parameters.find(p => p.Name === '/hugoServerless/noReplyEmail').Value) {
         console.log('Sending email...');
         console.log(brokenLinks);
-        const ddb = new AWS.DynamoDB({signatureVersion: 'v4', region: event.awsRegion})
-        email = { 
-          fromEmail: ssmData.Parameters.find(p => p.Name === '/hugoServerless/noReplyEmail').Value,
-          toEmail: await ddb.getItem({
-            Key: { 'listId': {'S': ssmData.Parameters.find(p => p.Name === '/hugoServerless/siteName').Value } },
-            TableName: ssmData.Parameters.find(p => p.Name === '/hugoServerless/emailDynamoSSM').Value
-          }).promise().then((r) => r.Item.emails.L.map(a => a.M.email.S)),
-          adminEmail: ssmData.Parameters.find(p => p.Name === '/hugoServerless/myEmailSSM').Value
+        try {
+          const ddb = new AWS.DynamoDB({signatureVersion: 'v4', region: event.awsRegion})
+          email = { 
+            fromEmail: ssmData.Parameters.find(p => p.Name === '/hugoServerless/noReplyEmail').Value,
+            toEmail: await ddb.getItem({
+              Key: { 'listId': {'S': ssmData.Parameters.find(p => p.Name === '/hugoServerless/siteName').Value } },
+              TableName: ssmData.Parameters.find(p => p.Name === '/hugoServerless/emailDynamo').Value
+            }).promise().then((r) => r.Item.emails.L.map(a => a.M.email.S)),
+            adminEmail: ssmData.Parameters.find(p => p.Name === '/hugoServerless/myEmail').Value
+          }
+          const ses = new AWS.SES()
+          //~ result = await sendEmail(brokenLinks,'https://' + ssmData.Parameters.find(p => p.Name === '/hugoServerless/siteName').Value, email, ses);
+          //~ console.log(result);
+          console.log('Email Sent.');
+        } catch (error) {
+          console.error(error);
         }
-        const ses = new AWS.SES()
-        //~ result = await sendEmail(brokenLinks,'https://' + ssmData.Parameters.find(p => p.Name === '/hugoServerless/siteName').Value, email, ses);
-        //~ console.log(result);
-        console.log('Email Sent.');
       }
       // REMOVE VPC endpoints here
       const ec2 = new AWS.EC2();

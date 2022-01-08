@@ -100,22 +100,6 @@ export class HugoServerlessStack extends cdk.Stack {
       }
     });
     
-    //Create the cloudfront distribution to cache the bucket
-    //~ const distribution = new CloudFrontWebDistribution(this, config.deploy.siteName + '-cfront', {
-      //~ originConfigs: [
-        //~ {
-          //~ customOriginSource: {
-            //~ domainName: websiteBucket.bucketWebsiteDomainName,
-            //~ originProtocolPolicy: OriginProtocolPolicy.HTTP_ONLY,
-          //~ },
-          //~ behaviors : [ {isDefaultBehavior: true}]
-        //~ }
-      //~ ],
-      //~ aliasConfiguration: {
-        //~ acmCertRef: certificateArn,
-        //~ names: [config.deploy.siteName]
-      //~ }
-    //~ });
     // Create a file system in EFS to store information
     const vpc = new Vpc(this, 'Vpc', {
       natGateways: 0,
@@ -375,6 +359,10 @@ export class HugoServerlessStack extends cdk.Stack {
     });
     
     if (config.email) {
+      new StringParameter(this, "myEmail", {
+        parameterName: '/hugoServerless/myEmail',
+        stringValue: StringParameter.valueForStringParameter(this, config.email.myEmailSSM),
+      });
       new StringParameter(this, "noReplyEmail", {
         parameterName: '/hugoServerless/noReplyEmail',
         stringValue: StringParameter.valueForStringParameter(this, config.email.noReplyEmailSSM),
@@ -394,8 +382,8 @@ export class HugoServerlessStack extends cdk.Stack {
         resources: [`arn:aws:ses:${props.env?.region}:${props.env?.account}:identity/${config.deploy.zoneName}`],
         actions: ['ses:SendEmail', 'ses:SendRawEmail'],
       }))
-      new StringParameter(this, "emailDynamoSSM", {
-        parameterName: '/hugoServerless/emailDynamoSSM',
+      new StringParameter(this, "emailDynamo", {
+        parameterName: '/hugoServerless/emailDynamo',
         stringValue: emailsTable,
       });
     }
