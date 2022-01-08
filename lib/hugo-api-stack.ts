@@ -54,7 +54,7 @@ export class HugoApiStack extends cdk.Stack {
       }).scaleOnUtilization({ targetUtilizationPercent: 75 });
       postsTable.grantReadWriteData(handler)
       
-      new StringParameter(this, 'postsTable', {
+      new StringParameter(this, 'postsTableSSM', {
         parameterName: '/hugoServerless/postsTable',
         stringValue: postsTable.tableName
       });

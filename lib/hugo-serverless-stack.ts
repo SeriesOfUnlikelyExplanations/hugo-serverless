@@ -1,7 +1,7 @@
 import * as cdk from '@aws-cdk/core';
 import { CloudFrontWebDistribution, OriginProtocolPolicy, CloudFrontAllowedMethods } from '@aws-cdk/aws-cloudfront'
 import { Bucket, BlockPublicAccess } from '@aws-cdk/aws-s3';
-import { BucketDeployment } from '@aws-cdk/aws-s3-deployment';
+import { BucketDeployment, Source } from '@aws-cdk/aws-s3-deployment';
 import { Vpc, SubnetType, SecurityGroup, Peer, Port, InterfaceVpcEndpointAwsService } from '@aws-cdk/aws-ec2';
 import { FileSystem as efsFileSystem }  from '@aws-cdk/aws-efs';
 import { Rule } from'@aws-cdk/aws-events'
@@ -64,7 +64,7 @@ export class HugoServerlessStack extends cdk.Stack {
       autoDeleteObjects: true
     });
     new BucketDeployment(this, 'DeployWebsite', {
-      sources: [s3deploy.Source.asset('./hugo-serverless-theme')],
+      sources: [Source.asset('./hugo-serverless-theme')],
       destinationBucket: themeBucket
     });
    
