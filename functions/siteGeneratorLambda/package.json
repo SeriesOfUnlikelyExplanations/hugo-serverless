@@ -1,0 +1,18 @@
+{
+  "name": "HugoServerlessVPCLambda",
+  "version": "1.0.0",
+  "description": "Part of Hugo Serverless",
+  "dependencies": {
+    "hugo-extended": "^0.89.4"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SeriesOfUnlikelyExplanations/hugo-serverless.git"
+  },
+  "author": "Tom Woodard",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/SeriesOfUnlikelyExplanations/hugo-serverless/issues"
+  },
+  "homepage": "https://github.com/SeriesOfUnlikelyExplanations/hugo-serverless#readme"
+}

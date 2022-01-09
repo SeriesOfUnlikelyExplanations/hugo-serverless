@@ -37,7 +37,7 @@ def lambda_handler(event, context):
   ])
   sourceTask = next(item for item in parameters['Parameters'] if item["Name"] == '/hugoServerless/datasyncSourceTask')
   logger.info('Checking which task was completed...')
-  if parameter['Parameter']['Value'] in event['resources'][0]:
+  if sourceTask in event['resources'][0]:
     logger.info("It was the Source Datasync Task.")
     logger.info("Checking if there was a theme folder in the source bucket...")
     THEMEPATH = LOCAL_SOURCE_DIR+'/themes/hugo-serverless-theme'
@@ -45,8 +45,8 @@ def lambda_handler(event, context):
     logger.info(theme_present);   
     if not theme_present:
       logger.info('No theme. Using Default...')
-      s3_client = boto3.client('s3')
       themeBucket = next(item for item in parameters['Parameters'] if item["Name"] == '/hugoServerless/themeBucket')
+      s3_client = boto3.client('s3')
       keys = []
       dirs = []
       next_token = ''
