@@ -31,7 +31,7 @@ def lambda_handler(event, context):
   logger.info("Getting SSM parameter...")
   region = event['region']
   ssm = boto3.client('ssm', region_name = region)
-  parameters = ssm.get_parameters(Name= [
+  parameters = ssm.get_parameters(Names = [
     '/hugoServerless/datasyncSourceTask',
     '/hugoServerless/themeBucket'
   ])
