@@ -38,13 +38,13 @@ def lambda_handler(event, context):
   sourceTask = next(item for item in parameters if item["Name"] == '/hugoServerless/datasyncSourceTask')
   logger.info('Checking which task was completed...')
   if parameter['Parameter']['Value'] in event['resources'][0]:
-    logger.info("It was the Source Datasync Task."
-    logger.info("Checking if there was a theme folder in the source bucket..."
+    logger.info("It was the Source Datasync Task.")
+    logger.info("Checking if there was a theme folder in the source bucket...")
     THEMEPATH = LOCAL_SOURCE_DIR+'/themes/hugo-serverless-theme'
     theme_present = os.path.isdir(THEMEPATH)
     logger.info(theme_present);   
-    if !theme_present:
-      console.log('No theme. Using Default...');
+    if not theme_present:
+      logger.info('No theme. Using Default...')
       s3_client = boto3.client('s3')
       themeBucket = next(item for item in parameters if item["Name"] == '/hugoServerless/themeBucket')
       keys = []
@@ -72,7 +72,7 @@ def lambda_handler(event, context):
         if not os.path.exists(os.path.dirname(dest_pathname)):
           os.makedirs(os.path.dirname(dest_pathname))
         s3_client.download_file(themeBucket, k, dest_pathname)
-      console.log('Downloaded default theme.');
+      logger.info('Downloaded default theme.');
       
     logger.info("Building Hugo site...")
     run_command("hugo/hugo -s {0} -d {1}".format(LOCAL_SOURCE_DIR,LOCAL_BUILD_DIR))
