@@ -200,11 +200,19 @@ export class HugoServerlessStack extends cdk.Stack {
     
     const dsSourceTask = new CfnTask(this, 'datasync source task', {
       destinationLocationArn: dsSourceEFS.attrLocationArn,
-      sourceLocationArn: dsSourceBucket.attrLocationArn
+      sourceLocationArn: dsSourceBucket.attrLocationArn,
+      excludes: [{
+        filterType: 'SIMPLE_PATTERN',
+        value: '/themes/hugo-serverless-theme',
+      }]
     });
     const dsThemeTask = new CfnTask(this, 'datasync theme task', {
       destinationLocationArn: dsSourceEFS.attrLocationArn,
       sourceLocationArn: dsThemeBucket.attrLocationArn
+      includes: [{
+        filterType: 'SIMPLE_PATTERN',
+        value: '/themes/hugo-serverless-theme',
+      }]
     });
     const dsWebsiteTask = new CfnTask(this, 'datasync website task', {
       destinationLocationArn: dsWebsiteBucket.attrLocationArn,

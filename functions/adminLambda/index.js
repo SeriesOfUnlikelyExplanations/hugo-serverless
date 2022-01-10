@@ -15,15 +15,16 @@ exports.handler = async (event, context) => {
   console.log(ssmData);
   
   if (event.hasOwnProperty('Records') && event.Records[0].eventName == 'ObjectCreated:Put') {
-    console.log('Source bucket has been updated - starting Source Datasync task...');
-    console.log(event.Records[0].s3);
+    console.log('Source bucket has been updated.');
     //Start the initial datasync task - move S3Source bucket into EFS
     const datasync = new DataSync({region:REGION});
-    await datasync.startTaskExecution({ TaskArn: ssmData.datasyncSourceTask}).promise();
-    console.log('Source datasync task started.');
     console.log('Starting Theme Datasync task...');
     await datasync.startTaskExecution({ TaskArn: ssmData.datasyncThemeTask}).promise();
     console.log('Theme datasync task started.');
+    console.log('Starting Source Datasync task...');
+    await datasync.startTaskExecution({ TaskArn: ssmData.datasyncSourceTask}).promise();
+    console.log('Source datasync task started.');
+
     // CREATE VPC endpoint here
     const ec2 = new EC2({region:REGION});
     console.log('Creating VPC endpoints...');
