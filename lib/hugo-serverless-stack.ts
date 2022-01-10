@@ -249,7 +249,7 @@ export class HugoServerlessStack extends cdk.Stack {
     
     // Allow Lambda to get SSM parameters
     handler.addToRolePolicy(new PolicyStatement({
-      resources: [`arn:aws:ssm:${props.env?.region}:${props.env?.account}:parameter/hugoServerless/*`],
+      resources: [`arn:aws:ssm:${props.env?.region}:${props.env?.account}:parameter/hugoServerless`],
       actions: ['ssm:*'],
     }))
     
