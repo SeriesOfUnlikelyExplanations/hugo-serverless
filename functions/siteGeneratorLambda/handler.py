@@ -32,11 +32,11 @@ def lambda_handler(event, context):
   region = event['region']
   ssm = boto3.client('ssm', region_name = region)
   parameters = ssm.get_parameters(Names = [
-    '/hugoServerless/datasyncSourceTask'
+    '/hugoServerless/datasyncSourceTask',
+    '/hugoServerless/datasyncWebsiteTask'
   ])
-  sourceTask = next(item['Value'] for item in parameters['Parameters'] if item["Name"] == '/hugoServerless/datasyncSourceTask')
   logger.info('Checking which task was completed...')
-  if sourceTask in event['resources'][0]:
+  if next(item['Value'] for item in parameters['Parameters'] if item["Name"] == '/hugoServerless/datasyncSourceTask') in event['resources'][0]:
     logger.info("It was the Source Datasync Task.")
       
     logger.info("Building Hugo site...")
@@ -49,7 +49,7 @@ def lambda_handler(event, context):
       "body": "Build complete", 
       "action": "deploy"
     }
-  else:
+  elif next(item['Value'] for item in parameters['Parameters'] if item["Name"] == '/hugoServerless/datasyncWebsiteTask') in event['resources'][0]:
     logger.info("Website Datasync Task. Deleting the EFS directory...")
     
     for f in os.listdir(LOCAL_SOURCE_DIR):
@@ -63,5 +63,11 @@ def lambda_handler(event, context):
     return {"statusCode": 200,
       "headers": {"Content-Type": "text/html"},
       "body": "Delete complete",
+      "action": "None"
+    }
+  else:
+    return{{"statusCode": 404,
+      "headers": {"Content-Type": "text/html"},
+      "body": "Datasync task not found",
       "action": "None"
     }
