@@ -4,13 +4,13 @@ const { checkBrokenLinks, invalidate, sendEmail } = require('./deploy.js');
 exports.handler = async (event, context) => {
   console.log(event);
   var result;
-  const REGION ;
-  if (event.hasOwnProperty('Records'){
+  var REGION ;
+  if (event.hasOwnProperty('Records')) {
     REGION  = event.Records[0].awsRegion
   } else {
     REGION  = event.region
   }
-  const ssm = new SSM({region:REGION);
+  const ssm = new SSM({region:REGION});
   const ssmData = await getSSM(ssm, '/hugoServerless');
   
   if (event.hasOwnProperty('Records') && event.Records[0].eventName == 'ObjectCreated:Put') {
@@ -69,7 +69,6 @@ exports.handler = async (event, context) => {
           }
           const ses = new SES({region:REGION})
           //~ result = await sendEmail(brokenLinks,'https://' + ssmData.siteName, email, ses);
-          //~ console.log(result);
           console.log('Email Sent.');
         } catch (e) {
           console.error(e);
@@ -86,11 +85,11 @@ exports.handler = async (event, context) => {
     } else if (event.resources[0].includes(ssmData.datasyncSourceTask)){
       console.log('Source Datasync task completed. Emptying the website bucket so it is ready for deployment...');
       var s3 = new AWS.S3({region:REGION});
-      const { Contents } = await s3.listObjects({ ssmData.siteName }).promise();
+      const { Contents } = await s3.listObjects({ Bucket: ssmData.siteName }).promise();
       if (Contents.length > 0) {
         await s3
           .deleteObjects({
-            ssmData.siteName,
+            Bucket: ssmData.siteName,
             Delete: {
               Objects: Contents.map(({ Key }) => ({ Key }))
             }
