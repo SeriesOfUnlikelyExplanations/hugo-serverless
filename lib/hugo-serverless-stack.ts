@@ -153,6 +153,7 @@ export class HugoServerlessStack extends cdk.Stack {
     });
     sourceBucket.grantReadWrite(dsRole)
     websiteBucket.grantReadWrite(dsRole)
+    themeBucket.grantReadWrite(dsRole);
     
     const dsSourceBucket = new CfnLocationS3(this, 'sourceBucket datasync', {
       s3BucketArn: sourceBucket.bucketArn,
@@ -318,7 +319,6 @@ export class HugoServerlessStack extends cdk.Stack {
       resources: [`arn:aws:ssm:${props.env?.region}:${props.env?.account}:parameter/hugoServerless/*`],
       actions: ['ssm:GetParameters', 'ssm:GetParameter'],
     }))
-    themeBucket.grantReadWrite(vpcHandler);
     
     fs.grant(vpcHandler,'elasticfilesystem:*')
     
