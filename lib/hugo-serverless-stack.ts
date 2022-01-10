@@ -187,15 +187,6 @@ export class HugoServerlessStack extends cdk.Stack {
     });
     dsSourceEFS.node.addDependency(fs)
     
-    const dsSourceEFS = new CfnLocationEFS(this, 'EFS Source', {
-      ec2Config: { 
-        securityGroupArns: [`arn:aws:ec2:${props.env?.region}:${props.env?.account}:security-group/${dsSG.securityGroupId}`],
-        subnetArn: `arn:aws:ec2:${props.env?.region}:${props.env?.account}:subnet/${vpc.selectSubnets({subnetGroupName: 'Ingress'}).subnets[0].subnetId}`
-      },
-      efsFilesystemArn: fs.fileSystemArn
-    });
-    dsSourceEFS.node.addDependency(fs)
-    
     const dsWebsiteEFS = new CfnLocationEFS(this, 'EFS Website', {
       ec2Config: { 
         securityGroupArns: [`arn:aws:ec2:${props.env?.region}:${props.env?.account}:security-group/${dsSG.securityGroupId}`],
@@ -210,7 +201,7 @@ export class HugoServerlessStack extends cdk.Stack {
       destinationLocationArn: dsSourceEFS.attrLocationArn,
       sourceLocationArn: dsSourceBucket.attrLocationArn
     });
-    const dsThemeTask = new CfnTask(this, 'datasync source task', {
+    const dsThemeTask = new CfnTask(this, 'datasync theme task', {
       destinationLocationArn: dsSourceEFS.attrLocationArn,
       sourceLocationArn: dsThemeBucket.attrLocationArn
     });
