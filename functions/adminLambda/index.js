@@ -1,82 +1,74 @@
-const AWS = require('aws-sdk');
+const { EC2, SSM, DataSync, CloudFront, DynamoDB, S3, SES }   = require('aws-sdk');
 const { checkBrokenLinks, invalidate, sendEmail } = require('./deploy.js');
 
 exports.handler = async (event, context) => {
   console.log(event);
   var result;
+  const REGION ;
+  if (event.hasOwnProperty('Records'){
+    REGION  = event.Records[0].awsRegion
+  } else {
+    REGION  = event.region
+  }
+  const ssm = new SSM({region:REGION);
+  const ssmData = await getSSM(ssm, '/hugoServerless');
+  
   if (event.hasOwnProperty('Records') && event.Records[0].eventName == 'ObjectCreated:Put') {
     console.log('Source bucket has been updated - starting Source Datasync task...');
     console.log(event.Records[0].s3);
-    AWS.config.update({region: event.Records[0].awsRegion})
-    var ssm = new AWS.SSM();
-    var ssmData = await ssm.getParameters({Names: ['/hugoServerless/datasyncSourceTask', '/hugoServerless/vpcID','/hugoServerless/securityGroupID','/hugoServerless/subnetID']}).promise();
     //Start the initial datasync task - move S3Source bucket into EFS
-    const datasync = new AWS.DataSync();
-    await datasync.startTaskExecution({ TaskArn: ssmData.Parameters.find(p => p.Name ==='/hugoServerless/datasyncSourceTask').Value}).promise();
+    const datasync = new DataSync({region:REGION});
+    await datasync.startTaskExecution({ TaskArn: ssmData.datasyncSourceTask}).promise();
     console.log('Source datasync task started.');
     console.log('Starting Theme Datasync task...');
-    await datasync.startTaskExecution({ TaskArn: ssmData.Parameters.find(p => p.Name ==='/hugoServerless/datasyncThemeTask').Value}).promise();
+    await datasync.startTaskExecution({ TaskArn: ssmData.datasyncThemeTask}).promise();
     console.log('Theme datasync task started.');
     // CREATE VPC endpoint here
-    const ec2 = new AWS.EC2();
+    const ec2 = new EC2({region:REGION});
     console.log('Creating VPC endpoints...');
     var params = {
       ServiceName: `com.amazonaws.${event.Records[0].awsRegion}.ssm`, /* required */
-      VpcId: ssmData.Parameters.find(p => p.Name ==='/hugoServerless/vpcID').Value, /* required */
+      VpcId: ssmData.vpcID, /* required */
       PrivateDnsEnabled: true,
-      SecurityGroupIds: [ssmData.Parameters.find(p => p.Name ==='/hugoServerless/securityGroupID').Value],
-      SubnetIds: [ssmData.Parameters.find(p => p.Name ==='/hugoServerless/subnetID').Value],
+      SecurityGroupIds: [ssmData.securityGroupID],
+      SubnetIds: [ssmData.subnetID],
       VpcEndpointType: 'Interface'
     };
     await ec2.createVpcEndpoint(params).promise()
-    
     console.log('VPC endpoints created.');
+    
   } else if (event.hasOwnProperty('action') && event.action == 'deploy') {
     console.log('Build has been completed - starting Website Datasync task...');
-    AWS.config.update({region: event.region})
-    var ssm = new AWS.SSM();
-    var ssmData = await ssm.getParameters({Names: ['/hugoServerless/datasyncWebsiteTask']}).promise();
     //Start the initial datasync task - move S3Source bucket into EFS
-    const datasync = new AWS.DataSync();
-    
-    await datasync.startTaskExecution({ TaskArn: ssmData.Parameters.find(({ Name }) => Name ==='/hugoServerless/datasyncWebsiteTask').Value}).promise();
+    const datasync = new DataSync({region:REGION});
+    await datasync.startTaskExecution({ TaskArn: ssmData.datasyncWebsiteTask}).promise();
     console.log('Website datasync task started.');
+    
   } else if (event.hasOwnProperty('source') && event.source == 'aws.datasync') {
     console.log('Datasync task completed. Checking which task it was...');
-    AWS.config.update({region: event.region})
-    var ssm = new AWS.SSM();
-    var ssmData = await ssm.getParameters({Names: [
-      '/hugoServerless/siteName',
-      '/hugoServerless/datasyncWebsiteTask',
-      '/hugoServerless/datasyncSourceTask',
-      '/hugoServerless/distID',
-      '/hugoServerless/noReplyEmail',
-      '/hugoServerless/emailDynamoSSM',
-      '/hugoServerless/myEmailSSM'
-    ]}).promise();
-    if (event.resources[0].includes(ssmData.Parameters.find(p => p.Name ==='/hugoServerless/datasyncWebsiteTask').Value)) {
+    if (event.resources[0].includes(ssmData.datasyncWebsiteTask)) {
       console.log('Website Datasync task was the one completed. Starting cloudfront Invalidation...');
-      var cloudfront = new AWS.CloudFront();
-      await invalidate(cloudfront, ssmData.Parameters.find(p => p.Name === '/hugoServerless/distID').Value);
-
-      console.log('Invalidation complete. Starting the broken link checker...')
-      const brokenLinks = await checkBrokenLinks('https://' + ssmData.Parameters.find(p => p.Name === '/hugoServerless/siteName').Value);
+      var cloudfront = new CloudFront({region:REGION});
+      await invalidate(cloudfront, ssmData.distID);
+      console.log('Invalidation complete.')
+      console.log('Starting the broken link checker...')
+      const brokenLinks = await checkBrokenLinks('https://' + ssmData.siteName);
       console.log('Broken Link Checker complete.');
-      if (ssmData.Parameters.find(p => p.Name === '/hugoServerless/noReplyEmail').Value) {
+      if (ssmData.noReplyEmail) {
         console.log('Sending email...');
         console.log(brokenLinks);
         try {
-          const ddb = new AWS.DynamoDB({signatureVersion: 'v4', region: event.awsRegion})
+          const ddb = new DynamoDB({signatureVersion: 'v4', region:REGION})
           email = { 
-            fromEmail: ssmData.Parameters.find(p => p.Name === '/hugoServerless/noReplyEmail').Value,
+            fromEmail: ssmData.noReplyEmail,
             toEmail: await ddb.getItem({
-              Key: { 'listId': {'S': ssmData.Parameters.find(p => p.Name === '/hugoServerless/siteName').Value } },
-              TableName: ssmData.Parameters.find(p => p.Name === '/hugoServerless/emailDynamo').Value
+              Key: { 'listId': {'S': ssmData.siteName} },
+              TableName: ssmData.emailDynamo
             }).promise().then((r) => r.Item.emails.L.map(a => a.M.email.S)),
-            adminEmail: ssmData.Parameters.find(p => p.Name === '/hugoServerless/myEmail').Value
+            adminEmail: ssmData.myEmail
           }
-          const ses = new AWS.SES()
-          //~ result = await sendEmail(brokenLinks,'https://' + ssmData.Parameters.find(p => p.Name === '/hugoServerless/siteName').Value, email, ses);
+          const ses = new SES({region:REGION})
+          //~ result = await sendEmail(brokenLinks,'https://' + ssmData.siteName, email, ses);
           //~ console.log(result);
           console.log('Email Sent.');
         } catch (e) {
@@ -84,22 +76,21 @@ exports.handler = async (event, context) => {
         }
       }
       // REMOVE VPC endpoints here
-      const ec2 = new AWS.EC2();
+      const ec2 = new EC2({region:REGION});
       console.log('Deleting VPC endpoints...');
       const vpcData = await ec2.describeVpcEndpoints({}).promise();
       await ec2.deleteVpcEndpoints({
         VpcEndpointIds: vpcData.VpcEndpoints.map(({VpcEndpointId}) => VpcEndpointId)
       }).promise();
       console.log('VPC endpoints deleted. All done.');
-    } else if (event.resources[0].includes(ssmData.Parameters.find(p => p.Name ==='/hugoServerless/datasyncSourceTask').Value)){
+    } else if (event.resources[0].includes(ssmData.datasyncSourceTask)){
       console.log('Source Datasync task completed. Emptying the website bucket so it is ready for deployment...');
-      Bucket = ssmData.Parameters.find(p => p.Name === '/hugoServerless/siteName').Value;
-      var s3 = new AWS.S3();
-      const { Contents } = await s3.listObjects({ Bucket }).promise();
+      var s3 = new AWS.S3({region:REGION});
+      const { Contents } = await s3.listObjects({ ssmData.siteName }).promise();
       if (Contents.length > 0) {
         await s3
           .deleteObjects({
-            Bucket,
+            ssmData.siteName,
             Delete: {
               Objects: Contents.map(({ Key }) => ({ Key }))
             }
@@ -117,3 +108,15 @@ exports.handler = async (event, context) => {
   };
   return {status: 'ok', result: result}
 };
+
+function getSSM(ssm, path, config = {}, nextToken) {
+  return ssm
+    .getParametersByPath({ Path: path, Recursive: true, NextToken: nextToken })
+    .promise()
+    .then(({ Parameters, NextToken }) => {
+      for (const i of Parameters) {
+        config[i.Name.replace("/AlwaysOnward/","")] = i.Value;
+      }
+      return NextToken ? getSSM(ssm, path, config, NextToken) : config;
+    });
+}
