@@ -250,7 +250,7 @@ export class HugoServerlessStack extends cdk.Stack {
     // Allow Lambda to get SSM parameters
     handler.addToRolePolicy(new PolicyStatement({
       resources: [`arn:aws:ssm:${props.env?.region}:${props.env?.account}:parameter/hugoServerless/*`],
-      actions: ['ssm:GetParameters'],
+      actions: ['ssm:*'],
     }))
     
     // Create the s3 trigger
@@ -317,7 +317,7 @@ export class HugoServerlessStack extends cdk.Stack {
     // Allow Lambda to get SSM parameters
     vpcHandler.addToRolePolicy(new PolicyStatement({
       resources: [`arn:aws:ssm:${props.env?.region}:${props.env?.account}:parameter/hugoServerless/*`],
-      actions: ['ssm:GetParameters', 'ssm:GetParameter'],
+      actions: ['ssm:*'],
     }))
     
     fs.grant(vpcHandler,'elasticfilesystem:*')
