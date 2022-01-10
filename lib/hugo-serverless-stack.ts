@@ -65,7 +65,8 @@ export class HugoServerlessStack extends cdk.Stack {
     });
     new BucketDeployment(this, 'DeployWebsite', {
       sources: [Source.asset('./hugo-serverless-theme')],
-      destinationBucket: themeBucket
+      destinationBucket: themeBucket,
+      destinationKeyPrefix: 'themes/hugo-serverless-theme'
     });
    
     //Create the website bucket
@@ -169,6 +170,23 @@ export class HugoServerlessStack extends cdk.Stack {
     });
     dsWebsiteBucket.node.addDependency(dsRole) 
     
+    const dsThemeBucket = new CfnLocationS3(this, 'themeBucket datasync', {
+      s3BucketArn: themeBucket.bucketArn,
+      s3Config: {
+        bucketAccessRoleArn: dsRole.roleArn
+      }
+    });
+    dsThemeBucket.node.addDependency(dsRole) 
+    
+    const dsSourceEFS = new CfnLocationEFS(this, 'EFS Source', {
+      ec2Config: { 
+        securityGroupArns: [`arn:aws:ec2:${props.env?.region}:${props.env?.account}:security-group/${dsSG.securityGroupId}`],
+        subnetArn: `arn:aws:ec2:${props.env?.region}:${props.env?.account}:subnet/${vpc.selectSubnets({subnetGroupName: 'Ingress'}).subnets[0].subnetId}`
+      },
+      efsFilesystemArn: fs.fileSystemArn
+    });
+    dsSourceEFS.node.addDependency(fs)
+    
     const dsSourceEFS = new CfnLocationEFS(this, 'EFS Source', {
       ec2Config: { 
         securityGroupArns: [`arn:aws:ec2:${props.env?.region}:${props.env?.account}:security-group/${dsSG.securityGroupId}`],
@@ -192,6 +210,10 @@ export class HugoServerlessStack extends cdk.Stack {
       destinationLocationArn: dsSourceEFS.attrLocationArn,
       sourceLocationArn: dsSourceBucket.attrLocationArn
     });
+    const dsThemeTask = new CfnTask(this, 'datasync source task', {
+      destinationLocationArn: dsSourceEFS.attrLocationArn,
+      sourceLocationArn: dsThemeBucket.attrLocationArn
+    });
     const dsWebsiteTask = new CfnTask(this, 'datasync website task', {
       destinationLocationArn: dsWebsiteBucket.attrLocationArn,
       sourceLocationArn: dsWebsiteEFS.attrLocationArn
@@ -211,7 +233,8 @@ export class HugoServerlessStack extends cdk.Stack {
     //allow lambda to trigger dataSync
     handler.addToRolePolicy(new PolicyStatement({
       resources: [dsSourceTask.attrTaskArn,
-        dsWebsiteTask.attrTaskArn],
+        dsWebsiteTask.attrTaskArn,
+        dsThemeTask.attrTaskArn],
       actions: ['datasync:StartTaskExecution',
         'datasync:DescribeTask'],
     }))
@@ -357,6 +380,10 @@ export class HugoServerlessStack extends cdk.Stack {
     new StringParameter(this, "datasyncSourceTask", {
       parameterName: '/hugoServerless/datasyncSourceTask',
       stringValue: dsSourceTask.attrTaskArn,
+    });
+    new StringParameter(this, "datasyncThemeTask", {
+      parameterName: '/hugoServerless/datasyncThemeTask',
+      stringValue: dsThemeTask.attrTaskArn,
     });
     new StringParameter(this, "datasyncWebsiteTask", {
       parameterName: '/hugoServerless/datasyncWebsiteTask',

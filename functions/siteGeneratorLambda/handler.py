@@ -32,47 +32,12 @@ def lambda_handler(event, context):
   region = event['region']
   ssm = boto3.client('ssm', region_name = region)
   parameters = ssm.get_parameters(Names = [
-    '/hugoServerless/datasyncSourceTask',
-    '/hugoServerless/themeBucket'
+    '/hugoServerless/datasyncSourceTask'
   ])
   sourceTask = next(item['Value'] for item in parameters['Parameters'] if item["Name"] == '/hugoServerless/datasyncSourceTask')
   logger.info('Checking which task was completed...')
   if sourceTask in event['resources'][0]:
     logger.info("It was the Source Datasync Task.")
-    logger.info("Checking if there was a theme folder in the source bucket...")
-    THEMEPATH = LOCAL_SOURCE_DIR+'/themes/hugo-serverless-theme'
-    theme_present = os.path.isdir(THEMEPATH)
-    logger.info(theme_present);   
-    if not theme_present:
-      logger.info('No theme. Using Default...')
-      themeBucket = next(item['Value'] for item in parameters['Parameters'] if item["Name"] == '/hugoServerless/themeBucket')
-      s3_client = boto3.client('s3')
-      keys = []
-      dirs = []
-      next_token = ''
-      while next_token is not None:
-        if next_token == '':
-          results = s3_client.list_objects_v2(Bucket = themeBucket)
-        else:
-          results = s3_client.list_objects_v2(Bucket = themeBucket, ContinuationToken = next_token)
-        contents = results.get('Contents')
-        for i in contents:
-            k = i.get('Key')
-            if k[-1] != '/':
-                keys.append(k)
-            else:
-                dirs.append(k)
-        next_token = results.get('NextContinuationToken')
-      for d in dirs:
-        dest_pathname = os.path.join(THEMEPATH, d)
-        if not os.path.exists(os.path.dirname(dest_pathname)):
-          os.makedirs(os.path.dirname(dest_pathname))
-      for k in keys:
-        dest_pathname = os.path.join(THEMEPATH, k)
-        if not os.path.exists(os.path.dirname(dest_pathname)):
-          os.makedirs(os.path.dirname(dest_pathname))
-        s3_client.download_file(themeBucket, k, dest_pathname)
-      logger.info('Downloaded default theme.');
       
     logger.info("Building Hugo site...")
     run_command("hugo/hugo -s {0} -d {1}".format(LOCAL_SOURCE_DIR,LOCAL_BUILD_DIR))

@@ -12,11 +12,12 @@ exports.handler = async (event, context) => {
     var ssmData = await ssm.getParameters({Names: ['/hugoServerless/datasyncSourceTask', '/hugoServerless/vpcID','/hugoServerless/securityGroupID','/hugoServerless/subnetID']}).promise();
     //Start the initial datasync task - move S3Source bucket into EFS
     const datasync = new AWS.DataSync();
-    await new Promise(resolve => setTimeout(resolve, 30000))
-    
     await datasync.startTaskExecution({ TaskArn: ssmData.Parameters.find(p => p.Name ==='/hugoServerless/datasyncSourceTask').Value}).promise();
     console.log('Source datasync task started.');
-    // CREATE VPC endpoints here
+    console.log('Starting Theme Datasync task...');
+    await datasync.startTaskExecution({ TaskArn: ssmData.Parameters.find(p => p.Name ==='/hugoServerless/datasyncThemeTask').Value}).promise();
+    console.log('Theme datasync task started.');
+    // CREATE VPC endpoint here
     const ec2 = new AWS.EC2();
     console.log('Creating VPC endpoints...');
     var params = {
@@ -27,8 +28,6 @@ exports.handler = async (event, context) => {
       SubnetIds: [ssmData.Parameters.find(p => p.Name ==='/hugoServerless/subnetID').Value],
       VpcEndpointType: 'Interface'
     };
-    await ec2.createVpcEndpoint(params).promise()
-    params.ServiceName = `com.amazonaws.${event.Records[0].awsRegion}.s3`,
     await ec2.createVpcEndpoint(params).promise()
     
     console.log('VPC endpoints created.');
