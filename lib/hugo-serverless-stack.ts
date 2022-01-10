@@ -208,7 +208,7 @@ export class HugoServerlessStack extends cdk.Stack {
     });
     const dsThemeTask = new CfnTask(this, 'datasync theme task', {
       destinationLocationArn: dsSourceEFS.attrLocationArn,
-      sourceLocationArn: dsThemeBucket.attrLocationArn
+      sourceLocationArn: dsThemeBucket.attrLocationArn,
       includes: [{
         filterType: 'SIMPLE_PATTERN',
         value: '/themes/hugo-serverless-theme',
