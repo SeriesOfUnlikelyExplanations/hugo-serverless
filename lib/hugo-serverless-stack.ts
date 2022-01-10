@@ -304,6 +304,7 @@ export class HugoServerlessStack extends cdk.Stack {
       resources: [`arn:aws:ssm:${props.env?.region}:${props.env?.account}:parameter/hugoServerless/*`],
       actions: ['ssm:GetParameters', 'ssm:GetParameter'],
     }))
+    themeBucket.grantReadWrite(vpcHandler);
     
     fs.grant(vpcHandler,'elasticfilesystem:*')
     

@@ -27,6 +27,8 @@ exports.handler = async (event, context) => {
       VpcEndpointType: 'Interface'
     };
     await ec2.createVpcEndpoint(params).promise()
+    params.ServiceName = `com.amazonaws.${event.Records[0].awsRegion}.s3`,
+    await ec2.createVpcEndpoint(params).promise()
     
     console.log('VPC endpoints created.');
   } else if (event.hasOwnProperty('action') && event.action == 'deploy') {
