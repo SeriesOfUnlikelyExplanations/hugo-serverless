@@ -52,9 +52,9 @@ def lambda_handler(event, context):
       next_token = ''
       while next_token is not None:
         if next_token == '':
-          results = s3_client.list_objects_v2(bucket = themeBucket)
+          results = s3_client.list_objects_v2(Bucket = themeBucket)
         else:
-          results = s3_client.list_objects_v2(bucket = themeBucket, ContinuationToken = next_token)
+          results = s3_client.list_objects_v2(Bucket = themeBucket, ContinuationToken = next_token)
         contents = results.get('Contents')
         for i in contents:
             k = i.get('Key')
