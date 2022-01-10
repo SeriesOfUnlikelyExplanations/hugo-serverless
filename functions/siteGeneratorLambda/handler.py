@@ -38,11 +38,9 @@ def lambda_handler(event, context):
   logger.info('Checking which task was completed...')
   if next(item['Value'] for item in parameters['Parameters'] if item["Name"] == '/hugoServerless/datasyncSourceTask') in event['resources'][0]:
     logger.info("It was the Source Datasync Task.")
-      
     logger.info("Building Hugo site...")
     run_command("hugo/hugo -s {0} -d {1}".format(LOCAL_SOURCE_DIR,LOCAL_BUILD_DIR))
     run_command("ls -l {0}".format(LOCAL_BUILD_DIR))
-    
     logger.info("Build complete.")
     return {"statusCode": 200,
       "headers": {"Content-Type": "text/html"},
@@ -51,11 +49,9 @@ def lambda_handler(event, context):
     }
   elif next(item['Value'] for item in parameters['Parameters'] if item["Name"] == '/hugoServerless/datasyncWebsiteTask') in event['resources'][0]:
     logger.info("Website Datasync Task. Deleting the EFS directory...")
-    
     for f in os.listdir(LOCAL_SOURCE_DIR):
       logger.info(f)
       run_command('rm -r {0}/{1}'.format(LOCAL_SOURCE_DIR, f))
-    
     logger.info('Checking to see if it was deleted...')
     run_command('ls -n {}'.format(LOCAL_SOURCE_DIR))
     logger.info("Delete Complete.")
@@ -66,7 +62,7 @@ def lambda_handler(event, context):
       "action": "None"
     }
   else:
-    return{{"statusCode": 404,
+    return {"statusCode": 404,
       "headers": {"Content-Type": "text/html"},
       "body": "Datasync task not found",
       "action": "None"
