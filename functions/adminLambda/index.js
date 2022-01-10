@@ -115,7 +115,7 @@ function getSSM(ssm, path, config = {}, nextToken) {
     .promise()
     .then(({ Parameters, NextToken }) => {
       for (const i of Parameters) {
-        config[i.Name.replace("/AlwaysOnward/","")] = i.Value;
+        config[i.Name.replace(path+"/","")] = i.Value;
       }
       return NextToken ? getSSM(ssm, path, config, NextToken) : config;
     });
