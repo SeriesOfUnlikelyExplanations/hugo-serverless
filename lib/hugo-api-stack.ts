@@ -44,19 +44,19 @@ export class HugoApiStack extends cdk.Stack {
       });
       
       // Create Dynamo DB table to store comments
-      const commentsTable = new Table(this, 'CommentsTable', {
+      const postsTable = new Table(this, 'postsTable', {
         partitionKey: { name: 'postPath', type: AttributeType.STRING },
         billingMode: BillingMode.PROVISIONED,
       });
-      commentsTable.autoScaleWriteCapacity({
+      postsTable.autoScaleWriteCapacity({
         minCapacity: 1,
         maxCapacity: 5,
       }).scaleOnUtilization({ targetUtilizationPercent: 75 });
-      commentsTable.grantReadWriteData(handler)
+      postsTable.grantReadWriteData(handler)
       
-      new StringParameter(this, 'commentsTable', {
-        parameterName: '/hugoServerless/commentsTable',
-        stringValue: commentsTable.tableName
+      new StringParameter(this, 'postsTableSSM', {
+        parameterName: '/hugoServerless/postsTable',
+        stringValue: postsTable.tableName
       });
       new StringParameter(this, "UserPoolId", {
         parameterName: '/hugoServerless/UserPoolId',

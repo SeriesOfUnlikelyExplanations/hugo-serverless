@@ -1,6 +1,7 @@
 import * as cdk from '@aws-cdk/core';
 import { CloudFrontWebDistribution, OriginProtocolPolicy, CloudFrontAllowedMethods } from '@aws-cdk/aws-cloudfront'
 import { Bucket, BlockPublicAccess } from '@aws-cdk/aws-s3';
+import { BucketDeployment, Source } from '@aws-cdk/aws-s3-deployment';
 import { Vpc, SubnetType, SecurityGroup, Peer, Port, InterfaceVpcEndpointAwsService } from '@aws-cdk/aws-ec2';
 import { FileSystem as efsFileSystem }  from '@aws-cdk/aws-efs';
 import { Rule } from'@aws-cdk/aws-events'
@@ -55,6 +56,18 @@ export class HugoServerlessStack extends cdk.Stack {
         principals: [new AnyPrincipal()],
       })
     );
+    
+    //Create the theme bucket
+    const themeBucket = new Bucket(this, config.deploy.siteName + '-theme', {
+      bucketName: config.deploy.siteName+'-theme',
+      removalPolicy: cdk.RemovalPolicy.DESTROY,
+      autoDeleteObjects: true
+    });
+    new BucketDeployment(this, 'DeployWebsite', {
+      sources: [Source.asset('./hugo-serverless-theme')],
+      destinationBucket: themeBucket,
+      destinationKeyPrefix: 'themes/hugo-serverless-theme'
+    });
    
     //Create the website bucket
     const websiteBucket = new Bucket(this, config.deploy.siteName + '-website', {
@@ -100,22 +113,6 @@ export class HugoServerlessStack extends cdk.Stack {
       }
     });
     
-    //Create the cloudfront distribution to cache the bucket
-    //~ const distribution = new CloudFrontWebDistribution(this, config.deploy.siteName + '-cfront', {
-      //~ originConfigs: [
-        //~ {
-          //~ customOriginSource: {
-            //~ domainName: websiteBucket.bucketWebsiteDomainName,
-            //~ originProtocolPolicy: OriginProtocolPolicy.HTTP_ONLY,
-          //~ },
-          //~ behaviors : [ {isDefaultBehavior: true}]
-        //~ }
-      //~ ],
-      //~ aliasConfiguration: {
-        //~ acmCertRef: certificateArn,
-        //~ names: [config.deploy.siteName]
-      //~ }
-    //~ });
     // Create a file system in EFS to store information
     const vpc = new Vpc(this, 'Vpc', {
       natGateways: 0,
@@ -133,7 +130,7 @@ export class HugoServerlessStack extends cdk.Stack {
     });
     dsSG.addIngressRule(Peer.anyIpv4(), Port.tcp(2049), 'datasync Ingress');
     dsSG.addIngressRule(Peer.anyIpv4(), Port.tcp(443), 'ssm Ingress');
-    const fs = new efsFileSystem(this, 'FileSystem', {
+    const fs = new efsFileSystem(this, 'DeployFileSystem', {
       vpc: vpc,
       removalPolicy: cdk.RemovalPolicy.DESTROY,
       securityGroup: dsSG
@@ -156,6 +153,7 @@ export class HugoServerlessStack extends cdk.Stack {
     });
     sourceBucket.grantReadWrite(dsRole)
     websiteBucket.grantReadWrite(dsRole)
+    themeBucket.grantReadWrite(dsRole);
     
     const dsSourceBucket = new CfnLocationS3(this, 'sourceBucket datasync', {
       s3BucketArn: sourceBucket.bucketArn,
@@ -172,6 +170,14 @@ export class HugoServerlessStack extends cdk.Stack {
       }
     });
     dsWebsiteBucket.node.addDependency(dsRole) 
+    
+    const dsThemeBucket = new CfnLocationS3(this, 'themeBucket datasync', {
+      s3BucketArn: themeBucket.bucketArn,
+      s3Config: {
+        bucketAccessRoleArn: dsRole.roleArn
+      }
+    });
+    dsThemeBucket.node.addDependency(dsRole) 
     
     const dsSourceEFS = new CfnLocationEFS(this, 'EFS Source', {
       ec2Config: { 
@@ -194,7 +200,19 @@ export class HugoServerlessStack extends cdk.Stack {
     
     const dsSourceTask = new CfnTask(this, 'datasync source task', {
       destinationLocationArn: dsSourceEFS.attrLocationArn,
-      sourceLocationArn: dsSourceBucket.attrLocationArn
+      sourceLocationArn: dsSourceBucket.attrLocationArn,
+      excludes: [{
+        filterType: 'SIMPLE_PATTERN',
+        value: '/themes/hugo-serverless-theme',
+      }]
+    });
+    const dsThemeTask = new CfnTask(this, 'datasync theme task', {
+      destinationLocationArn: dsSourceEFS.attrLocationArn,
+      sourceLocationArn: dsThemeBucket.attrLocationArn,
+      includes: [{
+        filterType: 'SIMPLE_PATTERN',
+        value: '/themes/hugo-serverless-theme',
+      }]
     });
     const dsWebsiteTask = new CfnTask(this, 'datasync website task', {
       destinationLocationArn: dsWebsiteBucket.attrLocationArn,
@@ -215,7 +233,8 @@ export class HugoServerlessStack extends cdk.Stack {
     //allow lambda to trigger dataSync
     handler.addToRolePolicy(new PolicyStatement({
       resources: [dsSourceTask.attrTaskArn,
-        dsWebsiteTask.attrTaskArn],
+        dsWebsiteTask.attrTaskArn,
+        dsThemeTask.attrTaskArn],
       actions: ['datasync:StartTaskExecution',
         'datasync:DescribeTask'],
     }))
@@ -238,8 +257,8 @@ export class HugoServerlessStack extends cdk.Stack {
     
     // Allow Lambda to get SSM parameters
     handler.addToRolePolicy(new PolicyStatement({
-      resources: [`arn:aws:ssm:${props.env?.region}:${props.env?.account}:parameter/hugoServerless/*`],
-      actions: ['ssm:GetParameters'],
+      resources: [`arn:aws:ssm:${props.env?.region}:${props.env?.account}:parameter/hugoServerless`],
+      actions: ['ssm:*'],
     }))
     
     // Create the s3 trigger
@@ -306,7 +325,7 @@ export class HugoServerlessStack extends cdk.Stack {
     // Allow Lambda to get SSM parameters
     vpcHandler.addToRolePolicy(new PolicyStatement({
       resources: [`arn:aws:ssm:${props.env?.region}:${props.env?.account}:parameter/hugoServerless/*`],
-      actions: ['ssm:GetParameters', 'ssm:GetParameter'],
+      actions: ['ssm:*'],
     }))
     
     fs.grant(vpcHandler,'elasticfilesystem:*')
@@ -341,6 +360,10 @@ export class HugoServerlessStack extends cdk.Stack {
       parameterName: '/hugoServerless/sourceBucket',
       stringValue: sourceBucket.bucketName,
     });
+    new StringParameter(this, "themeBucket", {
+      parameterName: '/hugoServerless/themeBucket',
+      stringValue: themeBucket.bucketName,
+    });
     new StringParameter(this, "deploymentLambda", {
       parameterName: '/hugoServerless/deploymentLambda',
       stringValue: vpcHandler.functionName,
@@ -356,6 +379,10 @@ export class HugoServerlessStack extends cdk.Stack {
     new StringParameter(this, "datasyncSourceTask", {
       parameterName: '/hugoServerless/datasyncSourceTask',
       stringValue: dsSourceTask.attrTaskArn,
+    });
+    new StringParameter(this, "datasyncThemeTask", {
+      parameterName: '/hugoServerless/datasyncThemeTask',
+      stringValue: dsThemeTask.attrTaskArn,
     });
     new StringParameter(this, "datasyncWebsiteTask", {
       parameterName: '/hugoServerless/datasyncWebsiteTask',
@@ -375,6 +402,10 @@ export class HugoServerlessStack extends cdk.Stack {
     });
     
     if (config.email) {
+      new StringParameter(this, "myEmail", {
+        parameterName: '/hugoServerless/myEmail',
+        stringValue: StringParameter.valueForStringParameter(this, config.email.myEmailSSM),
+      });
       new StringParameter(this, "noReplyEmail", {
         parameterName: '/hugoServerless/noReplyEmail',
         stringValue: StringParameter.valueForStringParameter(this, config.email.noReplyEmailSSM),
@@ -394,8 +425,8 @@ export class HugoServerlessStack extends cdk.Stack {
         resources: [`arn:aws:ses:${props.env?.region}:${props.env?.account}:identity/${config.deploy.zoneName}`],
         actions: ['ses:SendEmail', 'ses:SendRawEmail'],
       }))
-      new StringParameter(this, "emailDynamoSSM", {
-        parameterName: '/hugoServerless/emailDynamoSSM',
+      new StringParameter(this, "emailDynamo", {
+        parameterName: '/hugoServerless/emailDynamo',
         stringValue: emailsTable,
       });
     }
