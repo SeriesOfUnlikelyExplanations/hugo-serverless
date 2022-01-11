@@ -45,7 +45,7 @@ module.exports = (api, opts) => {
   api.use(Authorizer);
   api.get('/authStatus', async (req,res) => {
     return res.sendStatus(200)
-  })
+  });
   api.post('/post_comment', async (req,res) => {
     console.log(req.body);
     console.log(req.idTokenPayload);
@@ -69,17 +69,17 @@ module.exports = (api, opts) => {
       }
     }).promise()
     return res.sendStatus(200)
-  })
+  });
   
   //Register admin endpoints
   api.use(adminCheck);
   api.get('/adminStatus', async (req,res) => {
     return res.sendStatus(200)
-  })
+  });
   api.any('/*', async (req,res) => {
     return res.redirect('/')
-  })
-}
+  });
+};
 
 async function Authorizer(req, res, next) {
   if (!('access_token' in req.cookies)) { return res.sendStatus(403) }
