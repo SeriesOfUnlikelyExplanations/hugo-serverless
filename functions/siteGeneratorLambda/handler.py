@@ -55,7 +55,6 @@ def lambda_handler(event, context):
     logger.info('Checking to see if it was deleted...')
     run_command('ls -n {}'.format(LOCAL_SOURCE_DIR))
     logger.info("Delete Complete.")
-    
     return {"statusCode": 200,
       "headers": {"Content-Type": "text/html"},
       "body": "Delete complete",

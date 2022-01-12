@@ -12,7 +12,6 @@ exports.handler = async (event, context) => {
   }
   const ssm = new SSM({region:REGION});
   const ssmData = await getSSM(ssm, '/hugoServerless');
-  console.log(ssmData);
   
   if (event.hasOwnProperty('Records') && event.Records[0].eventName == 'ObjectCreated:Put') {
     console.log('Source bucket has been updated.');
