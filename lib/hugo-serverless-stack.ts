@@ -37,12 +37,11 @@ export class HugoServerlessStack extends cdk.Stack {
         blockPublicAccess: BlockPublicAccess.BLOCK_ALL,
         removalPolicy: cdk.RemovalPolicy.RETAIN,
         lifecycleRules: [{
-          noncurrentVersionExpiration: cdk.Duration.days(30)
-          transitions: [
-            {
-              storageClass: StorageClass.INFREQUENT_ACCESS,
-              transitionAfter: cdk.Duration.days(30),
-            },
+          noncurrentVersionExpiration: cdk.Duration.days(30),
+          transitions: [{
+            storageClass: StorageClass.INFREQUENT_ACCESS,
+            transitionAfter: cdk.Duration.days(30),
+          }]
         }],
       });
     } else {
