@@ -328,7 +328,7 @@ export class HugoServerlessStack extends Stack {
 
     // Allow Lambda to get SSM parameters
     vpcHandler.addToRolePolicy(new PolicyStatement({
-      resources: [`arn:aws:ssm:${props.env?.region}:${props.env?.account}:parameter/hugoServerless/*`],
+      resources: [`arn:aws:ssm:${props.env?.region}:${props.env?.account}:parameter/hugoServerless`],
       actions: ['ssm:*'],
     }))
     
