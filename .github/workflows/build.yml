@@ -33,6 +33,13 @@ jobs:
           pipenv install
           cp -r $(pipenv --venv)/lib/python3.8/site-packages/. .
           
+      - name: Run unit tests
+        run: |
+          npm run test-admin-deploy
+        env:
+          AWS_ACCESS_KEY_ID: 'testKey'
+          AWS_SECRET_ACCESS_KEY: 'testSecret'
+      
       - name: Test CDK
         run: |
           npm run test-cdk

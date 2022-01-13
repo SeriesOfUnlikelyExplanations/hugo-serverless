@@ -9,10 +9,11 @@ const LOCAL_BUILD_DIR = '/mnt/hugo/public'
 exports.handler = async (event, context) => {
   console.log(event);
   console.log("Checking the source directory...")
-  console.log(await readdir(LOCAL_SOURCE_DIR, { withFileTypes: true }).map(dirent => dirent.name))
+  await readdir(LOCAL_SOURCE_DIR, { withFileTypes: true }).then((f) => { console.log(f.map(dirent => dirent.name)) })
   console.log("Getting SSM parameters...")
-  var ssm = new SSM();
+  var ssm = new SSM({region:event.region});
   const ssmData = await getSSM(ssm, '/hugoServerless');
+  console.log(ssmData);
   if (event.resources[0].includes(ssmData.datasyncSourceTask)) {
     logger.info("It was the Source Datasync Task.")
     logger.info("Building Hugo site...")
@@ -42,7 +43,7 @@ exports.handler = async (event, context) => {
       }
     }
     logger.info('Checking to see if it was deleted...')
-    console.log(await readdir(LOCAL_SOURCE_DIR, { withFileTypes: true }).map(dirent => dirent.name))
+    await readdir(LOCAL_SOURCE_DIR, { withFileTypes: true }).then((f) => { console.log(f.map(dirent => dirent.name)) })
     logger.info("Delete Complete.")
     
     return {"statusCode": 200,

@@ -1,5 +1,5 @@
 import * as cdk from '@aws-cdk/core';
-import { CloudFrontWebDistribution, OriginProtocolPolicy, CloudFrontAllowedMethods } from '@aws-cdk/aws-cloudfront'
+import { CloudFrontWebDistribution, OriginProtocolPolicy, CloudFrontAllowedMethods, ViewerCertificate } from '@aws-cdk/aws-cloudfront'
 import { Bucket, BlockPublicAccess, StorageClass } from '@aws-cdk/aws-s3';
 import { BucketDeployment, Source } from '@aws-cdk/aws-s3-deployment';
 import { Vpc, SubnetType, SecurityGroup, Peer, Port, InterfaceVpcEndpointAwsService } from '@aws-cdk/aws-ec2';
@@ -111,10 +111,9 @@ export class HugoServerlessStack extends cdk.Stack {
           behaviors : [ {isDefaultBehavior: true}]
         },
       ],
-      aliasConfiguration: {
-        acmCertRef: certificateArn,
-        names: [config.deploy.siteName]
-      }
+      viewerCertificate: ViewerCertificate.fromIamCertificate(certificateArn, {
+        aliases: [config.deploy.siteName]
+      })
     });
     
     // Create a file system in EFS to store information

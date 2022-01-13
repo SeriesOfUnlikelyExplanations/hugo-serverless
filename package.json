@@ -7,13 +7,13 @@
     "build": "hugo -s siteGen -e production",
     "serve": "hugo server -s ../onward-blog",
     "new": "hugo new -s static-site",
-    "deploy-website": "aws s3 sync ../onward-blog/public s3://blog.always-onward.com --delete",
+  
     "test-cdk": "cdk synth",
-    "deploy": "cdk deploy --all --require-approval never",
     "test-service": "aws s3 cp ../onward-blog/content/_index.md s3://blog.always-onward.com-source/content/_index.md",
+    "deploy": "cdk deploy --all --require-approval never",
+    
     "download-source": "aws s3 sync s3://blog.always-onward.com-source/source source/",
     "upload-source": "aws s3 sync ../onward-blog/content s3://blog.always-onward.com-source/content",
-    "test-lambda": "node lambda/test/runIndex.js"
   },
   "dependencies": {
     "aws-cdk": "^1.137.0",
