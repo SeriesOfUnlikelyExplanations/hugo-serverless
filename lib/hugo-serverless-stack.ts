@@ -1,6 +1,6 @@
 import * as cdk from '@aws-cdk/core';
 import { CloudFrontWebDistribution, OriginProtocolPolicy, CloudFrontAllowedMethods } from '@aws-cdk/aws-cloudfront'
-import { Bucket, BlockPublicAccess } from '@aws-cdk/aws-s3';
+import { Bucket, BlockPublicAccess, StorageClass } from '@aws-cdk/aws-s3';
 import { BucketDeployment, Source } from '@aws-cdk/aws-s3-deployment';
 import { Vpc, SubnetType, SecurityGroup, Peer, Port, InterfaceVpcEndpointAwsService } from '@aws-cdk/aws-ec2';
 import { FileSystem as efsFileSystem }  from '@aws-cdk/aws-efs';
@@ -38,6 +38,11 @@ export class HugoServerlessStack extends cdk.Stack {
         removalPolicy: cdk.RemovalPolicy.RETAIN,
         lifecycleRules: [{
           noncurrentVersionExpiration: cdk.Duration.days(30)
+          transitions: [
+            {
+              storageClass: StorageClass.INFREQUENT_ACCESS,
+              transitionAfter: cdk.Duration.days(30),
+            },
         }],
       });
     } else {
@@ -300,10 +305,10 @@ export class HugoServerlessStack extends cdk.Stack {
     const vpcHandler = new Function(this, 'hugoServerlessVpcLambda', {
       functionName: `hugoServerlessVpcLambda`,
       code: Code.fromAsset('functions/siteGeneratorLambda'),
-      handler: 'handler.lambda_handler',
+      handler: 'index.handler',
       memorySize: config.deploy.buildMemory,
       timeout: cdk.Duration.seconds(600),
-      runtime: Runtime.PYTHON_3_7,
+      runtime: Runtime.NODEJS_14_X,
       retryAttempts: 0,
       vpc: vpc,
       securityGroups: [ dsSG ],
