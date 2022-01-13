@@ -8,6 +8,8 @@
     "serve": "hugo server -s ../onward-blog",
     "new": "hugo new -s static-site",
     "test": "npm run test-cdk",
+    "test-generator": "npm --prefix functions/siteGeneratorLambda run test" ,
+    "test-generator-deploy": "npm --prefix functions/siteGeneratorLambda run deploy-test",
     "test-cdk": "cdk synth",
     "test-service": "aws s3 cp ../onward-blog/content/_index.md s3://blog.always-onward.com-source/content/_index.md",
     "deploy": "cdk deploy --all --require-approval never",

@@ -1,5 +1,6 @@
 import { App, Stack, StackProps, Duration, RemovalPolicy } from 'aws-cdk-lib';
-import { CloudFrontWebDistribution, OriginProtocolPolicy, CloudFrontAllowedMethods, ViewerCertificate } from 'aws-cdk-lib/aws-cloudfront'
+import { CloudFrontWebDistribution, OriginProtocolPolicy, CloudFrontAllowedMethods, ViewerCertificate } from 'aws-cdk-lib/aws-cloudfront';
+import { Certificate } from 'aws-cdk-lib/aws-certificatemanager';
 import { Bucket, BlockPublicAccess, StorageClass } from 'aws-cdk-lib/aws-s3';
 import { BucketDeployment, Source } from 'aws-cdk-lib/aws-s3-deployment';
 import { Vpc, SubnetType, SecurityGroup, Peer, Port, InterfaceVpcEndpointAwsService } from 'aws-cdk-lib/aws-ec2';
@@ -111,7 +112,7 @@ export class HugoServerlessStack extends Stack {
           behaviors : [ {isDefaultBehavior: true}]
         },
       ],
-      viewerCertificate: ViewerCertificate.fromIamCertificate(certificateArn, {
+      viewerCertificate: ViewerCertificate.fromAcmCertificate(Certificate.fromCertificateArn(this, 'domainCert', certificateArn), {
         aliases: [config.deploy.siteName]
       })
     });

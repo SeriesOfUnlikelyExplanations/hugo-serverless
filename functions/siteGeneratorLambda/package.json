@@ -2,6 +2,10 @@
   "name": "HugoServerlessVPCLambda",
   "version": "1.0.0",
   "description": "Part of Hugo Serverless",
+  "scripts": {
+    "test": "mocha",
+    "deploy-test": "echo done"
+  },
   "dependencies": {
     "hugo-extended": "^0.89.4"
   },
