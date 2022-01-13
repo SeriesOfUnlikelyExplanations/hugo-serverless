@@ -1,31 +1,31 @@
-import * as cdk from '@aws-cdk/core';
-import { CloudFrontWebDistribution, OriginProtocolPolicy, CloudFrontAllowedMethods, ViewerCertificate } from '@aws-cdk/aws-cloudfront'
-import { Bucket, BlockPublicAccess, StorageClass } from '@aws-cdk/aws-s3';
-import { BucketDeployment, Source } from '@aws-cdk/aws-s3-deployment';
-import { Vpc, SubnetType, SecurityGroup, Peer, Port, InterfaceVpcEndpointAwsService } from '@aws-cdk/aws-ec2';
-import { FileSystem as efsFileSystem }  from '@aws-cdk/aws-efs';
-import { Rule } from'@aws-cdk/aws-events'
-import { LambdaFunction } from '@aws-cdk/aws-events-targets'
-import { Function, Code, Runtime, FileSystem, LayerVersion} from '@aws-cdk/aws-lambda';
-import { LambdaDestination } from '@aws-cdk/aws-lambda-destinations';
-import { PolicyStatement, Effect, AnyPrincipal, ServicePrincipal, Role } from '@aws-cdk/aws-iam';
-import { HostedZone, ARecord, RecordTarget } from '@aws-cdk/aws-route53';
-import { CloudFrontTarget } from '@aws-cdk/aws-route53-targets';
-import { StringParameter } from '@aws-cdk/aws-ssm';
-import { CfnLocationS3, CfnLocationEFS , CfnTask } from '@aws-cdk/aws-datasync';
-import { AwsCustomResource, PhysicalResourceId, AwsCustomResourcePolicy } from '@aws-cdk/custom-resources';
-import { LambdaRestApi } from '@aws-cdk/aws-apigateway';
+import { App, Stack, StackProps, Duration, RemovalPolicy } from 'aws-cdk-lib';
+import { CloudFrontWebDistribution, OriginProtocolPolicy, CloudFrontAllowedMethods, ViewerCertificate } from 'aws-cdk-lib/aws-cloudfront'
+import { Bucket, BlockPublicAccess, StorageClass } from 'aws-cdk-lib/aws-s3';
+import { BucketDeployment, Source } from 'aws-cdk-lib/aws-s3-deployment';
+import { Vpc, SubnetType, SecurityGroup, Peer, Port, InterfaceVpcEndpointAwsService } from 'aws-cdk-lib/aws-ec2';
+import { FileSystem as efsFileSystem }  from 'aws-cdk-lib/aws-efs';
+import { Rule } from 'aws-cdk-lib/aws-events'
+import { LambdaFunction } from 'aws-cdk-lib/aws-events-targets'
+import { Function, Code, Runtime, FileSystem, LayerVersion} from 'aws-cdk-lib/aws-lambda';
+import { LambdaDestination } from 'aws-cdk-lib/aws-lambda-destinations';
+import { PolicyStatement, Effect, AnyPrincipal, ServicePrincipal, Role } from 'aws-cdk-lib/aws-iam';
+import { HostedZone, ARecord, RecordTarget } from 'aws-cdk-lib/aws-route53';
+import { CloudFrontTarget } from 'aws-cdk-lib/aws-route53-targets';
+import { StringParameter } from 'aws-cdk-lib/aws-ssm';
+import { CfnLocationS3, CfnLocationEFS , CfnTask } from 'aws-cdk-lib/aws-datasync';
+import { AwsCustomResource, PhysicalResourceId, AwsCustomResourcePolicy } from 'aws-cdk-lib/custom-resources';
+import { LambdaRestApi } from 'aws-cdk-lib/aws-apigateway';
 
 import * as fs from 'fs';
 import * as toml from 'toml';
 const config = toml.parse(fs.readFileSync('./config.toml', 'utf-8'));
 
-interface myStackProps extends cdk.StackProps {
+interface myStackProps extends StackProps {
   apigw: LambdaRestApi;
 }
 
-export class HugoServerlessStack extends cdk.Stack {
-  constructor(scope: cdk.App, id: string, props: myStackProps) {
+export class HugoServerlessStack extends Stack {
+  constructor(scope: App, id: string, props: myStackProps) {
     super(scope, id, props);
     const { apigw } = props;
     var sourceBucket;
@@ -35,12 +35,12 @@ export class HugoServerlessStack extends cdk.Stack {
         bucketName: config.deploy.siteName+'-source',
         versioned: true,
         blockPublicAccess: BlockPublicAccess.BLOCK_ALL,
-        removalPolicy: cdk.RemovalPolicy.RETAIN,
+        removalPolicy: RemovalPolicy.RETAIN,
         lifecycleRules: [{
-          noncurrentVersionExpiration: cdk.Duration.days(30),
+          noncurrentVersionExpiration: Duration.days(30),
           transitions: [{
             storageClass: StorageClass.INFREQUENT_ACCESS,
-            transitionAfter: cdk.Duration.days(30),
+            transitionAfter: Duration.days(30),
           }]
         }],
       });
@@ -64,7 +64,7 @@ export class HugoServerlessStack extends cdk.Stack {
     //Create the theme bucket
     const themeBucket = new Bucket(this, config.deploy.siteName + '-theme', {
       bucketName: config.deploy.siteName+'-theme',
-      removalPolicy: cdk.RemovalPolicy.DESTROY,
+      removalPolicy: RemovalPolicy.DESTROY,
       autoDeleteObjects: true
     });
     new BucketDeployment(this, 'DeployWebsite', {
@@ -77,7 +77,7 @@ export class HugoServerlessStack extends cdk.Stack {
     const websiteBucket = new Bucket(this, config.deploy.siteName + '-website', {
       websiteIndexDocument: 'index.html',
       bucketName: config.deploy.siteName,
-      removalPolicy: cdk.RemovalPolicy.DESTROY,
+      removalPolicy: RemovalPolicy.DESTROY,
       autoDeleteObjects: true,
       publicReadAccess: true,
     });
@@ -88,14 +88,14 @@ export class HugoServerlessStack extends cdk.Stack {
           customOriginSource: {
             domainName: `${apigw.restApiId}.execute-api.${this.region}.${this.urlSuffix}`,
             //~ originProtocolPolicy: cf.OriginProtocolPolicy.MATCH_VIEWER
+            originPath: `/${apigw.deploymentStage.stageName}`
           },
-          originPath: `/${apigw.deploymentStage.stageName}`,
           behaviors: [{
             pathPattern: '/api/*',
             allowedMethods: CloudFrontAllowedMethods.ALL,
-            maxTtl: cdk.Duration.minutes(0),
-            minTtl: cdk.Duration.minutes(0),
-            defaultTtl: cdk.Duration.minutes(0),
+            maxTtl: Duration.minutes(0),
+            minTtl: Duration.minutes(0),
+            defaultTtl: Duration.minutes(0),
             forwardedValues: {
               queryString: true,
               cookies: { forward: 'all'},
@@ -135,7 +135,7 @@ export class HugoServerlessStack extends cdk.Stack {
     dsSG.addIngressRule(Peer.anyIpv4(), Port.tcp(443), 'ssm Ingress');
     const fs = new efsFileSystem(this, 'DeployFileSystem', {
       vpc: vpc,
-      removalPolicy: cdk.RemovalPolicy.DESTROY,
+      removalPolicy: RemovalPolicy.DESTROY,
       securityGroup: dsSG
     });
     const accessPoint = fs.addAccessPoint('AccessPoint',{
@@ -228,7 +228,7 @@ export class HugoServerlessStack extends cdk.Stack {
       code: Code.fromAsset('functions/adminLambda'),
       handler: 'index.handler',
       memorySize: 128 ,
-      timeout: cdk.Duration.seconds(600),
+      timeout: Duration.seconds(600),
       runtime: Runtime.NODEJS_14_X,
       retryAttempts: 0,
     });
@@ -305,7 +305,7 @@ export class HugoServerlessStack extends cdk.Stack {
       code: Code.fromAsset('functions/siteGeneratorLambda'),
       handler: 'index.handler',
       memorySize: config.deploy.buildMemory,
-      timeout: cdk.Duration.seconds(600),
+      timeout: Duration.seconds(600),
       runtime: Runtime.NODEJS_14_X,
       retryAttempts: 0,
       vpc: vpc,

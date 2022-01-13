@@ -1,23 +1,23 @@
-import * as cdk from '@aws-cdk/core';
-import { Bucket, BlockPublicAccess } from '@aws-cdk/aws-s3';
-import { User, AnyPrincipal, PolicyStatement } from '@aws-cdk/aws-iam';
-import { StringParameter } from '@aws-cdk/aws-ssm';
+import { App, Stack, StackProps, Duration, RemovalPolicy } from 'aws-cdk-lib';
+import { Bucket, BlockPublicAccess } from 'aws-cdk-lib/aws-s3';
+import { User, AnyPrincipal, PolicyStatement } from 'aws-cdk-lib/aws-iam';
+import { StringParameter } from 'aws-cdk-lib/aws-ssm';
 
 import * as fs from 'fs';
 import * as toml from 'toml';
 const config = toml.parse(fs.readFileSync('./config.toml', 'utf-8'));
 
-export class HugoPhotosStack extends cdk.Stack {
-  constructor(scope: cdk.App, id: string, props: cdk.StackProps) {
+export class HugoPhotosStack extends Stack {
+  constructor(scope: App, id: string, props: StackProps) {
     super(scope, id, props);
     //~ //Create a bucket to upload photos to - either directly from a phone or from an upload from a digital camera
     const photoBucket = new Bucket(this, 'Hugo Photos', {
       bucketName: config.deploy.siteName+'-photos',
       versioned: false,
       blockPublicAccess: BlockPublicAccess.BLOCK_ALL,
-      removalPolicy: cdk.RemovalPolicy.DESTROY,
+      removalPolicy: RemovalPolicy.DESTROY,
       lifecycleRules: [{
-        expiration: cdk.Duration.days(60)
+        expiration: Duration.days(60)
       }],
     });
     const uploadUser = new User(this, 'uploadUser', {

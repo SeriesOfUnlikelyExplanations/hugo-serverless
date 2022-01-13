@@ -7,31 +7,18 @@
     "build": "hugo -s siteGen -e production",
     "serve": "hugo server -s ../onward-blog",
     "new": "hugo new -s static-site",
-  
+    "test": "npm run test-cdk",
     "test-cdk": "cdk synth",
     "test-service": "aws s3 cp ../onward-blog/content/_index.md s3://blog.always-onward.com-source/content/_index.md",
     "deploy": "cdk deploy --all --require-approval never",
-    
     "download-source": "aws s3 sync s3://blog.always-onward.com-source/source source/",
-    "upload-source": "aws s3 sync ../onward-blog/content s3://blog.always-onward.com-source/content",
+    "upload-source": "aws s3 sync ../onward-blog/content s3://blog.always-onward.com-source/content"
   },
   "dependencies": {
-    "aws-cdk": "^1.137.0",
-    "cdk-assets": "1.137.0",
-    "@aws-cdk/assert": "1.137.0",
-    "@aws-cdk/aws-cloudfront": "1.137.0",
-    "@aws-cdk/aws-datasync": "1.137.0",
-    "@aws-cdk/aws-dynamodb": "1.137.0",
-    "@aws-cdk/aws-events": "1.137.0",
-    "@aws-cdk/aws-events-targets": "1.137.0",
-    "@aws-cdk/aws-lambda": "1.137.0",
-    "@aws-cdk/aws-lambda-destinations": "1.137.0",
-    "@aws-cdk/aws-route53-targets": "1.137.0",
-    "@aws-cdk/aws-s3": "1.137.0",
-    "@aws-cdk/aws-s3-deployment": "1.137.0",
-    "@aws-cdk/core": "1.137.0",
-    "@types/node": "^10.17.27",
-    "aws-sdk": "^2.939.0",
+    "@types/node": "^17.0.8",
+    "aws-cdk": "*",
+    "aws-cdk-lib": "^2.7.0",
+    "constructs": "^10.0.0",
     "toml": "^3.0.0",
     "ts-node": "^9.0.0",
     "typescript": "^3.9.8"
@@ -45,8 +32,5 @@
   "bugs": {
     "url": "https://github.com/SeriesOfUnlikelyExplanations/hugo-serverless/issues"
   },
-  "homepage": "https://github.com/SeriesOfUnlikelyExplanations/hugo-serverless#readme",
-  "devDependencies": {
-    "hugo-extended": "^0.89.4"
-  }
+  "homepage": "https://github.com/SeriesOfUnlikelyExplanations/hugo-serverless#readme"
 }

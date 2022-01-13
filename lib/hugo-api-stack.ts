@@ -1,9 +1,9 @@
-import * as cdk from '@aws-cdk/core';
-import { Function, Code, Runtime } from "@aws-cdk/aws-lambda";
-import { StringParameter } from '@aws-cdk/aws-ssm';
-import { PolicyStatement, ServicePrincipal } from '@aws-cdk/aws-iam';
-import { Table, AttributeType, BillingMode } from '@aws-cdk/aws-dynamodb';
-import { LambdaRestApi, AuthorizationType } from '@aws-cdk/aws-apigateway';
+import { App, Stack, StackProps, Duration } from 'aws-cdk-lib';
+import { Function, Code, Runtime } from "aws-cdk-lib/aws-lambda";
+import { StringParameter } from 'aws-cdk-lib/aws-ssm';
+import { PolicyStatement, ServicePrincipal } from 'aws-cdk-lib/aws-iam';
+import { Table, AttributeType, BillingMode } from 'aws-cdk-lib/aws-dynamodb';
+import { LambdaRestApi, AuthorizationType } from 'aws-cdk-lib/aws-apigateway';
 
 import * as fs from 'fs';
 import * as toml from 'toml';
@@ -11,9 +11,9 @@ const config = toml.parse(fs.readFileSync('./config.toml', 'utf-8'));
 
 //~ import console = require('console');
 
-export class HugoApiStack extends cdk.Stack {
+export class HugoApiStack extends Stack {
   public readonly apigw: LambdaRestApi;
-  constructor(scope: cdk.App, id: string, props: cdk.StackProps ) {
+  constructor(scope: App, id: string, props: StackProps ) {
     super(scope, id, props);
 
     if (config.cognito) {
@@ -24,7 +24,7 @@ export class HugoApiStack extends cdk.Stack {
         code: Code.fromAsset('functions/apiLambda', {exclude: ['test/*']}),
         handler: 'index.handler',
         memorySize: 512,
-        timeout: cdk.Duration.seconds(120),
+        timeout: Duration.seconds(120),
         runtime: Runtime.NODEJS_14_X,
         retryAttempts: 0
       });
