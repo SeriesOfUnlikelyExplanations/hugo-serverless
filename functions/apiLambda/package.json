@@ -3,6 +3,16 @@
   "version": "1.0.0",
   "author": "Tom Woodard",
   "license": "MIT",
+  "nyc": {
+    "reporter": [
+      "json",
+      "html"
+    ]
+  },
+  "scripts": {
+    "test": "mocha",
+    "deploy-test": "nyc mocha"
+  },
   "repository": {
     "type": "git",
     "url": "git+ssh://git@github.com/SeriesOfUnlikelyExplanations/onward-blog.git"

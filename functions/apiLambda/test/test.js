@@ -47,17 +47,11 @@ describe('Testing routing lambda', function() {
       expect(res.statusCode).to.equal(200);
       expect(res.body).to.equal('OK');
     });
-    it('/contact-us', async () => {
-      const res = await index.handler(reqData.contactus, {})
-        .catch(err => assert(false, 'application failure: '.concat(err)));
-      expect(res.statusCode).to.equal(302);
-      expect(res.multiValueHeaders.location).to.include('https://github.com/SeriesOfUnlikelyExplanations/always-onward/issues')
-    });
     it('/blah missing route', async () => {
       const res = await index.handler(reqData.noroute, {})
         .catch(err => assert(false, 'application failure: '.concat(err)));
       expect(res.statusCode).to.equal(302);
-      expect(res.multiValueHeaders.location).to.include('/index.html')
+      expect(res.multiValueHeaders.location).to.include('/')
     });
   });
 
@@ -88,8 +82,5 @@ describe('Testing routing lambda', function() {
     });
   });
 
-  importTest("Test the Auth Routes", './auth/test.js');
-  importTest("Test the Offers Routes", './offers/test.js');
-  importTest("Test the manageDevices Routes", './manageDevices/test.js');
-  importTest("Test the device Routes", './device/test.js');
+  //~ importTest("Test the Auth Routes", './auth/test.js');
 });

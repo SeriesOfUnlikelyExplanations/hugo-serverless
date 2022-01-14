@@ -4,60 +4,35 @@ module.exports = Object.freeze({
   ssm: {
     InvalidParameters: [ "string" ],
     Parameters: [
-      {
-          Name: '/AlwaysOnward/UserPoolId',
-          Type: "String",
-          Value: "'/AlwaysOnward/UserPoolClientId'"
+          {
+        Name: '/hugoServerless/datasyncSourceTask',
+        Type: "String",
+        Value: "datasyncSourceTask"
       },
       {
-          Name: '/AlwaysOnward/UserPoolClientId',
-          Type: "String",
-          Value: "UserPoolClientId"
+        Name: '/hugoServerless/datasyncWebsiteTask',
+        Type: "String",
+        Value: "datasyncWebsiteTask"
       },
       {
-          Name: '/AlwaysOnward/AuthDomain',
-          Type: "String",
-          Value: "AuthDomain"
+        Name: '/hugoServerless/datasyncThemeTask',
+        Type: "String",
+        Value: "datasyncThemeTask"
       },
       {
-          Name: '/AlwaysOnward/UserPoolClientSecret',
-          Type: "String",
-          Value: "UserPoolClientSecret"
+        Name: '/hugoServerless/vpcID',
+        Type: "String",
+        Value: "vpcID"
       },
       {
-          Name: '/AlwaysOnward/offersBucket',
-          Type: "String",
-          Value: "offersBucket"
+        Name: '/hugoServerless/securityGroupID',
+        Type: "String",
+        Value: "securityGroupID"
       },
       {
-          Name: '/AlwaysOnward/region',
-          Type: "String",
-          Value: "region"
-      },
-      {
-          Name: '/AlwaysOnward/devicesTable',
-          Type: "String",
-          Value: "devicesTable"
-      },
-      {
-          Name: '/AlwaysOnward/offersTable',
-          Type: "String",
-          Value: "offersTable"
-      },
-      {
-          Name: '/AlwaysOnward/deviceSoftwareBucket',
-          Type: "String",
-          Value: "deviceSoftwareBucket"
-      },
-      {
-          Name: '/AlwaysOnward/moviesBucket',
-          Type: "String",
-          Value: "moviesBucket"
-      },
-      {
-          Name: '/AlwaysOnward/currentSoftwareVersion',
-          Type: "String",
-          Value: "currentSoftwareVersion"
+        Name: '/hugoServerless/subnetID',
+        Type: "String",
+        Value: "subnetID"
       }
     ]
   },

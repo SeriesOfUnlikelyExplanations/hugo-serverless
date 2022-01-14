@@ -12,6 +12,8 @@
     "test-generator-deploy": "npm --prefix functions/siteGeneratorLambda run deploy-test",
     "test-admin": "npm --prefix functions/adminLambda run test" ,
     "test-admin-deploy": "npm --prefix functions/adminLambda run deploy-test",
+    "test-api": "npm --prefix functions/apiLambda run test" ,
+    "test-api-deploy": "npm --prefix functions/apiLambda run deploy-test",
     "test-cdk": "cdk synth",
     "test-service": "aws s3 cp ../onward-blog/content/_index.md s3://blog.always-onward.com-source/content/_index.md",
     "deploy": "cdk deploy --all --require-approval never",
