@@ -15,7 +15,7 @@ function importTest(name, path) {
   });
 }
 
-const SOURCE_DIR = 'test/site'
+const SOURCE_DIR = `${__dirname}/site`
 
 // https://sinonjs.org/how-to/stub-dependency/
 describe('Testing Generator lambda', function() {
@@ -30,7 +30,8 @@ describe('Testing Generator lambda', function() {
       console.log(req)
       assert(false, 'application failure: no match')
     })
-    copyFileSync('./test/config.toml',`./${SOURCE_DIR}/config.toml`)
+    console.log(__dirname)
+    copyFileSync(`${__dirname}/config.toml`,`${SOURCE_DIR}/config.toml`)
     index.setEfsDir(SOURCE_DIR);
     if (existsSync(`${SOURCE_DIR}/public`)) {
       rmdirSync(`${SOURCE_DIR}/public`, { recursive: true })
@@ -39,14 +40,14 @@ describe('Testing Generator lambda', function() {
 
   describe('DataSync Tasks', () => {
     it('Source Task - missing config', async () => {
-      unlinkSync(`./${SOURCE_DIR}/config.toml`);
+      unlinkSync(`${SOURCE_DIR}/config.toml`);
       const res = await index.handler(reqData.source, {})
         .catch(err => assert(false, 'application failure: '.concat(err)));
       expect(res.statusCode).to.equal(500);
       expect(res.body).to.contain('Error');
       expect(existsSync(`${SOURCE_DIR}/public`)).to.be.false;
       expect(existsSync(`${SOURCE_DIR}/public/sitemap.xml`)).to.be.false;
-      copyFileSync('./test/config.toml',`./${SOURCE_DIR}/config.toml`)
+      copyFileSync(`${__dirname}/config.toml`,`${SOURCE_DIR}/config.toml`)
     });
     it('Source Task', async () => {
       const res = await index.handler(reqData.source, {})
