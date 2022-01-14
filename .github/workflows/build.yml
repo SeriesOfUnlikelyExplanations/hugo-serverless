@@ -29,9 +29,6 @@ jobs:
           npm install --production
           cd ../siteGeneratorLambda
           npm install --production
-          pip install pipenv
-          pipenv install
-          cp -r $(pipenv --venv)/lib/python3.8/site-packages/. .
           
       - name: Run unit tests
         run: |
