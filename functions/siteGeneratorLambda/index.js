@@ -24,7 +24,8 @@ exports.handler = async (event, context) => {
     try {
       const hugo = await import("hugo-extended");
       const binPath = await hugo.default();
-      const result = execSync(`${binPath} -s ${EFS_DIR}`).toString();
+      const command = `${binPath} -s ${EFS_DIR}`
+      const result = execSync(command).toString();
       console.log(result);
     } catch (e) {
       console.error(e); // should contain code (exit code) and signal (that caused the termination).
