@@ -1,60 +1,63 @@
 const { SSM } = require('aws-sdk');
 const { promises: { readdir, unlink, rmdir } } = require('fs');
 const { join } = require('path')
+const { execSync } = require('child_process');
 
 // Environment variables
-const LOCAL_SOURCE_DIR = '/mnt/hugo'
-const LOCAL_BUILD_DIR = '/mnt/hugo/public'
+let EFS_DIR = '/mnt/hugo';
+
+// Used for Testing
+exports.setEfsDir = (value) => {
+  EFS_DIR = value;
+}
 
 exports.handler = async (event, context) => {
   console.log(event);
   console.log("Checking the source directory...")
-  await readdir(LOCAL_SOURCE_DIR, { withFileTypes: true }).then((f) => { console.log(f.map(dirent => dirent.name)) })
+  await readdir(EFS_DIR, { withFileTypes: true }).then((f) => { console.log(f.map(dirent => dirent.name)) })
   console.log("Getting SSM parameters...")
   var ssm = new SSM({region:event.region});
   const ssmData = await getSSM(ssm, '/hugoServerless');
-  console.log(ssmData);
   if (event.resources[0].includes(ssmData.datasyncSourceTask)) {
-    logger.info("It was the Source Datasync Task.")
-    logger.info("Building Hugo site...")
-    const hugo = require("hugo-extended");
-    const { execAsync }  = require('child_process');
+    console.log("It was the Source Datasync Task.")
+    console.log("Building Hugo site...")
     try {
-      const { stderr, stdout } = await execAsync(binPath, [`-s ${LOCAL_SOURCE_DIR}`, `-d ${LOCAL_BUILD_DIR}`]);
-      console.log('stdout:', stdout);
-      console.log('stderr:', stderr);
+      const hugo = await import("hugo-extended");
+      const binPath = await hugo.default();
+      const result = execSync(`${binPath} -s ${EFS_DIR}`).toString();
+      console.log(result);
     } catch (e) {
       console.error(e); // should contain code (exit code) and signal (that caused the termination).
+      return {"statusCode": 500,
+        "body": e.toString(), 
+        "action": "None"
+      }
     }
     return {"statusCode": 200,
-      "headers": {"Content-Type": "text/html"},
       "body": "Build complete", 
       "action": "deploy"
     }
   } else if (event.resources[0].includes(ssmData.datasyncWebsiteTask)) {
     console.log("It was the Website Datasync Task.")
     console.log("Deleting the EFS directory...")
-    const files = await readdir(LOCAL_SOURCE_DIR, { withFileTypes: true })
+    const files = await readdir(EFS_DIR, { withFileTypes: true })
     for (const file of files) {
       if (file.isDirectory()) {
-        await rmdir(join(LOCAL_SOURCE_DIR, file))
-      } else{
-        await unlink(join(LOCAL_SOURCE_DIR, file))
+        await rmdir(join(EFS_DIR, file.name), { recursive: true })
+      } else {
+        await unlink(join(EFS_DIR, file.name))
       }
     }
-    logger.info('Checking to see if it was deleted...')
-    await readdir(LOCAL_SOURCE_DIR, { withFileTypes: true }).then((f) => { console.log(f.map(dirent => dirent.name)) })
-    logger.info("Delete Complete.")
-    
+    console.log('Checking to see if it was deleted...')
+    await readdir(EFS_DIR, { withFileTypes: true }).then((f) => { console.log(f.map(dirent => dirent.name)) })
+    console.log("Delete Complete.")   
     return {"statusCode": 200,
-      "headers": {"Content-Type": "text/html"},
       "body": "Delete complete",
       "action": "None"
     }
     
   } else {
     return {"statusCode": 404,
-      "headers": {"Content-Type": "text/html"},
       "body": "Datasync task not found",
       "action": "None"
     }
