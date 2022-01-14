@@ -4,7 +4,7 @@
   "description": "Part of Hugo Serverless",
   "scripts": {
     "test": "mocha",
-    "deploy-test": "echo done"
+    "deploy-test": "nyc mocha"
   },
   "dependencies": {
     "hugo-extended": "^0.89.4"
@@ -12,6 +12,12 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/SeriesOfUnlikelyExplanations/hugo-serverless.git"
+  },
+  "nyc": {
+    "reporter": [
+      "json",
+      "html"
+    ]
   },
   "author": "Tom Woodard",
   "license": "MIT",

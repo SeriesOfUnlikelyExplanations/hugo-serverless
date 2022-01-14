@@ -1,5 +1,5 @@
 # Hugo Serverless
-[![Actions Status](https://github.com/SeriesOfUnlikelyExplanations/hugo-serverless/workflows/Deploy/badge.svg)](https://github.com/SeriesOfUnlikelyExplanations/hugo-serverless/actions)
+[![Actions Status](https://github.com/SeriesOfUnlikelyExplanations/hugo-serverless/workflows/Deploy/badge.svg)](https://github.com/SeriesOfUnlikelyExplanations/hugo-serverless/actions) [![codecov](https://codecov.io/gh/SeriesOfUnlikelyExplanations/hugo-serverless/branch/live/graph/badge.svg?token=00SV7PWY60)](https://codecov.io/gh/SeriesOfUnlikelyExplanations/hugo-serverless)
 
 Hugo deployment package for static site generation through serverless. This project was based on [Hugo-Lambda](https://github.com/ryansb/hugo-lambda), but it's designed for larger websites (eg greater than 512MB) and it includes some extras, like checking for broken links once deployed and sending an email when a new post is created. The cost of runnin the website should be minimal (<$1-2 per month) and the majority of that cost is route53 domain registration. The project uses CDK to create all the infrastructure. It assumes you already have a couple of things setup - route53/domain certificate for your site and [SES](https://aws.amazon.com/ses/) (if you want to send and email when a new post is created).
 
