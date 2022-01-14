@@ -1,7 +1,7 @@
 const { SSM } = require('aws-sdk');
 const { promises: { readdir, unlink, rmdir } } = require('fs');
 const { join } = require('path')
-const { execSync } = require('child_process');
+const { execFileSync } = require('child_process');
 
 // Environment variables
 let EFS_DIR = '/mnt/hugo';
@@ -24,7 +24,7 @@ exports.handler = async (event, context) => {
     try {
       const hugo = await import("hugo-extended");
       const binPath = await hugo.default();
-      const result = execSync(`${binPath} -s ${EFS_DIR}`).toString();
+      const result = execFileSync(binPath, ['-s', EFS_DIR]).toString();
       console.log(result);
     } catch (e) {
       console.error(e); // should contain code (exit code) and signal (that caused the termination).
