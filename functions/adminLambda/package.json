@@ -9,8 +9,15 @@
   },
   "description": "Serverless version of Hexo blog",
   "main": "index.js",
-  "hexo": {
-    "version": "5.4.0"
+  "nyc": {
+    "reporter": [
+      "json",
+      "html"
+    ]
+  },
+  "scripts": {
+    "test": "mocha",
+    "deploy-test": "nyc mocha"
   },
   "dependencies": {
     "aws-sdk": "^2.939.0",

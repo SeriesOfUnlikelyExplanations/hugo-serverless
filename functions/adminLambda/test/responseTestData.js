@@ -2,106 +2,51 @@
 
 module.exports = Object.freeze({
   ssm: {
-    InvalidParameters: [ "string" ],
-    Parameters: [
+    InvalidParameters: [ "" ],
+     Parameters: [
       {
-          Name: '/AlwaysOnward/UserPoolId',
-          Type: "String",
-          Value: "'/AlwaysOnward/UserPoolClientId'"
+        Name: '/hugoServerless/datasyncSourceTask',
+        Type: "String",
+        Value: "datasyncSourceTask"
       },
       {
-          Name: '/AlwaysOnward/UserPoolClientId',
-          Type: "String",
-          Value: "UserPoolClientId"
+        Name: '/hugoServerless/datasyncWebsiteTask',
+        Type: "String",
+        Value: "datasyncWebsiteTask"
       },
       {
-          Name: '/AlwaysOnward/AuthDomain',
-          Type: "String",
-          Value: "AuthDomain"
+        Name: '/hugoServerless/datasyncThemeTask',
+        Type: "String",
+        Value: "datasyncThemeTask"
       },
       {
-          Name: '/AlwaysOnward/UserPoolClientSecret',
-          Type: "String",
-          Value: "UserPoolClientSecret"
+        Name: '/hugoServerless/vpcID',
+        Type: "String",
+        Value: "vpcID"
       },
       {
-          Name: '/AlwaysOnward/offersBucket',
-          Type: "String",
-          Value: "offersBucket"
+        Name: '/hugoServerless/securityGroupID',
+        Type: "String",
+        Value: "securityGroupID"
       },
       {
-          Name: '/AlwaysOnward/region',
-          Type: "String",
-          Value: "region"
-      },
-      {
-          Name: '/AlwaysOnward/devicesTable',
-          Type: "String",
-          Value: "devicesTable"
-      },
-      {
-          Name: '/AlwaysOnward/offersTable',
-          Type: "String",
-          Value: "offersTable"
-      },
-      {
-          Name: '/AlwaysOnward/deviceSoftwareBucket',
-          Type: "String",
-          Value: "deviceSoftwareBucket"
-      },
-      {
-          Name: '/AlwaysOnward/moviesBucket',
-          Type: "String",
-          Value: "moviesBucket"
-      },
-      {
-          Name: '/AlwaysOnward/currentSoftwareVersion',
-          Type: "String",
-          Value: "currentSoftwareVersion"
+        Name: '/hugoServerless/subnetID',
+        Type: "String",
+        Value: "subnetID"
       }
     ]
   },
-  verifier: {
-    "at_hash": "BSEId5nF27zMrN9BLX-T_A",
-    "sub": "good_userId",
-    "aud": "5ra91i9p4trq42m2vnjs0pv06q",
-    "event_id": "b6d7a62d-54da-49e6-a839-66506f0c21b5",
-    "token_use": "id",
-    "auth_time": 1587311838,
-    "iss": "https://cognito-idp.us-east-1.amazonaws.com/us-east-1_PDsy6i0Bf",
-    "name": "Max Ivanov",
-    "cognito:username": "24e26910-e7b9-4aad-a994-387942f164e7",
-    "exp": 1587315438,
-    "iat": 1587311838,
-    "email": "max@southlane.com",
-    "custom:isAdmin": "True"
-  },
-  verifier_bad: {
-    "at_hash": "BSEId5nF27zMrN9BLX-T_A",
-    "sub": "good_userId",
-    "aud": "5ra91i9p4trq42m2vnjs0pv06q",
-    "event_id": "b6d7a62d-54da-49e6-a839-66506f0c21b5",
-    "token_use": "id",
-    "auth_time": 1587311838,
-    "iss": "https://cognito-idp.us-east-1.amazonaws.com/us-east-1_PDsy6i0Bf",
-    "name": "Max Ivanov",
-    "cognito:username": "24e26910-e7b9-4aad-a994-387942f164e7",
-    "exp": 1587315438,
-    "iat": 1587311838,
-    "email": "max@southlane.com"
-  },
-  verifier_noAdmin: {
-    "at_hash": "BSEId5nF27zMrN9BLX-T_A",
-    "sub": "good_userId",
-    "aud": "5ra91i9p4trq42m2vnjs0pv06q",
-    "event_id": "b6d7a62d-54da-49e6-a839-66506f0c21b5",
-    "token_use": "id",
-    "auth_time": 1587311838,
-    "iss": "https://cognito-idp.us-east-1.amazonaws.com/us-east-1_PDsy6i0Bf",
-    "name": "Max Ivanov",
-    "cognito:username": "24e26910-e7b9-4aad-a994-387942f164e7",
-    "exp": 1587315438,
-    "iat": 1587311838,
-    "email": "max@southlane.com"
-  },
+  vpcEndpoint: {
+    "VpcEndpoint": {
+      "PolicyDocument": "{\"Version\":\"2008-10-17\",\"Statement\":[{\"Sid\":\"\",\"Effect\":\"Allow\",\"Principal\":\"\*\",\"Action\":\"\*\",\"Resource\":\"\*\"}]}",
+      "VpcId": "vpc-1a2b3c4d",
+      "State": "available",
+      "ServiceName": "com.amazonaws.us-east-1.s3",
+      "RouteTableIds": [
+        "rtb-11aa22bb"
+      ],
+      "VpcEndpointId": "vpc-1a2b3c4d",
+      "CreationTimestamp": "2015-05-15T09:40:50Z"
+    }
+  }
 })

@@ -2,7 +2,7 @@ var assert = require('assert');
 var expect = require('chai').expect;
 const nock = require('nock');
 const sinon = require("sinon");
-const { copyFileSync, existsSync, unlinkSync, rmdirSync, readdirSync, closeSync, openSync} = require('fs');
+const fs = require('fs');
 
 var index = require('../index');
 
@@ -31,26 +31,26 @@ describe('Testing Generator lambda', function() {
       assert(false, 'application failure: no match')
     })
     console.log(__dirname)
-    copyFileSync(`${__dirname}/config.toml`,`${SOURCE_DIR}/config.toml`)
+    fs.copyFileSync(`${__dirname}/config.toml`,`${SOURCE_DIR}/config.toml`)
     index.setEfsDir(SOURCE_DIR);
-    if (existsSync(`${SOURCE_DIR}/public`)) {
-      rmdirSync(`${SOURCE_DIR}/public`, { recursive: true })
+    if (fs.existsSync(`${SOURCE_DIR}/public`)) {
+      fs.rmdirSync(`${SOURCE_DIR}/public`, { recursive: true })
     }
   });
   after(() => {
-    copyFileSync(`${__dirname}/config.toml`,`${SOURCE_DIR}/config.toml`)
+    fs.copyFileSync(`${__dirname}/config.toml`,`${SOURCE_DIR}/config.toml`)
   });
 
   describe('DataSync Tasks', () => {
     it('Source Task - missing config', async () => {
-      unlinkSync(`${SOURCE_DIR}/config.toml`);
+      fs.unlinkSync(`${SOURCE_DIR}/config.toml`);
       const res = await index.handler(reqData.source, {})
         .catch(err => assert(false, 'application failure: '.concat(err)));
       expect(res.statusCode).to.equal(500);
       expect(res.body).to.contain('Error');
-      expect(existsSync(`${SOURCE_DIR}/public`)).to.be.false;
-      expect(existsSync(`${SOURCE_DIR}/public/sitemap.xml`)).to.be.false;
-      copyFileSync(`${__dirname}/config.toml`,`${SOURCE_DIR}/config.toml`)
+      expect(fs.existsSync(`${SOURCE_DIR}/public`)).to.be.false;
+      expect(fs.existsSync(`${SOURCE_DIR}/public/sitemap.xml`)).to.be.false;
+      fs.copyFileSync(`${__dirname}/config.toml`,`${SOURCE_DIR}/config.toml`)
     });
     it('Source Task', async () => {
       const res = await index.handler(reqData.source, {})
@@ -58,8 +58,8 @@ describe('Testing Generator lambda', function() {
       expect(res.statusCode).to.equal(200);
       expect(res.body).to.equal('Build complete');
       expect(res.action).to.equal('deploy');
-      expect(existsSync(`${SOURCE_DIR}/public`)).to.be.true;
-      expect(existsSync(`${SOURCE_DIR}/public/sitemap.xml`)).to.be.true;
+      expect(fs.existsSync(`${SOURCE_DIR}/public`)).to.be.true;
+      expect(fs.existsSync(`${SOURCE_DIR}/public/sitemap.xml`)).to.be.true;
     });
     it('Website Task', async () => {
       const res = await index.handler(reqData.website, {})
@@ -67,8 +67,8 @@ describe('Testing Generator lambda', function() {
       expect(res.statusCode).to.equal(200);
       expect(res.body).to.equal('Delete complete');
       expect(res.action).to.equal('None');
-      expect(readdirSync(`${SOURCE_DIR}`)).to.be.instanceof(Array);
-      expect(readdirSync(`${SOURCE_DIR}`)).to.have.length(0);
+      expect(fs.readdirSync(`${SOURCE_DIR}`)).to.be.instanceof(Array);
+      expect(fs.readdirSync(`${SOURCE_DIR}`)).to.have.length(0);
     });
     it('Theme Task', async () => {
       const res = await index.handler(reqData.theme, {})
@@ -76,10 +76,6 @@ describe('Testing Generator lambda', function() {
       expect(res.statusCode).to.equal(404);
       expect(res.body).to.equal('Datasync task not found');
       expect(res.action).to.equal('None');
-      
     });
   });
-
-  //~ importTest("Test the Auth Routes", './auth/test.js');
-
 });

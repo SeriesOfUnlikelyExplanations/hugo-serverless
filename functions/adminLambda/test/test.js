@@ -2,7 +2,7 @@ var assert = require('assert');
 var expect = require('chai').expect;
 const nock = require('nock');
 const sinon = require("sinon");
-const verifier = require('@southlane/cognito-jwt-verifier')
+const AWS = require('aws-sdk');
 
 var index = require('../index');
 
@@ -16,7 +16,7 @@ function importTest(name, path) {
 }
 
 // https://sinonjs.org/how-to/stub-dependency/
-describe('Testing routing lambda', function() {
+describe('Testing Admin lambda', function() {
   this.timeout(4000);
   before(() => {
     nock('https://ssm.us-west-2.amazonaws.com')
@@ -28,68 +28,53 @@ describe('Testing routing lambda', function() {
       console.log(req)
       assert(false, 'application failure: no match')
     })
-    sinon.stub(verifier, 'verifierFactory')
-      .returns({verify: async (token) => {
-        if (['access_token','id_token'].some(i => i == token)) {
-          return resData.verifier
-        } else if (['access_token_noAdmin','id_token_noAdmin'].some(i => i == token)) {
-          return resData.verifier_noAdmin
-        } else {
-          throw 'error'
-        }
-      }})
+    class dataSyncMock {
+      startTaskExecution(params) {
+        ['datasyncSourceTask','datasyncWebsiteTask','datasyncThemeTask'].includes(params.TaskArn);
+        return { promise: async () => {return { "TaskExecutionArn": `${params.TaskArn}/execution/exec-1234`}}}
+      }
+    }
+    dataSyncStub = sinon.stub(AWS, 'DataSync').returns(new dataSyncMock());
+    
+    class EC2Mock {
+      createVpcEndpoint( params) {
+        expect(params.ServiceName).to.equal(`com.amazonaws.${reqData.s3Upload.Records[0].awsRegion}.ssm`)
+        expect(params.VpcId).to.equal('vpcID')
+        expect(params.PrivateDnsEnabled).to.equal(true)
+        expect(params.SecurityGroupIds).to.contain('securityGroupID')
+        expect(params.SubnetIds).to.contain('subnetID')
+        expect(params.VpcEndpointType).to.equal('Interface')
+        return { promise: async () => {return resData.vpcEndpoint}}
+      }
+    }
+    EC2Stub = sinon.stub(AWS, 'EC2').returns(new EC2Mock());
   });
 
-  describe('test root apis', () => {
-    it('/status', async () => {
-      const res = await index.handler(reqData.status, {})
+  describe('Admin Tasks', () => {
+    it('S3 upload', async () => {
+      const res = await index.handler(reqData.s3Upload, {})
         .catch(err => assert(false, 'application failure: '.concat(err)));
       expect(res.statusCode).to.equal(200);
-      expect(res.body).to.equal('OK');
+      expect(res.sourceDatasync.TaskExecutionArn).to.equal('datasyncSourceTask/execution/exec-1234');
+      expect(res.themeDatasync.TaskExecutionArn).to.equal('datasyncThemeTask/execution/exec-1234');
+      expect(res.vpcEndpoint.VpcEndpoint.PolicyDocument).to.equal('{"Version":"2008-10-17","Statement":[{"Sid":"","Effect":"Allow","Principal":"*","Action":"*","Resource":"*"}]}');
+      expect(res.vpcEndpoint.VpcEndpoint.VpcId).to.equal('vpc-1a2b3c4d');
+      expect(res.vpcEndpoint.VpcEndpoint.State).to.equal('available');
+      expect(res.vpcEndpoint.VpcEndpoint.ServiceName).to.equal('com.amazonaws.us-east-1.s3');
+      expect(res.vpcEndpoint.VpcEndpoint.RouteTableIds).to.contain("rtb-11aa22bb");
+      expect(res.vpcEndpoint.VpcEndpoint.VpcEndpointId).to.equal('vpc-1a2b3c4d');
+      expect(res.vpcEndpoint.VpcEndpoint.CreationTimestamp).to.equal('2015-05-15T09:40:50Z');
     });
-    it('/contact-us', async () => {
-      const res = await index.handler(reqData.contactus, {})
+    it('Build Complete', async () => {
+      const res = await index.handler(reqData.s3Upload, {})
         .catch(err => assert(false, 'application failure: '.concat(err)));
-      expect(res.statusCode).to.equal(302);
-      expect(res.multiValueHeaders.location).to.include('https://github.com/SeriesOfUnlikelyExplanations/always-onward/issues')
+      expect(res.statusCode).to.equal(200);
+      expect(res.sourceDatasync.TaskExecutionArn).to.equal('datasyncSourceTask/execution/exec-1234');
+      expect(res.themeDatasync.TaskExecutionArn).to.equal('datasyncThemeTask/execution/exec-1234');
+      console.log(res);
     });
-    it('/blah missing route', async () => {
-      const res = await index.handler(reqData.noroute, {})
-        .catch(err => assert(false, 'application failure: '.concat(err)));
-      expect(res.statusCode).to.equal(302);
-      expect(res.multiValueHeaders.location).to.include('/index.html')
-    });
+    
+    
   });
 
-  describe('test authenticated  routes', () => {
-    it('/authStatus', async () => {
-      const res = await index.handler(reqData.privateStatus, {})
-        .catch(err => assert(false, 'application failure: '.concat(err)));
-      expect(res.statusCode).to.equal(200);
-      expect(res.body).to.equal('OK');
-    });
-    it('/authStatus Bad Token', async () => {
-      const res = await index.handler(reqData.privateStatus_badToken, {})
-        .catch(err => assert(false, 'application failure: '.concat(err)));
-      expect(res.statusCode).to.equal(403);
-      expect(res.body).to.equal('Forbidden');
-    });
-    it('/adminStatus failed', async () => {
-      const res = await index.handler(reqData.noAdminStatus, {})
-        .catch(err => assert(false, 'application failure: '.concat(err)));
-      expect(res.statusCode).to.equal(403);
-      expect(res.body).to.equal('Forbidden');
-    });
-    it('/adminStatus succeeded', async () => {
-      const res = await index.handler(reqData.AdminStatus, {})
-        .catch(err => assert(false, 'application failure: '.concat(err)));
-      expect(res.statusCode).to.equal(200);
-      expect(res.body).to.equal('OK');
-    });
-  });
-
-  importTest("Test the Auth Routes", './auth/test.js');
-  importTest("Test the Offers Routes", './offers/test.js');
-  importTest("Test the manageDevices Routes", './manageDevices/test.js');
-  importTest("Test the device Routes", './device/test.js');
 });
