@@ -2,7 +2,7 @@ var assert = require('assert');
 var expect = require('chai').expect;
 const nock = require('nock');
 const sinon = require("sinon");
-const { copyFileSync, existsSync, unlinkSync, rmdirSync, readdirSync } = require('fs');
+const { copyFileSync, existsSync, unlinkSync, rmdirSync, readdirSync, closeSync, openSync} = require('fs');
 
 var index = require('../index');
 
@@ -36,6 +36,9 @@ describe('Testing Generator lambda', function() {
     if (existsSync(`${SOURCE_DIR}/public`)) {
       rmdirSync(`${SOURCE_DIR}/public`, { recursive: true })
     }
+  });
+  after(() => {
+    copyFileSync(`${__dirname}/config.toml`,`${SOURCE_DIR}/config.toml`)
   });
 
   describe('DataSync Tasks', () => {
@@ -73,6 +76,7 @@ describe('Testing Generator lambda', function() {
       expect(res.statusCode).to.equal(404);
       expect(res.body).to.equal('Datasync task not found');
       expect(res.action).to.equal('None');
+      
     });
   });
 
