@@ -1,6 +1,6 @@
 const AWS = require('aws-sdk');
 const { checkBrokenLinks, invalidate, sendEmail } = require('./deploy.js');
-var blc = require("broken-link-checker");
+const blc = require("broken-link-checker");
 
 exports.handler = async (event, context) => {
   console.log(event);
@@ -56,7 +56,7 @@ exports.handler = async (event, context) => {
       result.invalidate = await invalidate(cloudfront, ssmData.distID);
       console.log('Invalidation complete.')
       console.log('Starting the broken link checker...')
-      const brokenLinks = await checkBrokenLinks(blc.SiteChecker,'https://' + ssmData.siteName);
+      const brokenLinks = await checkBrokenLinks(blc.SiteChecker, 'https://' + ssmData.siteName);
       console.log('Broken Link Checker complete.');
       if (ssmData.noReplyEmail) {
         console.log('Sending email...');
@@ -82,10 +82,12 @@ exports.handler = async (event, context) => {
       const ec2 = new AWS.EC2({region:REGION});
       console.log('Deleting VPC endpoints...');
       const vpcData = await ec2.describeVpcEndpoints({}).promise();
-      await ec2.deleteVpcEndpoints({
+      result.deletedvpcs = await ec2.deleteVpcEndpoints({
         VpcEndpointIds: vpcData.VpcEndpoints.map(({VpcEndpointId}) => VpcEndpointId)
       }).promise();
       console.log('VPC endpoints deleted. All done.');
+      result.statusCode = 200
+      
     } else if (event.resources[0].includes(ssmData.datasyncSourceTask)){
       console.log('Source Datasync task completed. Emptying the website bucket so it is ready for deployment...');
       var s3 = new AWS.S3({region:REGION});
@@ -97,11 +99,11 @@ exports.handler = async (event, context) => {
             Delete: {
               Objects: Contents.map(({ Key }) => ({ Key }))
             }
-          })
-          .promise();
+          }).promise();
       }
       console.log('Website Bucket has been emptied.');
       result.statusCode = 200
+      
     } else {
       console.log('Datalink task not supported');
       result.body = 'Datalink task not supported'

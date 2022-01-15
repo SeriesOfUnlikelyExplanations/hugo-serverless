@@ -14,6 +14,7 @@ async function checkBrokenLinks(SiteChecker, site) {
         "end": () => resolve([...new Set(brokenLinks)])
       }
     );
+    console.log(site);
     _siteChecker.enqueue(site)
   })
 };
@@ -75,7 +76,6 @@ async function invalidate(cf, distId) {
     }).promise()
     console.log(r);
     if (r.Invalidation && r.Invalidation.Status === 'Completed') {
-      await new Promise(resolve => setTimeout(resolve, 10000));
       return true
     }
     await new Promise(resolve => setTimeout(resolve, 1000));

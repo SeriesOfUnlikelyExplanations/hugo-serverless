@@ -1,11 +1,11 @@
-var assert = require('assert');
-var expect = require('chai').expect;
+const assert = require('assert');
+const expect = require('chai').expect;
 const nock = require('nock');
 const sinon = require("sinon");
 const AWS = require('aws-sdk');
-var blc = require("broken-link-checker");
+const blc = require("broken-link-checker");
 
-var index = require('../index');
+const index = require('../index');
 
 const reqData = require('./requestTestData.js');
 const resData = require('./responseTestData.js');
@@ -38,7 +38,7 @@ describe('Testing Admin lambda', function() {
     dataSyncStub = sinon.stub(AWS, 'DataSync').returns(new dataSyncMock());
     
     class EC2Mock {
-      createVpcEndpoint( params) {
+      createVpcEndpoint(params) {
         expect(params.ServiceName).to.equal(`com.amazonaws.${reqData.s3Upload.Records[0].awsRegion}.ssm`)
         expect(params.VpcId).to.equal('vpcID')
         expect(params.PrivateDnsEnabled).to.equal(true)
@@ -46,6 +46,13 @@ describe('Testing Admin lambda', function() {
         expect(params.SubnetIds).to.contain('subnetID')
         expect(params.VpcEndpointType).to.equal('Interface')
         return { promise: async () => {return resData.vpcEndpoint}}
+      }
+      describeVpcEndpoints() {
+        return { promise: async () => {return resData.describeVpcEndpoints}}
+      }
+      deleteVpcEndpoints(params) {
+        expect(params.VpcEndpointIds).to.have.members(['vpce-032a826a','vpce-aabbaabbaabbaabba']);
+        return { promise: async () => {return { "Unsuccessful": [] }}}
       }
     }
     EC2Stub = sinon.stub(AWS, 'EC2').returns(new EC2Mock());
@@ -95,27 +102,20 @@ describe('Testing Admin lambda', function() {
       }
     }
     cloudfrontStub = sinon.stub(AWS, 'CloudFront').returns(new cloudfrontMock());
-    
-    class blcMock {
-      SiteChecker(params) {
-        console.log(params);
-        
-        expect(params.DistributionId).to.equal('distID');
-        expect(params.InvalidationBatch.Paths.Quantity).to.equal('1');
-        expect(params.InvalidationBatch.Paths.Items).to.contain('/*');
-        return { promise: async () => {return { 
-          Location: '1234',
-          Invalidation: {
-            Id: 'IDFDVBD632BHDS5',
-            Status: 'In Progress',
-            CreateTime: new Date().toISOString(),
-            InvalidationBatch: params.InvalidationBatch
+          
+    function SiteChecker(options, params) {
+      expect(options.excludedKeywords).to.have.members(['gaiagps.com','amazon.com']);
+      console.log(params);      
+      return { 
+        enqueue: (site) => { 
+          if (site === 'https://siteName') {
+            params.end()
           }
-        }}}
+          return true 
+        }
       }
     }
-    blcStub = sinon.stub(blc, 'SiteChecker').returns(new blcMock());
-    
+    siteCheckerStub = sinon.stub(blc, 'SiteChecker').callsFake(SiteChecker);
     
   });
 
@@ -148,11 +148,13 @@ describe('Testing Admin lambda', function() {
       const checker = res.deleted.Deleted.map(({Key}) => Key);
       expect(checker).to.have.members(['happyface.jpg','test.jpg']);
     });
-    xit('Website Datasync Complete', async () => {
+    it('Website Datasync Complete', async () => {
       const res = await index.handler(reqData.websiteDatasyncComplete, {})
         .catch(err => assert(false, 'application failure: '.concat(err)));
       expect(res.statusCode).to.equal(200);
-      console.log(res);
+      expect(res.invalidate).to.be.true;
+      expect(res.deletedvpcs.Unsuccessful).to.be.instanceof(Array);
+      expect(res.deletedvpcs.Unsuccessful).to.have.length(0);
     });
     it('Theme Datasync Complete', async () => {
       const res = await index.handler(reqData.themeDatasyncComplete, {})
