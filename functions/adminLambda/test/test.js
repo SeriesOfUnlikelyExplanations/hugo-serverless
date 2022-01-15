@@ -20,7 +20,7 @@ function importTest(name, path) {
 describe('Testing Admin lambda', function() {
   this.timeout(4000);
   before(() => {
-    nock('https://ssm.us-west-2.amazonaws.com')
+    ssmNock = nock('https://ssm.us-west-2.amazonaws.com')
       .persist()
       .post('/')
       .reply(200, resData.ssm);
@@ -73,7 +73,6 @@ describe('Testing Admin lambda', function() {
   
     class cloudfrontMock {
       createInvalidation(params) {
-        console.log(params);
         expect(params.DistributionId).to.equal('distID');
         expect(params.InvalidationBatch.Paths.Quantity).to.equal('1');
         expect(params.InvalidationBatch.Paths.Items).to.contain('/*');
@@ -88,7 +87,6 @@ describe('Testing Admin lambda', function() {
         }}}
       }
       getInvalidation(params) {
-        console.log(params);
         expect(params.DistributionId).to.equal('distID');
         expect(params.Id).to.equal('IDFDVBD632BHDS5');
         return { promise: async () => {return { 
@@ -104,11 +102,16 @@ describe('Testing Admin lambda', function() {
     cloudfrontStub = sinon.stub(AWS, 'CloudFront').returns(new cloudfrontMock());
           
     function SiteChecker(options, params) {
-      expect(options.excludedKeywords).to.have.members(['gaiagps.com','amazon.com']);
-      console.log(params);      
+      expect(options.excludedKeywords).to.have.members(['gaiagps.com','amazon.com']);    
       return { 
         enqueue: (site) => { 
           if (site === 'https://siteName') {
+            params.end()
+          } else if (site === 'https://siteNameBadLink') { 
+            params.link({
+              broken: true,
+              url: { original: 'badLink' }
+            })
             params.end()
           }
           return true 
@@ -165,16 +168,22 @@ describe('Testing Admin lambda', function() {
         .catch(err => assert(false, 'application failure: '.concat(err)));
       expect(res.statusCode).to.equal(200);
       expect(res.invalidate).to.be.true;
+      expect(res.brokenLinks).to.be.instanceof(Array);
+      expect(res.brokenLinks).to.have.length(0);
       expect(res.deletedvpcs.Unsuccessful).to.be.instanceof(Array);
       expect(res.deletedvpcs.Unsuccessful).to.have.length(0);
     });
     it('Website Datasync Complete - broken links', async () => {
+      ssmNock.interceptors[0].body =  resData.ssmBadLink;
       const res = await index.handler(reqData.websiteDatasyncComplete, {})
         .catch(err => assert(false, 'application failure: '.concat(err)));
       expect(res.statusCode).to.equal(200);
       expect(res.invalidate).to.be.true;
+      expect(res.brokenLinks).to.be.instanceof(Array);
+      expect(res.brokenLinks).to.have.length(1);
       expect(res.deletedvpcs.Unsuccessful).to.be.instanceof(Array);
       expect(res.deletedvpcs.Unsuccessful).to.have.length(0);
+      ssmNock.interceptors[0].body =  resData.ssm;
     });
   });
 

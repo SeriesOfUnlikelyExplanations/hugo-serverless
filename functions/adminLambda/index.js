@@ -57,10 +57,11 @@ exports.handler = async (event, context) => {
       console.log('Invalidation complete.')
       console.log('Starting the broken link checker...')
       const brokenLinks = await checkBrokenLinks(blc.SiteChecker, 'https://' + ssmData.siteName);
+      console.log(brokenLinks);
+      result.brokenLinks = brokenLinks;
       console.log('Broken Link Checker complete.');
       if (ssmData.noReplyEmail) {
         console.log('Sending email...');
-        console.log(brokenLinks);
         try {
           const ddb = new AWS.DynamoDB({signatureVersion: 'v4', region:REGION})
           email = { 

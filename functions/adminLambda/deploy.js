@@ -14,7 +14,6 @@ async function checkBrokenLinks(SiteChecker, site) {
         "end": () => resolve([...new Set(brokenLinks)])
       }
     );
-    console.log(site);
     _siteChecker.enqueue(site)
   })
 };

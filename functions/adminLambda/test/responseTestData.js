@@ -1,9 +1,5 @@
 'use strict';
-
-module.exports = Object.freeze({
-  ssm: {
-    InvalidParameters: [ "" ],
-     Parameters: [
+const ssm = [
       {
         Name: '/hugoServerless/datasyncSourceTask',
         Type: "String",
@@ -35,16 +31,28 @@ module.exports = Object.freeze({
         Value: "subnetID"
       },
       {
-        Name: '/hugoServerless/siteName',
-        Type: "String",
-        Value: "siteName"
-      },
-      {
         Name: '/hugoServerless/distID',
         Type: "String",
         Value: "distID"
       }
     ]
+
+module.exports = Object.freeze({
+  ssm: {
+    InvalidParameters: [ "" ],
+    Parameters: ssm.concat([{
+      Name: '/hugoServerless/siteName',
+      Type: "String",
+      Value: "siteName"
+    }])
+  },
+  ssmBadLink: {
+    InvalidParameters: [ "" ],
+    Parameters: ssm.concat([{
+      Name: '/hugoServerless/siteName',
+      Type: "String",
+      Value: "siteNameBadLink"
+    }])
   },
   vpcEndpoint: {
     "VpcEndpoint": {
