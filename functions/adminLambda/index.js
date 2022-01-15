@@ -88,9 +88,9 @@ exports.handler = async (event, context) => {
     } else if (event.resources[0].includes(ssmData.datasyncSourceTask)){
       console.log('Source Datasync task completed. Emptying the website bucket so it is ready for deployment...');
       var s3 = new AWS.S3({region:REGION});
-      const { Contents } = await s3.listObjects({ Bucket: ssmData.siteName }).promise();
+      const { Contents } = await s3.ListObjectsV2({ Bucket: ssmData.siteName }).promise();
       if (Contents.length > 0) {
-        await s3
+        result.deleted = await s3
           .deleteObjects({
             Bucket: ssmData.siteName,
             Delete: {

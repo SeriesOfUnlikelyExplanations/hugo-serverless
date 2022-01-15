@@ -33,6 +33,11 @@ module.exports = Object.freeze({
         Name: '/hugoServerless/subnetID',
         Type: "String",
         Value: "subnetID"
+      },
+      {
+        Name: '/hugoServerless/siteName',
+        Type: "String",
+        Value: "siteName"
       }
     ]
   },
@@ -48,5 +53,29 @@ module.exports = Object.freeze({
       "VpcEndpointId": "vpc-1a2b3c4d",
       "CreationTimestamp": "2015-05-15T09:40:50Z"
     }
-  }
+  },
+  listWebsiteBucket: {
+    Contents: [
+       {
+      ETag: "\"70ee1738b6b21e2c8a43f3a5ab0eee71\"", 
+      Key: "happyface.jpg", 
+      LastModified: "2015-05-15T09:40:50Z", 
+      Size: 11, 
+      StorageClass: "STANDARD"
+     }, 
+       {
+      ETag: "\"becf17f89c30367a9a44495d62ed521a-1\"", 
+      Key: "test.jpg", 
+      LastModified: "2015-05-15T09:40:50Z", 
+      Size: 4192256, 
+      StorageClass: "STANDARD"
+     }
+    ], 
+    IsTruncated: true, 
+    KeyCount: 2, 
+    MaxKeys: 2, 
+    Name: "examplebucket", 
+    NextContinuationToken: "1w41l63U0xa8q7smH50vCxyTQqdxo69O3EmK28Bi5PcROI4wI/EyIJg==", 
+    Prefix: ""
+   }
 })

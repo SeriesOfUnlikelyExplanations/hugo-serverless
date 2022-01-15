@@ -18,4 +18,17 @@ module.exports = Object.freeze({
     body: 'Build complete', 
     action: 'deploy' 
   },
+  sourceDatasyncComplete: {
+    version: '0',
+    id: '1234',
+    'detail-type': 'DataSync Task Execution State Change',
+    source: 'aws.datasync',
+    account: '1234',
+    time: '2022-01-14T01:00:09Z',
+    region: 'us-west-2',
+    resources: [
+      'datasyncSourceTask/execution/exec-0a86ad6d2994fec11'
+    ],
+    detail: { State: 'SUCCESS' }
+  }
 })

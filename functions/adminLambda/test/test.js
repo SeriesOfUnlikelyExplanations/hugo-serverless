@@ -48,6 +48,21 @@ describe('Testing Admin lambda', function() {
       }
     }
     EC2Stub = sinon.stub(AWS, 'EC2').returns(new EC2Mock());
+    
+    class S3Mock {
+      ListObjectsV2(params) {
+        expect(params.Bucket).to.equal('siteName');
+        return { promise: async () => {return resData.listWebsiteBucket}}
+      }
+      deleteObjects(params) {
+        expect(params.Bucket).to.equal('siteName');
+        const checker = params.Delete.Objects.map(({Key}) => Key);
+        expect(checker).to.have.members(['happyface.jpg','test.jpg']);
+        return { promise: async () => {return {Deleted: params.Delete.Objects} }}
+      }
+    }
+    S3Stub = sinon.stub(AWS, 'S3').returns(new S3Mock());
+  
   });
 
   describe('Admin Tasks', () => {
@@ -72,7 +87,13 @@ describe('Testing Admin lambda', function() {
       expect(res.websiteDatasync.TaskExecutionArn).to.equal('datasyncWebsiteTask/execution/exec-1234');
       console.log(res);
     });
-    
+    it('Source Datasync Complete', async () => {
+      const res = await index.handler(reqData.sourceDatasyncComplete, {})
+        .catch(err => assert(false, 'application failure: '.concat(err)));
+      expect(res.statusCode).to.equal(200);
+      const checker = res.deleted.Deleted.map(({Key}) => Key);
+      expect(checker).to.have.members(['happyface.jpg','test.jpg']);
+    });
     
   });
 
