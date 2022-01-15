@@ -210,6 +210,7 @@ describe('Testing Admin lambda', function() {
       expect(res.deletedvpcs.Unsuccessful).to.be.instanceof(Array);
       expect(res.deletedvpcs.Unsuccessful).to.have.length(0);
       expect(res).to.contain.key('email');
+      expect(res.email).to.contain('Good');
     });
     it('Website Datasync Complete - broken links', async () => {
       ssmNock.interceptors[0].body =  resData.ssmBadLink;
@@ -222,6 +223,8 @@ describe('Testing Admin lambda', function() {
       expect(res.deletedvpcs.Unsuccessful).to.be.instanceof(Array);
       expect(res.deletedvpcs.Unsuccessful).to.have.length(0);
       expect(res).to.contain.key('email');
+      expect(res.email).to.contain('Broken');
+      
       ssmNock.interceptors[0].body =  resData.ssm;
     });
     it('Website Datasync Complete - no email', async () => {
@@ -235,7 +238,6 @@ describe('Testing Admin lambda', function() {
       expect(res.deletedvpcs.Unsuccessful).to.be.instanceof(Array);
       expect(res.deletedvpcs.Unsuccessful).to.have.length(0);
       expect(res).to.not.contain.key('email');
-      
       ssmNock.interceptors[0].body =  resData.ssm;
     });
   });
