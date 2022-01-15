@@ -1,5 +1,6 @@
 const AWS = require('aws-sdk');
 const { checkBrokenLinks, invalidate, sendEmail } = require('./deploy.js');
+var blc = require("broken-link-checker");
 
 exports.handler = async (event, context) => {
   console.log(event);
@@ -52,10 +53,10 @@ exports.handler = async (event, context) => {
     if (event.resources[0].includes(ssmData.datasyncWebsiteTask)) {
       console.log('Website Datasync task was the one completed. Starting cloudfront Invalidation...');
       var cloudfront = new AWS.CloudFront({region:REGION});
-      await invalidate(cloudfront, ssmData.distID);
+      result.invalidate = await invalidate(cloudfront, ssmData.distID);
       console.log('Invalidation complete.')
       console.log('Starting the broken link checker...')
-      const brokenLinks = await checkBrokenLinks('https://' + ssmData.siteName);
+      const brokenLinks = await checkBrokenLinks(blc.SiteChecker,'https://' + ssmData.siteName);
       console.log('Broken Link Checker complete.');
       if (ssmData.noReplyEmail) {
         console.log('Sending email...');
@@ -71,7 +72,7 @@ exports.handler = async (event, context) => {
             adminEmail: ssmData.myEmail
           }
           const ses = new AWS.SES({region:REGION})
-          //~ result = await sendEmail(brokenLinks,'https://' + ssmData.siteName, email, ses);
+          //~ result.email = await sendEmail(brokenLinks,'https://' + ssmData.siteName, email, ses);
           console.log('Email Sent.');
         } catch (e) {
           console.error(e);

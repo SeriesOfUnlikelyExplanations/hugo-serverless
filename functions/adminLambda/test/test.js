@@ -3,6 +3,7 @@ var expect = require('chai').expect;
 const nock = require('nock');
 const sinon = require("sinon");
 const AWS = require('aws-sdk');
+var blc = require("broken-link-checker");
 
 var index = require('../index');
 
@@ -63,6 +64,59 @@ describe('Testing Admin lambda', function() {
     }
     S3Stub = sinon.stub(AWS, 'S3').returns(new S3Mock());
   
+    class cloudfrontMock {
+      createInvalidation(params) {
+        console.log(params);
+        expect(params.DistributionId).to.equal('distID');
+        expect(params.InvalidationBatch.Paths.Quantity).to.equal('1');
+        expect(params.InvalidationBatch.Paths.Items).to.contain('/*');
+        return { promise: async () => {return { 
+          Location: '1234',
+          Invalidation: {
+            Id: 'IDFDVBD632BHDS5',
+            Status: 'In Progress',
+            CreateTime: new Date().toISOString(),
+            InvalidationBatch: params.InvalidationBatch
+          }
+        }}}
+      }
+      getInvalidation(params) {
+        console.log(params);
+        expect(params.DistributionId).to.equal('distID');
+        expect(params.Id).to.equal('IDFDVBD632BHDS5');
+        return { promise: async () => {return { 
+          Invalidation: {
+            Id: 'IDFDVBD632BHDS5',
+            Status: 'Completed',
+            CreateTime: new Date().toISOString(),
+            InvalidationBatch: {}
+          }
+        }}}
+      }
+    }
+    cloudfrontStub = sinon.stub(AWS, 'CloudFront').returns(new cloudfrontMock());
+    
+    class blcMock {
+      SiteChecker(params) {
+        console.log(params);
+        
+        expect(params.DistributionId).to.equal('distID');
+        expect(params.InvalidationBatch.Paths.Quantity).to.equal('1');
+        expect(params.InvalidationBatch.Paths.Items).to.contain('/*');
+        return { promise: async () => {return { 
+          Location: '1234',
+          Invalidation: {
+            Id: 'IDFDVBD632BHDS5',
+            Status: 'In Progress',
+            CreateTime: new Date().toISOString(),
+            InvalidationBatch: params.InvalidationBatch
+          }
+        }}}
+      }
+    }
+    blcStub = sinon.stub(blc, 'SiteChecker').returns(new blcMock());
+    
+    
   });
 
   describe('Admin Tasks', () => {
@@ -93,6 +147,18 @@ describe('Testing Admin lambda', function() {
       expect(res.statusCode).to.equal(200);
       const checker = res.deleted.Deleted.map(({Key}) => Key);
       expect(checker).to.have.members(['happyface.jpg','test.jpg']);
+    });
+    xit('Website Datasync Complete', async () => {
+      const res = await index.handler(reqData.websiteDatasyncComplete, {})
+        .catch(err => assert(false, 'application failure: '.concat(err)));
+      expect(res.statusCode).to.equal(200);
+      console.log(res);
+    });
+    it('Theme Datasync Complete', async () => {
+      const res = await index.handler(reqData.themeDatasyncComplete, {})
+        .catch(err => assert(false, 'application failure: '.concat(err)));
+      expect(res.statusCode).to.equal(404);
+      expect(res.body).to.equal('Datalink task not supported');
     });
     
   });

@@ -38,6 +38,11 @@ module.exports = Object.freeze({
         Name: '/hugoServerless/siteName',
         Type: "String",
         Value: "siteName"
+      },
+      {
+        Name: '/hugoServerless/distID',
+        Type: "String",
+        Value: "distID"
       }
     ]
   },
@@ -77,5 +82,5 @@ module.exports = Object.freeze({
     Name: "examplebucket", 
     NextContinuationToken: "1w41l63U0xa8q7smH50vCxyTQqdxo69O3EmK28Bi5PcROI4wI/EyIJg==", 
     Prefix: ""
-   }
+  }
 })

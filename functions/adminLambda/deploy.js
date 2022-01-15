@@ -2,9 +2,8 @@ const Parser = require('rss-parser');
 const htmlToText = require('html-to-text')
 const mustacheMjml  = require('mustache.mjml')
 const fs = require('fs')
-var { SiteChecker } = require("broken-link-checker");
 
-async function checkBrokenLinks(site) {
+async function checkBrokenLinks(SiteChecker, site) {
   //Crawl the site for broken links
   return await new Promise((resolve, reject) => {
     let brokenLinks = []
