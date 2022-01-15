@@ -18,6 +18,11 @@ module.exports = Object.freeze({
     body: 'Build complete', 
     action: 'deploy' 
   },
+  vpcNoAction: { 
+    "statusCode": 200,
+    "body": "Delete complete",
+    "action": "None"
+  },
   sourceDatasyncComplete: {
     version: '0',
     id: '1234',

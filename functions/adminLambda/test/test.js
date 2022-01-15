@@ -148,6 +148,18 @@ describe('Testing Admin lambda', function() {
       const checker = res.deleted.Deleted.map(({Key}) => Key);
       expect(checker).to.have.members(['happyface.jpg','test.jpg']);
     });
+    it('Theme Datasync Complete', async () => {
+      const res = await index.handler(reqData.themeDatasyncComplete, {})
+        .catch(err => assert(false, 'application failure: '.concat(err)));
+      expect(res.statusCode).to.equal(404);
+      expect(res.body).to.equal('Datalink task not supported');
+    });
+    it('vpcLambda Complete no action', async () => {
+      const res = await index.handler(reqData.vpcNoAction, {})
+        .catch(err => assert(false, 'application failure: '.concat(err)));
+      expect(res.statusCode).to.equal(404);
+      expect(res.body).to.equal('Event not supported');
+    });
     it('Website Datasync Complete', async () => {
       const res = await index.handler(reqData.websiteDatasyncComplete, {})
         .catch(err => assert(false, 'application failure: '.concat(err)));
@@ -156,13 +168,6 @@ describe('Testing Admin lambda', function() {
       expect(res.deletedvpcs.Unsuccessful).to.be.instanceof(Array);
       expect(res.deletedvpcs.Unsuccessful).to.have.length(0);
     });
-    it('Theme Datasync Complete', async () => {
-      const res = await index.handler(reqData.themeDatasyncComplete, {})
-        .catch(err => assert(false, 'application failure: '.concat(err)));
-      expect(res.statusCode).to.equal(404);
-      expect(res.body).to.equal('Datalink task not supported');
-    });
-    
   });
 
 });
