@@ -34,25 +34,64 @@ const ssm = [
         Name: '/hugoServerless/distID',
         Type: "String",
         Value: "distID"
-      }
+      },
+      {
+        Name: '/hugoServerless/postsTable',
+        Type: "String",
+        Value: "postsTable"
+      },
+      {
+        Name: '/hugoServerless/myEmail',
+        Type: "String",
+        Value: "myEmail"
+      },
+      {
+        Name: '/hugoServerless/postsTable',
+        Type: "String",
+        Value: "postsTable"
+      },
     ]
 
 module.exports = Object.freeze({
   ssm: {
     InvalidParameters: [ "" ],
-    Parameters: ssm.concat([{
-      Name: '/hugoServerless/siteName',
-      Type: "String",
-      Value: "siteName"
-    }])
+    Parameters: ssm.concat([
+      {
+        Name: '/hugoServerless/siteName',
+        Type: "String",
+        Value: "siteName"
+      },
+      {
+        Name: '/hugoServerless/noReplyEmail',
+        Type: "String",
+        Value: "noReplyEmail"
+      }
+    ])
+  },
+  ssmNoEmail: {
+    InvalidParameters: [ "" ],
+    Parameters: ssm.concat([
+      {
+        Name: '/hugoServerless/siteName',
+        Type: "String",
+        Value: "siteName"
+      }
+    ])
   },
   ssmBadLink: {
     InvalidParameters: [ "" ],
-    Parameters: ssm.concat([{
-      Name: '/hugoServerless/siteName',
-      Type: "String",
-      Value: "siteNameBadLink"
-    }])
+    Parameters: ssm.concat([
+      {
+        Name: '/hugoServerless/siteName',
+        Type: "String",
+        Value: "siteNameBadLink"
+      },
+      {
+        Name: '/hugoServerless/noReplyEmail',
+        Type: "String",
+        Value: "noReplyEmail"
+      }
+    ])
   },
   vpcEndpoint: {
     "VpcEndpoint": {
@@ -129,6 +168,88 @@ module.exports = Object.freeze({
         "OwnerId": "123456789012"
       }
     ]
-  }
+  },
+  ddbScan: {
+    ConsumedCapacity: {}, 
+    Count: 2, 
+    Items: [
+       {
+      "postPath": {
+        S: "path1"
+       }
+     }, 
+       {
+      "postPath": {
+        S: "path2"
+       }
+     }
+    ], 
+    ScannedCount: 3
+  },
+  ddbGetEmails: {
+    "Item": {
+      "postPath": {
+      "S": "blog.always-onward.com"
+      },
+      "emails": {
+      "L": [
+       {
+        "M": {
+         "name": {
+          "S": "bob"
+         },
+         "email": {
+          "S": "bob@bob.com"
+         }
+        }
+       },
+       {
+        "M": {
+         "name": {
+          "S": "Sue"
+         },
+         "email": {
+          "S": "Sue@Sue.com"
+         }
+        }
+       }
+      ]
+     }
+    }
+  },
+  rssFeed: `<rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel>
+    <title>Posts</title>
+    <link>https://siteName/</link>
+    <description>blah</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en</language>
+    <copyright>Copyright © 2020</copyright>
+    <lastBuildDate>Sun, 05 Dec 2021 00:00:00 +0000</lastBuildDate>
+    <atom:link href="https://siteName/index.xml" rel="self" type="application/rss+xml"/>
+      <item>
+        <title>Post1</title>
+        <link>Link1</link>
+        <pubDate>Sun, 05 Dec 2021 00:00:00 +0000</pubDate>
+        <guid>path1</guid>
+        <description>Lipsorum</description>
+        <featureImage>https://siteName/image1.jpg</featureImage>
+      </item>
+      <item>
+        <title>Post2</title>
+        <link>Link2</link>
+        <pubDate>Sat, 13 Nov 2021 00:00:00 +0000</pubDate>
+        <guid>path2</guid>
+        <description>Lipsorum</description>
+        <featureImage>https://siteName/image2.jpg</featureImage>
+      </item>
+      <item>
+        <title>Post3</title>
+        <link>Link3</link>
+        <pubDate>Sat, 13 Nov 2021 00:00:00 +0000</pubDate>
+        <guid>path3</guid>
+        <description>Lipsorum</description>
+        <featureImage>https://siteName/image3.jpg</featureImage>
+      </item>
+    </channel></rss>`
   
 })

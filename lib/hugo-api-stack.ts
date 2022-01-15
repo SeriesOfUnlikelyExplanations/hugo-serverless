@@ -15,7 +15,21 @@ export class HugoApiStack extends Stack {
   public readonly apigw: LambdaRestApi;
   constructor(scope: App, id: string, props: StackProps ) {
     super(scope, id, props);
-
+    // Create Dynamo DB table to store comments & emails
+    const postsTable = new Table(this, 'postsTable', {
+      partitionKey: { name: 'postPath', type: AttributeType.STRING },
+      billingMode: BillingMode.PROVISIONED,
+    });
+    postsTable.autoScaleWriteCapacity({
+      minCapacity: 1,
+      maxCapacity: 5,
+    }).scaleOnUtilization({ targetUtilizationPercent: 75 });
+    
+    new StringParameter(this, 'postsTableSSM', {
+      parameterName: '/hugoServerless/postsTable',
+      stringValue: postsTable.tableName
+    });
+    
     if (config.cognito) {
       // -------------------------------- Infrastructure for routing front-end requests ----------------------------
       //Create the routing Lambda
@@ -43,21 +57,8 @@ export class HugoApiStack extends Stack {
         description: `Simple lambda API. Timestamp: ${Date.now()}`
       });
       
-      // Create Dynamo DB table to store comments
-      const postsTable = new Table(this, 'postsTable', {
-        partitionKey: { name: 'postPath', type: AttributeType.STRING },
-        billingMode: BillingMode.PROVISIONED,
-      });
-      postsTable.autoScaleWriteCapacity({
-        minCapacity: 1,
-        maxCapacity: 5,
-      }).scaleOnUtilization({ targetUtilizationPercent: 75 });
       postsTable.grantReadWriteData(handler)
       
-      new StringParameter(this, 'postsTableSSM', {
-        parameterName: '/hugoServerless/postsTable',
-        stringValue: postsTable.tableName
-      });
       new StringParameter(this, "UserPoolId", {
         parameterName: '/hugoServerless/UserPoolId',
         stringValue: StringParameter.valueForStringParameter(this, config.cognito.UserPoolIdSSM),

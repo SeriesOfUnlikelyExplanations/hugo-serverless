@@ -18,27 +18,25 @@ async function checkBrokenLinks(SiteChecker, site) {
   })
 };
 
-async function sendEmail(uniqueLinks, site, email, ses) {
+async function sendEmail(brokenLinksFlag, params, ses) {
   //Send an email to either me (if there are broken links) or to everyone with a link to the new post
   var html, toEmail, subject
-  var emailParams = { Source: email.fromEmail };
-  if (uniqueLinks.length === 0) {
+  var emailParams = { Source: params.fromEmail };
+  if (brokenLinksFlag) {
+    html = "Blog has broken links - blog email not sent<br><br>" + params.brokenLinks.join('<br>');
+    subject = 'Broken Links';
+  } else {
     //create email for everyone
     console.log('Parsing RSS feed for email...');
     let parser = new Parser({ customFields: {item: ['featureImage']}});
 
-    let feed = await parser.parseURL(site + '/index.xml');
+    let feed = await parser.parseURL(params.site + '/index.xml');
     console.log(feed);
     const { template, errors } = mustacheMjml(fs.readFileSync('./template.mjml').toString());
     console.log('template warnings', errors);
 
     html = template(feed);
-    toEmail = [ email.adminEmail ] // email.toEmail
     subject = 'Always-Onward - a new Blog Post is available to view';
-  } else {
-    html = "Blog has broken links - blog email not sent<br><br>" + uniqueLinks.join('<br>');
-    toEmail = [ email.adminEmail ]
-    subject = 'Broken Links';
   }
   console.log(html);
   //send the email
@@ -58,14 +56,15 @@ async function sendEmail(uniqueLinks, site, email, ses) {
       Data: subject
     }
   }
-  for (const email of toEmail) {
+  const response = [];
+  for (const email of params.toEmail ) {
     emailParams.Destination = { ToAddresses: [ email ]}
-    await ses.sendEmail(emailParams).promise().then((data) => {
-      console.log(data.MessageId);
-    }).catch((err) => {
-      console.error(err, err.stack);
-    });
+    response.push(await ses.sendEmail(emailParams).promise()
+      .then((data) => data.MessageId)
+      .catch((err) => console.error(err, err.stack))
+    )
   }
+  return response;
 };
 
 async function invalidate(cf, distId) {

@@ -64,16 +64,29 @@ exports.handler = async (event, context) => {
         console.log('Sending email...');
         try {
           const ddb = new AWS.DynamoDB({signatureVersion: 'v4', region:REGION})
-          email = { 
+          const params = { 
+            site: 'https://' + ssmData.siteName,
             fromEmail: ssmData.noReplyEmail,
-            toEmail: await ddb.getItem({
-              Key: { 'listId': {'S': ssmData.siteName} },
-              TableName: ssmData.emailDynamo
-            }).promise().then((r) => r.Item.emails.L.map(a => a.M.email.S)),
-            adminEmail: ssmData.myEmail
+            brokenLinks: brokenLinks
           }
           const ses = new AWS.SES({region:REGION})
-          //~ result.email = await sendEmail(brokenLinks,'https://' + ssmData.siteName, email, ses);
+          if (brokenLinks.length === 0) {
+            params.toEmail = await ddb.getItem({
+              Key: { 'postPath': {'S': ssmData.siteName} },
+              TableName: ssmData.postsTable
+            }).promise().then((r) => r.Item.emails.L.map(a => a.M.email.S))
+            const posts = await ddb.scan({
+              TableName: ssmData.postsTable, /* required */
+              AttributesToGet: ['postPath'],
+            }).promise()
+            console.log(posts);
+            
+            params.toEmail = [ ssmData.myEmail ] // remove this to re-enable emails to everyone
+            result.email = await sendEmail(false, params, ses);
+          } else {
+            params.toEmail = [ ssmData.myEmail ]
+            result.email = await sendEmail(true, params, ses);
+          }
           console.log('Email Sent.');
         } catch (e) {
           console.error(e);

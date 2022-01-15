@@ -226,7 +226,7 @@ export class HugoServerlessStack extends Stack {
     // Create the lambda for all of the backend support
     const handler = new Function(this, 'hugoServerlessLambda', {
       functionName: 'hugoServerlessLambda',
-      code: Code.fromAsset('functions/adminLambda'),
+      code: Code.fromAsset('functions/adminLambda', {exclude: ['test/*']}),
       handler: 'index.handler',
       memorySize: 128 ,
       timeout: Duration.seconds(600),
@@ -303,7 +303,7 @@ export class HugoServerlessStack extends Stack {
     // Create the VPC lambda for Hugo generation
     const vpcHandler = new Function(this, 'hugoServerlessVpcLambda', {
       functionName: `hugoServerlessVpcLambda`,
-      code: Code.fromAsset('functions/siteGeneratorLambda'),
+      code: Code.fromAsset('functions/siteGeneratorLambda', {exclude: ['test/*']}),
       handler: 'index.handler',
       memorySize: config.deploy.buildMemory,
       timeout: Duration.seconds(600),
@@ -429,10 +429,6 @@ export class HugoServerlessStack extends Stack {
         resources: [`arn:aws:ses:${props.env?.region}:${props.env?.account}:identity/${config.deploy.zoneName}`],
         actions: ['ses:SendEmail', 'ses:SendRawEmail'],
       }))
-      new StringParameter(this, "emailDynamo", {
-        parameterName: '/hugoServerless/emailDynamo',
-        stringValue: emailsTable,
-      });
     }
   }
 }

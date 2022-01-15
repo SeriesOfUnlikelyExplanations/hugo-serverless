@@ -24,7 +24,11 @@ describe('Testing Admin lambda', function() {
       .persist()
       .post('/')
       .reply(200, resData.ssm);
-
+    rssNock = nock('https://sitename')
+      .persist()
+      .get('/index.xml')
+      .reply(200, resData.rssFeed);
+      
     nock.emitter.on("no match", (req) => {
       console.log(req)
       assert(false, 'application failure: no match')
@@ -100,6 +104,39 @@ describe('Testing Admin lambda', function() {
       }
     }
     cloudfrontStub = sinon.stub(AWS, 'CloudFront').returns(new cloudfrontMock());
+    
+    class ddbMock {
+      getItem(params) {
+        expect(params.TableName).to.equal('postsTable');
+        expect(params.Key.postPath.S).to.equal('siteName');
+        return { promise: async () => {return resData.ddbGetEmails }}
+      }
+      scan(params) {
+        expect(params.TableName).to.equal('postsTable');
+        expect(params.AttributesToGet).to.contain('postPath');
+        return { promise: async () => {return resData.ddbScan }}
+      }
+    }
+    ddbStub = sinon.stub(AWS, 'DynamoDB').returns(new ddbMock());
+    
+    class sesMock {
+      sendEmail(params) {
+        console.log(params);
+        expect(params.Source).to.equal('noReplyEmail');
+        var messageId;
+        if (params.Message.Subject.Data == 'Broken Links') {
+          messageId = 'Broken';
+          expect(params.Destination.ToAddresses).to.contain('myEmail');
+          expect(params.Destination.ToAddresses).to.have.length(1);
+        } else {
+          messageId = 'Good';
+          expect(params.Destination.ToAddresses).to.have.length(1);
+          expect(['bob@bob.com', 'sue@sue.com', 'myEmail']).to.contain(params.Destination.ToAddresses[0]); // need to remove myEmail once email is back on
+        }
+        return { promise: async () => {return { MessageId: messageId }}}
+      }
+    }
+    sesStub = sinon.stub(AWS, 'SES').returns(new sesMock());
           
     function SiteChecker(options, params) {
       expect(options.excludedKeywords).to.have.members(['gaiagps.com','amazon.com']);    
@@ -172,6 +209,7 @@ describe('Testing Admin lambda', function() {
       expect(res.brokenLinks).to.have.length(0);
       expect(res.deletedvpcs.Unsuccessful).to.be.instanceof(Array);
       expect(res.deletedvpcs.Unsuccessful).to.have.length(0);
+      expect(res).to.contain.key('email');
     });
     it('Website Datasync Complete - broken links', async () => {
       ssmNock.interceptors[0].body =  resData.ssmBadLink;
@@ -183,6 +221,21 @@ describe('Testing Admin lambda', function() {
       expect(res.brokenLinks).to.have.length(1);
       expect(res.deletedvpcs.Unsuccessful).to.be.instanceof(Array);
       expect(res.deletedvpcs.Unsuccessful).to.have.length(0);
+      expect(res).to.contain.key('email');
+      ssmNock.interceptors[0].body =  resData.ssm;
+    });
+    it('Website Datasync Complete - no email', async () => {
+      ssmNock.interceptors[0].body =  resData.ssmNoEmail;
+      const res = await index.handler(reqData.websiteDatasyncComplete, {})
+        .catch(err => assert(false, 'application failure: '.concat(err)));
+      expect(res.statusCode).to.equal(200);
+      expect(res.invalidate).to.be.true;
+      expect(res.brokenLinks).to.be.instanceof(Array);
+      expect(res.brokenLinks).to.have.length(0);
+      expect(res.deletedvpcs.Unsuccessful).to.be.instanceof(Array);
+      expect(res.deletedvpcs.Unsuccessful).to.have.length(0);
+      expect(res).to.not.contain.key('email');
+      
       ssmNock.interceptors[0].body =  resData.ssm;
     });
   });
