@@ -20,6 +20,7 @@ module.exports = Object.freeze({
   },
   vpcNoAction: { 
     "statusCode": 200,
+    region: 'us-west-2',
     "body": "Delete complete",
     "action": "None"
   },

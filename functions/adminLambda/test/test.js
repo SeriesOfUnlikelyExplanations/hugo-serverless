@@ -160,7 +160,15 @@ describe('Testing Admin lambda', function() {
       expect(res.statusCode).to.equal(404);
       expect(res.body).to.equal('Event not supported');
     });
-    it('Website Datasync Complete', async () => {
+    it('Website Datasync Complete - happy path', async () => {
+      const res = await index.handler(reqData.websiteDatasyncComplete, {})
+        .catch(err => assert(false, 'application failure: '.concat(err)));
+      expect(res.statusCode).to.equal(200);
+      expect(res.invalidate).to.be.true;
+      expect(res.deletedvpcs.Unsuccessful).to.be.instanceof(Array);
+      expect(res.deletedvpcs.Unsuccessful).to.have.length(0);
+    });
+    it('Website Datasync Complete - broken links', async () => {
       const res = await index.handler(reqData.websiteDatasyncComplete, {})
         .catch(err => assert(false, 'application failure: '.concat(err)));
       expect(res.statusCode).to.equal(200);

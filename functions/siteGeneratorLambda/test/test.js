@@ -34,7 +34,7 @@ describe('Testing Generator lambda', function() {
     fs.copyFileSync(`${__dirname}/config.toml`,`${SOURCE_DIR}/config.toml`)
     index.setEfsDir(SOURCE_DIR);
     if (fs.existsSync(`${SOURCE_DIR}/public`)) {
-      fs.rmdirSync(`${SOURCE_DIR}/public`, { recursive: true })
+      fs.rmSync(`${SOURCE_DIR}/public`, { recursive: true })
     }
   });
   after(() => {

@@ -53,12 +53,14 @@ exports.handler = async (event, context) => {
     await readdir(EFS_DIR, { withFileTypes: true }).then((f) => { console.log(f.map(dirent => dirent.name)) })
     console.log("Delete Complete.")   
     return {"statusCode": 200,
+      "region": event.region,
       "body": "Delete complete",
       "action": "None"
     }
     
   } else {
     return {"statusCode": 404,
+      "region": event.region,
       "body": "Datasync task not found",
       "action": "None"
     }
