@@ -43,7 +43,7 @@ exports.handler = async (event, context) => {
     console.log('Build has been completed - starting Website Datasync task...');
     //Start the initial datasync task - move S3Source bucket into EFS
     const datasync = new AWS.DataSync({region:REGION});
-    await datasync.startTaskExecution({ TaskArn: ssmData.datasyncWebsiteTask}).promise();
+    result.websiteDatasync = await datasync.startTaskExecution({ TaskArn: ssmData.datasyncWebsiteTask}).promise();
     console.log('Website datasync task started.');
     result.statusCode = 200
     

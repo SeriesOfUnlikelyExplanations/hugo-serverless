@@ -11,5 +11,11 @@ module.exports = Object.freeze({
         eventName: 'ObjectCreated:Put',
       }
     ]
-  }
+  },
+  buildComplete: { 
+    statusCode: 200,
+    region: 'us-west-2',
+    body: 'Build complete', 
+    action: 'deploy' 
+  },
 })

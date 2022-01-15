@@ -34,6 +34,7 @@ exports.handler = async (event, context) => {
       }
     }
     return {"statusCode": 200,
+      "region": event.region,
       "body": "Build complete", 
       "action": "deploy"
     }

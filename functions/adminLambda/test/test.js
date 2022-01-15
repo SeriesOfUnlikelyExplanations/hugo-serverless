@@ -66,11 +66,10 @@ describe('Testing Admin lambda', function() {
       expect(res.vpcEndpoint.VpcEndpoint.CreationTimestamp).to.equal('2015-05-15T09:40:50Z');
     });
     it('Build Complete', async () => {
-      const res = await index.handler(reqData.s3Upload, {})
+      const res = await index.handler(reqData.buildComplete, {})
         .catch(err => assert(false, 'application failure: '.concat(err)));
       expect(res.statusCode).to.equal(200);
-      expect(res.sourceDatasync.TaskExecutionArn).to.equal('datasyncSourceTask/execution/exec-1234');
-      expect(res.themeDatasync.TaskExecutionArn).to.equal('datasyncThemeTask/execution/exec-1234');
+      expect(res.websiteDatasync.TaskExecutionArn).to.equal('datasyncWebsiteTask/execution/exec-1234');
       console.log(res);
     });
     
