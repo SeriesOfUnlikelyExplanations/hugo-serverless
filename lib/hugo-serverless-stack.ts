@@ -16,6 +16,7 @@ import { StringParameter } from 'aws-cdk-lib/aws-ssm';
 import { CfnLocationS3, CfnLocationEFS , CfnTask } from 'aws-cdk-lib/aws-datasync';
 import { AwsCustomResource, PhysicalResourceId, AwsCustomResourcePolicy } from 'aws-cdk-lib/custom-resources';
 import { LambdaRestApi } from 'aws-cdk-lib/aws-apigateway';
+import { Table } from 'aws-cdk-lib/aws-dynamodb';
 
 import * as fs from 'fs';
 import * as toml from 'toml';
@@ -23,12 +24,13 @@ const config = toml.parse(fs.readFileSync('./config.toml', 'utf-8'));
 
 interface myStackProps extends StackProps {
   apigw: LambdaRestApi;
+  postsTable: Table;
 }
 
 export class HugoServerlessStack extends Stack {
   constructor(scope: App, id: string, props: myStackProps) {
     super(scope, id, props);
-    const { apigw } = props;
+    const { apigw, postsTable } = props;
     var sourceBucket;
     if (config.deploy.createNew) {
       //~ //Create a bucket to cache the source info for Hugo
@@ -415,14 +417,7 @@ export class HugoServerlessStack extends Stack {
         stringValue: StringParameter.valueForStringParameter(this, config.email.noReplyEmailSSM),
       });
       //Lambda permisions for DynamoDB
-      const emailsTable = StringParameter.valueForStringParameter(this, config.email.emailDynamoSSM);
-      handler.addToRolePolicy(new PolicyStatement({
-        resources: [`arn:aws:dynamodb:${props.env?.region}:${props.env?.account}:table/${emailsTable}`],
-        actions: ["dynamodb:GetItem",
-          "dynamodb:PutItem",
-          "dynamodb:UpdateItem"
-        ],
-      }));
+      postsTable.grantReadWriteData(handler)
       
       //Let Lambda send email
       handler.addToRolePolicy(new PolicyStatement({

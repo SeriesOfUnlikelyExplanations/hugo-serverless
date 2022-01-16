@@ -20,13 +20,14 @@ new HugoPhotosStack(app, 'HugoPhotosStack', {
   env: env
 });
 
-const { apigw } = new HugoApiStack(app, 'HugoApiStack', {
+const { apigw, postsTable } = new HugoApiStack(app, 'HugoApiStack', {
   stackName: 'HugoApiStack',
   env: env
 });
 
 new HugoServerlessStack(app, 'HugoServerlessStack', {
   apigw: apigw,
+  postsTable: postsTable,
   stackName: 'HugoServerlessStack',
   env: env
 });

@@ -13,21 +13,22 @@ const config = toml.parse(fs.readFileSync('./config.toml', 'utf-8'));
 
 export class HugoApiStack extends Stack {
   public readonly apigw: LambdaRestApi;
+  public readonly postsTable: Table;
   constructor(scope: App, id: string, props: StackProps ) {
     super(scope, id, props);
     // Create Dynamo DB table to store comments & emails
-    const postsTable = new Table(this, 'postsTable', {
+    this.postsTable = new Table(this, 'postsTable', {
       partitionKey: { name: 'postPath', type: AttributeType.STRING },
       billingMode: BillingMode.PROVISIONED,
     });
-    postsTable.autoScaleWriteCapacity({
+    this.postsTable.autoScaleWriteCapacity({
       minCapacity: 1,
       maxCapacity: 5,
     }).scaleOnUtilization({ targetUtilizationPercent: 75 });
     
     new StringParameter(this, 'postsTableSSM', {
       parameterName: '/hugoServerless/postsTable',
-      stringValue: postsTable.tableName
+      stringValue: this.postsTable.tableName
     });
     
     if (config.cognito) {
@@ -57,7 +58,7 @@ export class HugoApiStack extends Stack {
         description: `Simple lambda API. Timestamp: ${Date.now()}`
       });
       
-      postsTable.grantReadWriteData(handler)
+      this.postsTable.grantReadWriteData(handler)
       
       new StringParameter(this, "UserPoolId", {
         parameterName: '/hugoServerless/UserPoolId',
