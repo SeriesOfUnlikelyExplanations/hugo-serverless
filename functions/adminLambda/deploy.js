@@ -18,27 +18,35 @@ async function checkBrokenLinks(SiteChecker, site) {
   })
 };
 
-async function sendEmail(brokenLinksFlag, params, ses) {
+async function sendEmail(params, ses) {
   //Send an email to either me (if there are broken links) or to everyone with a link to the new post
-  var html, toEmail, subject
+  var html, toEmail, subject, newPosts;
   var emailParams = { Source: params.fromEmail };
-  if (brokenLinksFlag) {
+  if (params.brokenLinksFlag) {
     html = "Blog has broken links - blog email not sent<br><br>" + params.brokenLinks.join('<br>');
     subject = 'Broken Links';
+    newPosts = [];
   } else {
     //create email for everyone
     console.log('Parsing RSS feed for email...');
     let parser = new Parser({ customFields: {item: ['featureImage']}});
 
     let feed = await parser.parseURL(params.site + '/index.xml');
+    
+    const feedPosts = feed.items.map(({ guid }) => guid);
+    newPosts = feed.items.map(({ guid }) => guid).filter(x => !params.posts.includes(x)) 
+    
     console.log(feed);
+    console.log(newPosts);
+    if (newPosts.length === 0) {
+      params.toEmail = [];
+    }
     const { template, errors } = mustacheMjml(fs.readFileSync('./template.mjml').toString());
     console.log('template warnings', errors);
 
     html = template(feed);
     subject = 'Always-Onward - a new Blog Post is available to view';
   }
-  console.log(html);
   //send the email
   emailParams.Message = {
     Body: { /* required */
@@ -64,7 +72,7 @@ async function sendEmail(brokenLinksFlag, params, ses) {
       .catch((err) => console.error(err, err.stack))
     )
   }
-  return response;
+  return {response, newPosts};
 };
 
 async function invalidate(cf, distId) {

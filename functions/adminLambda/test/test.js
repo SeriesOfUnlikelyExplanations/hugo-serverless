@@ -15,7 +15,24 @@ function importTest(name, path) {
     require(path);
   });
 }
-
+class ddbMock {
+  getItem(params) {
+    expect(params.TableName).to.equal('postsTable');
+    expect(params.Key.postPath.S).to.equal('siteName');
+    return { promise: async () => {return resData.ddbGetEmails }}
+  }
+  scan(params) {
+    expect(params.TableName).to.equal('postsTable');
+    expect(params.AttributesToGet).to.contain('postPath');
+    return { promise: async () => {return resData.ddbScan }}
+  }
+  batchWriteItem(params) {
+    expect(params.RequestItems.postsTable).to.have.length(1);
+    expect(params.RequestItems.postsTable[0].PutRequest.Item.postPath.S).to.equal('path3');
+    return { promise: async () => {return resData.ddbBatchWriteItem }}
+  }
+}
+    
 // https://sinonjs.org/how-to/stub-dependency/
 describe('Testing Admin lambda', function() {
   this.timeout(4000);
@@ -33,6 +50,9 @@ describe('Testing Admin lambda', function() {
       console.log(req)
       assert(false, 'application failure: no match')
     })
+    
+    ddbStub = sinon.stub(AWS, 'DynamoDB').returns(new ddbMock());
+    
     class dataSyncMock {
       startTaskExecution(params) {
         ['datasyncSourceTask','datasyncWebsiteTask','datasyncThemeTask'].includes(params.TaskArn);
@@ -104,20 +124,6 @@ describe('Testing Admin lambda', function() {
       }
     }
     cloudfrontStub = sinon.stub(AWS, 'CloudFront').returns(new cloudfrontMock());
-    
-    class ddbMock {
-      getItem(params) {
-        expect(params.TableName).to.equal('postsTable');
-        expect(params.Key.postPath.S).to.equal('siteName');
-        return { promise: async () => {return resData.ddbGetEmails }}
-      }
-      scan(params) {
-        expect(params.TableName).to.equal('postsTable');
-        expect(params.AttributesToGet).to.contain('postPath');
-        return { promise: async () => {return resData.ddbScan }}
-      }
-    }
-    ddbStub = sinon.stub(AWS, 'DynamoDB').returns(new ddbMock());
     
     class sesMock {
       sendEmail(params) {
@@ -211,11 +217,14 @@ describe('Testing Admin lambda', function() {
       expect(res.deletedvpcs.Unsuccessful).to.have.length(0);
       expect(res).to.contain.key('email');
       expect(res.email).to.contain('Good');
+      expect(res).to.contain.key('newPosts');
+      expect(res.newPosts.ItemCollectionMetrics.postsTable[0].ItemCollectionKey.postPath.S).to.equal('path3');
     });
     it('Website Datasync Complete - broken links', async () => {
       ssmNock.interceptors[0].body =  resData.ssmBadLink;
       const res = await index.handler(reqData.websiteDatasyncComplete, {})
         .catch(err => assert(false, 'application failure: '.concat(err)));
+        console.log(res);
       expect(res.statusCode).to.equal(200);
       expect(res.invalidate).to.be.true;
       expect(res.brokenLinks).to.be.instanceof(Array);
@@ -227,7 +236,7 @@ describe('Testing Admin lambda', function() {
       
       ssmNock.interceptors[0].body =  resData.ssm;
     });
-    it('Website Datasync Complete - no email', async () => {
+    it('Website Datasync Complete - no email configured', async () => {
       ssmNock.interceptors[0].body =  resData.ssmNoEmail;
       const res = await index.handler(reqData.websiteDatasyncComplete, {})
         .catch(err => assert(false, 'application failure: '.concat(err)));
@@ -239,6 +248,36 @@ describe('Testing Admin lambda', function() {
       expect(res.deletedvpcs.Unsuccessful).to.have.length(0);
       expect(res).to.not.contain.key('email');
       ssmNock.interceptors[0].body =  resData.ssm;
+    });
+    it('Website Datasync Complete - no new Posts', async () => {
+      ddbStub.restore();
+      class ddbMockNoNewPosts {
+        getItem(params) {
+          expect(params.TableName).to.equal('postsTable');
+          expect(params.Key.postPath.S).to.equal('siteName');
+          return { promise: async () => {return resData.ddbGetEmails }}
+        }
+        scan(params) {
+          expect(params.TableName).to.equal('postsTable');
+          expect(params.AttributesToGet).to.contain('postPath');
+          return { promise: async () => {return resData.ddbScanNoNew }}
+        }
+      }
+      ddbStub = sinon.stub(AWS, 'DynamoDB').returns(new ddbMockNoNewPosts());
+      const res = await index.handler(reqData.websiteDatasyncComplete, {})
+        .catch(err => assert(false, 'application failure: '.concat(err)));
+      console.log(res);
+      expect(res.statusCode).to.equal(200);
+      expect(res.invalidate).to.be.true;
+      expect(res.brokenLinks).to.be.instanceof(Array);
+      expect(res.brokenLinks).to.have.length(0);
+      expect(res.deletedvpcs.Unsuccessful).to.be.instanceof(Array);
+      expect(res.deletedvpcs.Unsuccessful).to.have.length(0);
+      expect(res).to.contain.key('email');
+      expect(res.email).to.have.length(0);
+      
+      ddbStub.restore();
+      ddbStub = sinon.stub(AWS, 'DynamoDB').returns(new ddbMock());
     });
   });
 

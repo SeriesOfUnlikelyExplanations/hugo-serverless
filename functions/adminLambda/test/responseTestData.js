@@ -173,14 +173,36 @@ module.exports = Object.freeze({
     ConsumedCapacity: {}, 
     Count: 2, 
     Items: [
-       {
+     {
       "postPath": {
         S: "path1"
        }
      }, 
-       {
+     {
       "postPath": {
         S: "path2"
+       }
+     }
+    ], 
+    ScannedCount: 3
+  },
+  ddbScanNoNew: {
+    ConsumedCapacity: {}, 
+    Count: 2, 
+    Items: [
+     {
+      "postPath": {
+        S: "path1"
+       }
+     }, 
+     {
+      "postPath": {
+        S: "path2"
+       }
+     },
+     {
+      "postPath": {
+        S: "path3"
        }
      }
     ], 
@@ -216,6 +238,38 @@ module.exports = Object.freeze({
       ]
      }
     }
+  },
+  ddbBatchWriteItem: {
+    UnprocessedItems: {},
+    ItemCollectionMetrics: {
+      postsTable: [
+        {
+          ItemCollectionKey: {
+            postPath: {
+              S: "path3"
+            }
+          },
+          SizeEstimateRangeGB: [
+            0.0,
+            1.0
+          ]
+        }
+      ]
+    },
+    ConsumedCapacity: [
+      {
+        TableName: "postsTable",
+        CapacityUnits: 6.0,
+        Table: {
+          CapacityUnits: 3.0
+        },
+        LocalSecondaryIndexes: {
+          AlbumTitleIndex: {
+            CapacityUnits: 3.0
+          }
+        }
+      }
+    ]
   },
   rssFeed: `<rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel>
     <title>Posts</title>

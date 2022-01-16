@@ -75,21 +75,37 @@ exports.handler = async (event, context) => {
               Key: { 'postPath': {'S': ssmData.siteName} },
               TableName: ssmData.postsTable
             }).promise().then((r) => r.Item.emails.L.map(a => a.M.email.S))
-            const posts = await ddb.scan({
+            params.posts = await ddb.scan({
               TableName: ssmData.postsTable, /* required */
               AttributesToGet: ['postPath'],
-            }).promise()
-            console.log(posts);
+            }).promise().then((r) => r.Items.map(a => a.postPath.S))
             
             params.toEmail = [ ssmData.myEmail ] // remove this to re-enable emails to everyone
-            result.email = await sendEmail(false, params, ses);
+            
           } else {
             params.toEmail = [ ssmData.myEmail ]
-            result.email = await sendEmail(true, params, ses);
+            params.brokenLinksFlag = true;
+          }
+          const {response, newPosts} = await sendEmail(params, ses);
+          result.email = response;
+          console.log(newPosts);
+          if (newPosts.length > 0) {
+            const items = newPosts.map(post => { 
+              return {
+                PutRequest: { 
+                  Item: { 
+                    postPath: { S: post } 
+                  }
+                }
+              }
+            });
+            console.log(items);
+            result.newPosts = await ddb.batchWriteItem({ RequestItems: { [ssmData.postsTable]: items}}).promise()
           }
           console.log('Email Sent.');
         } catch (e) {
           console.error(e);
+          throw(e);
         }
       }
       // REMOVE VPC endpoints here
