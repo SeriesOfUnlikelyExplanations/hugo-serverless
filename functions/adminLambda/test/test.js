@@ -275,6 +275,7 @@ describe('Testing Admin lambda', function() {
       expect(res.deletedvpcs.Unsuccessful).to.have.length(0);
       expect(res).to.contain.key('email');
       expect(res.email).to.have.length(0);
+      expect(res).to.not.contain.key('newPosts');
       
       ddbStub.restore();
       ddbStub = sinon.stub(AWS, 'DynamoDB').returns(new ddbMock());
