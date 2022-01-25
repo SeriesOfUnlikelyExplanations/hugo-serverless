@@ -7,7 +7,7 @@
     "build": "hugo -s siteGen -e production",
     "serve": "hugo server -s ../onward-blog",
     "new": "hugo new -s static-site",
-    "test": "npm run test-admin & npm run test-generator & npm run test-cdk",
+    "test": "npm run test-admin & npm run test-generator & npm run test-api & npm run test-cdk",
     "test-generator": "npm --prefix functions/siteGeneratorLambda run test" ,
     "test-generator-deploy": "npm --prefix functions/siteGeneratorLambda run deploy-test",
     "test-admin": "npm --prefix functions/adminLambda run test" ,

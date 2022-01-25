@@ -27,18 +27,18 @@ module.exports = (api, opts) => {
     var comments = []
     if ('post' in req.query) {
       const ddb = new DynamoDB.DocumentClient({signatureVersion: 'v4', region: req.config.region})
-      const response = await ddb.query({
-        KeyConditionExpression: 'postPath = :postPath',
-        ExpressionAttributeValues: {
-            ':postPath': req.query.post
+      const response = await ddb.get({
+        Key: {
+            'postPath': req.query.post
         },
         TableName: req.config.postsTable
-       }).promise().then((r) => r.Items)
-       if (response.length) {
-         comments = response[0].comments
-       }
-       console.log(comments);
-     }
+      }).promise().then((r) => r.Item)
+      console.log(response);
+      if (response) {
+         comments = response.comments
+      }
+      console.log(comments);
+    }
     return res.status(200).json(comments)
   })
   //Check for Authorization
@@ -67,7 +67,7 @@ module.exports = (api, opts) => {
         ':comment': [comment],
         ':empty_list': []
       }
-    }).promise()
+    }).promise();
     return res.sendStatus(200)
   });
   

@@ -33,6 +33,11 @@ module.exports = Object.freeze({
         Name: '/hugoServerless/subnetID',
         Type: "String",
         Value: "subnetID"
+      },
+      {
+        Name: '/hugoServerless/postsTable',
+        Type: "String",
+        Value: "postsTable"
       }
     ]
   },
@@ -79,4 +84,20 @@ module.exports = Object.freeze({
     "iat": 1587311838,
     "email": "max@southlane.com"
   },
+  ddb_get:  {
+    "ConsumedCapacity": {
+      "CapacityUnits": 1,
+      "TableName": "Thread"
+    },
+    "Item": {
+      "postPath": "post_path",
+      "comments": [
+        {
+          "userId": "userId",
+          "author": "author",
+          "content": "comment"
+        }
+      ]
+    }
+  }
 })
