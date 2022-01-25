@@ -20,10 +20,10 @@
     "deploy-test": "nyc mocha"
   },
   "dependencies": {
-    "aws-sdk": "^2.939.0",
+    "aws-sdk": "^2.1062.0",
     "broken-link-checker": "^0.7.8",
-    "html-to-text": "^8.0.0",
-    "mime": "^2.5.2",
+    "html-to-text": "^8.1.0",
+    "mime": "^3.0.0",
     "mustache.mjml": "^1.1.0",
     "rss-parser": "^3.12.0"
   }
