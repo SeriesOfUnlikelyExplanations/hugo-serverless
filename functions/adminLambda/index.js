@@ -94,7 +94,7 @@ exports.handler = async (event, context) => {
               return {
                 PutRequest: { 
                   Item: { 
-                    postPath: post 
+                    postPath: { S: post } 
                   }
                 }
               }
