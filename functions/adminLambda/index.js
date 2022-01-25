@@ -94,13 +94,13 @@ exports.handler = async (event, context) => {
               return {
                 PutRequest: { 
                   Item: { 
-                    postPath: { S: post } 
+                    postPath: post 
                   }
                 }
               }
             });
             console.log(items);
-            result.newPosts = await ddb.batchWriteItem({ RequestItems: { [ssmData.postsTable]: items}}).promise()
+            result.newPosts = await ddb.batchWriteItem({ RequestItems: { [ssmData.postsTable]: items.slice(0, 25)}}).promise()
           }
           console.log('Email Sent.');
         } catch (e) {
