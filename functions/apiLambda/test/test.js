@@ -119,6 +119,5 @@ describe('Testing routing lambda', function() {
     });
   });
   
-
-  //~ importTest("Test the Auth Routes", './auth/test.js');
+  importTest("Test the Auth Routes", './auth/test.js');
 });

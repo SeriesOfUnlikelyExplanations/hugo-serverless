@@ -38,6 +38,21 @@ module.exports = Object.freeze({
         Name: '/hugoServerless/postsTable',
         Type: "String",
         Value: "postsTable"
+      },      
+      {
+        Name: '/hugoServerless/AuthDomain',
+        Type: "String",
+        Value: "AuthDomain"
+      },      
+      {
+        Name: '/hugoServerless/UserPoolClientId',
+        Type: "String",
+        Value: "UserPoolClientId"
+      },
+      {
+        Name: '/hugoServerless/UserPoolClientSecret',
+        Type: "String",
+        Value: "UserPoolClientSecret"
       }
     ]
   },
