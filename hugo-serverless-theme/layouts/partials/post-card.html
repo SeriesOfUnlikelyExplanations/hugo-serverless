@@ -36,10 +36,17 @@
                             <a href="#" class="static-avatar author-profile-image">{{- partial "icons/avatar.html" -}}</a>
                         </li>
                     </ul>
+
                     <div class="post-card-byline-content">
-                        <span>{{ .context.Param "author" }}</span>
-                        <span class="post-card-byline-date"><time datetime="{{ .context.Date.Format "2006-31-01" }}">{{ .context.Date.Format "2 January 2006" }}</time>
-                            <span class="bull">&bull;</span> {{ .context.ReadingTime }} min read</span>
+                        {{ if .context.Param "author" }}
+                          <span>{{ .context.Param "author" }}</span>
+                        {{ end }}
+                        {{ if .context.Param "Date" }}
+                          <span class="post-card-byline-date"><time datetime="{{ .context.Date.Format "2006-31-01" }}">{{ .context.Date.Format "2 January 2006" }}</time>
+                        {{ end }}
+                        {{ if .context.Param "author" }}
+                          <span class="bull">&bull;</span> {{ .context.ReadingTime }} min read</span>
+                        {{ end }}
                     </div>
                 </footer>
     
