@@ -84,7 +84,9 @@ exports.handler = async (event, context) => {
             params.toEmail = [ ssmData.myEmail ]
             params.brokenLinksFlag = true;
           }
+          console.log(params);
           const {response, newPosts} = await sendEmail(params, ses);
+          console.log(response);
           result.email = response;
           console.log(newPosts);
           if (newPosts.length > 0) {
@@ -97,10 +99,10 @@ exports.handler = async (event, context) => {
                 }
               }
             });
-            console.log(items);
             result.newPosts = await ddb.batchWriteItem({ RequestItems: { [ssmData.postsTable]: items.slice(0, 25)}}).promise()
           }
           console.log('Email Sent.');
+          console.log(
         } catch (e) {
           console.error(e);
           throw(e);
