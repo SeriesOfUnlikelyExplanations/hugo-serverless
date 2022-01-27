@@ -80,8 +80,6 @@ exports.handler = async (event, context) => {
               AttributesToGet: ['postPath'],
             }).promise().then((r) => r.Items.map(a => a.postPath.S))
             
-            params.toEmail = [ ssmData.myEmail ] // remove this to re-enable emails to everyone
-            
           } else {
             params.toEmail = [ ssmData.myEmail ]
             params.brokenLinksFlag = true;
