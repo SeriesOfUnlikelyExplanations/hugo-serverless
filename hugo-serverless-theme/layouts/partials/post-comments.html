@@ -12,3 +12,10 @@
     </div>
   </div>
 </aside>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function(){
+    loadComments({{ .File.Path }})
+    login({{ .File.Path }})
+  });
+</script>

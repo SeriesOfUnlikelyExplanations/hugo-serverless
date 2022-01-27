@@ -1,10 +1,10 @@
 
-async function loadComments() {
+async function loadComments(post_path) {
   //call api
   var my_url = new URL(window.location.href);
   var my_url = new URL('https://blog.always-onward.com');
   const request_url = new URL( '/api/get_comments', my_url);
-  request_url.search = new URLSearchParams({post: {{ .File.Path }}}).toString();
+  request_url.search = new URLSearchParams({post: post_path }).toString();
   const commentFeed = await fetch(request_url).then((res) => res.json())
   console.log(commentFeed);
   
@@ -44,13 +44,13 @@ function login() {
     }
   });
 }
-function formSubmit() {
+function formSubmit(post_path) {
   var url = "/api/post_comment";
   var request = new XMLHttpRequest();
   request.open('POST', url, true);
   request.onload = function() { // request successful
     console.log(request.responseText);
-    loadComments()
+    loadComments(post_path)
   };
   request.onerror = function() {
     console.log(request.responseText);
@@ -58,11 +58,6 @@ function formSubmit() {
   request.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
   request.send(JSON.stringify({
     content: document.getElementById("content").value,
-    postPath: {{ .File.Path }}
+    postPath: post_path
   }));
 }
-
-document.addEventListener("DOMContentLoaded", function(){
-  loadComments()
-  login()
-});
