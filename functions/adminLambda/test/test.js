@@ -137,7 +137,7 @@ describe('Testing Admin lambda', function() {
         } else {
           messageId = 'Good';
           expect(params.Destination.ToAddresses).to.have.length(1);
-          expect(['bob@bob.com', 'sue@sue.com', 'myEmail']).to.contain(params.Destination.ToAddresses[0]); // need to remove myEmail once email is back on
+          expect(['bob@bob.com', 'Sue@Sue.com']).to.contain(params.Destination.ToAddresses[0]); // need to remove myEmail once email is back on
         }
         return { promise: async () => {return { MessageId: messageId }}}
       }
