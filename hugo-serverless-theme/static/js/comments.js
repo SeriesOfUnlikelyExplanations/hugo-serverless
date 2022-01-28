@@ -2,8 +2,7 @@
 async function loadComments(post_path) {
   //call api
   console.log(post_path);
-  var my_url = new URL(window.location.href);
-  const request_url = new URL( '/api/get_comments', my_url);
+  const request_url = new URL( '/api/get_comments', new URL(window.location.href));
   request_url.search = new URLSearchParams({post: post_path }).toString();
   const commentFeed = await fetch(request_url).then((res) => res.json())
   console.log(commentFeed);

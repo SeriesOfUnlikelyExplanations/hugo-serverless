@@ -4,6 +4,7 @@
   "description": "Hugo, powered by EFS, lambda, and S3",
   "main": "index.js",
   "scripts": {
+    "serve": "npm --prefix ../onward-blog run serve" ,
     "test": "npm run test-admin & npm run test-generator & npm run test-api & npm run test-cdk",
     "test-generator": "npm --prefix functions/siteGeneratorLambda run test" ,
     "test-generator-deploy": "npm --prefix functions/siteGeneratorLambda run deploy-test",

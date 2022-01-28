@@ -36,8 +36,7 @@ function fillInAddress() {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-  var my_url = new URL('https://blog.always-onward.com');
-  
+  var request_url = new URL('/api/auth/calback', new URL(window.location.href));
   return fetch(request_url)
   .then((res) => res.json())
   .then((data) => {
@@ -46,6 +45,6 @@ document.addEventListener('DOMContentLoaded', function() {
     google_maps_script.setAttribute('src',`https://maps.googleapis.com/maps/api/js?key=${data.googleApiKey}&libraries=places&callback=initAutocomplete`);
     document.head.appendChild(google_maps_script);
   });
-}
+});
 
 
