@@ -30,14 +30,17 @@
           {{ if .Site.Params.github }}<a href="{{ .Site.Params.github }}" target="_blank" rel="noopener">Github</a>{{ end }}
         </nav>
       </div>
-      <script type="text/javascript" src="/js/carousel.js"></script>
       <script src='https://api.mapbox.com/mapbox-gl-js/v2.6.1/mapbox-gl.js'></script>
       <link href='https://api.mapbox.com/mapbox-gl-js/v2.6.1/mapbox-gl.css' rel='stylesheet' />
-      <script type="text/javascript" src="/js/map.js"></script>
-      <script type="text/javascript" src="/js/comments.js"></script>
+      <script type="text/javascript" src="/js/functions.js"></script>
+      <script>
+        document.addEventListener("DOMContentLoaded", function(){
+          load_maps()
+          loadComments({{ .File.Path }})
+          login()
+        });
+      </script>
     </footer>
-
   </div>
-
 </body>
 </html>
