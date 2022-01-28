@@ -36,7 +36,7 @@ function fillInAddress() {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-  var request_url = new URL('/api/auth/calback', new URL(window.location.href));
+  var request_url = new URL('/api/userInfo', new URL(window.location.href));
   return fetch(request_url)
   .then((res) => res.json())
   .then((data) => {
