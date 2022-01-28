@@ -21,7 +21,7 @@ module.exports = (api, opts) => {
   // define the auth paths
   api.register(authRoutes, { prefix: '/auth' })
   api.get('/get_comments', async (req,res) => {
-    var comments = []
+    var comments = [];
     if ('post' in req.query) {
       const ddb = new DynamoDB.DocumentClient({signatureVersion: 'v4', region: req.config.region})
       const response = await ddb.get({
@@ -31,7 +31,7 @@ module.exports = (api, opts) => {
         TableName: req.config.postsTable
       }).promise()
       console.log(response);
-      if ('Item' in response) {
+      if ('Item' in response && 'comments' in response.Item) {
          comments = response.Item.comments
       }
       console.log(comments);
