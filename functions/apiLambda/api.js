@@ -29,10 +29,10 @@ module.exports = (api, opts) => {
             'postPath': req.query.post
         },
         TableName: req.config.postsTable
-      }).promise().then((r) => r.Item)
+      }).promise()
       console.log(response);
-      if (response) {
-         comments = response.comments
+      if ('Item' in response) {
+         comments = response.Item.comments
       }
       console.log(comments);
     }
