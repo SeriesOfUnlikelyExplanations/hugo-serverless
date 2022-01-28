@@ -102,7 +102,6 @@ exports.handler = async (event, context) => {
             result.newPosts = await ddb.batchWriteItem({ RequestItems: { [ssmData.postsTable]: items.slice(0, 25)}}).promise()
           }
           console.log('Email Sent.');
-          console.log(
         } catch (e) {
           console.error(e);
           throw(e);

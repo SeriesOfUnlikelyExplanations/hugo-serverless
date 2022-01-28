@@ -37,7 +37,6 @@ async function sendEmail(params, ses) {
     newPosts = feed.items.map(({ guid }) => guid).filter(x => !params.posts.includes(x)) 
     
     console.log(feed);
-    console.log(newPosts);
     if (newPosts.length === 0) {
       params.toEmail = [];
     }

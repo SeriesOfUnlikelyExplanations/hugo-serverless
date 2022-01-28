@@ -23,7 +23,7 @@
   "dependencies": {
     "@types/node": "^17.0.8",
     "aws-cdk": "*",
-    "aws-cdk-lib": "^2.7.0",
+    "aws-cdk-lib": "^2.9.0",
     "constructs": "^10.0.0",
     "toml": "^3.0.0",
     "ts-node": "^9.0.0",
