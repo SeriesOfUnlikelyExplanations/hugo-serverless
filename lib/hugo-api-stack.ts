@@ -72,9 +72,9 @@ export class HugoApiStack extends Stack {
         parameterName: '/hugoServerless/UserPoolClientSecret',
         stringValue: StringParameter.valueForStringParameter(this, config.cognito.UserPoolClientSecretSSM),
       });
-      new StringParameter(this, 'googleApiKey', {
-        parameterName: '/hugoServerless/googleApiKey',
-        stringValue: StringParameter.valueForStringParameter(this, config.tools.googleApiKeySSM),
+      new StringParameter(this, 'GoogleApiKey', {
+        parameterName: '/hugoServerless/GoogleApiKey',
+        stringValue: StringParameter.valueForStringParameter(this, config.tools.GoogleApiKeySSM),
       });
       new StringParameter(this, "AuthDomain", {
         parameterName: '/hugoServerless/AuthDomain',
