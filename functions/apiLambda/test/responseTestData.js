@@ -55,7 +55,7 @@ module.exports = Object.freeze({
         Value: "UserPoolClientSecret"
       },
       {
-        Name: '/hugoServerless/googleApiKey',
+        Name: '/hugoServerless/GoogleApiKey',
         Type: "String",
         Value: "testGoogleKey"
       }
