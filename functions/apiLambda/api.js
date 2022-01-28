@@ -9,7 +9,7 @@ module.exports = (api, opts) => {
   api.use(async (req,res,next) => {
     res.cors()
     var ssm = new SSM({signatureVersion: 'v4', region: 'us-west-2'});
-    req.config = await  getSSM(ssm, '/hugoServerless')
+    req.config = await getSSM(ssm, '/hugoServerless')
     req.config.host = ((req.headers.host === 'localhost:3000') ? 'localhost:3000' : 'blog.always-onward.com')
     next() // continue execution
   })
