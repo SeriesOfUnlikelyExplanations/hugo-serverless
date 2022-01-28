@@ -3,7 +3,6 @@ async function loadComments(post_path) {
   //call api
   console.log(post_path);
   var my_url = new URL(window.location.href);
-    var my_url = new URL('https://blog.always-onward.com');
   const request_url = new URL( '/api/get_comments', my_url);
   request_url.search = new URLSearchParams({post: post_path }).toString();
   const commentFeed = await fetch(request_url).then((res) => res.json())

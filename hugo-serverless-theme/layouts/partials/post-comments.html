@@ -8,7 +8,7 @@
       <h4>WRITE A COMMENT</h4>
       <textarea id='content' name='content' style="width:100%; color:black"></textarea><br>
       <button id="post_comment" style="background-color: #e7e7e7; color: firebrick; border: 2px solid firebrick;"
-        onclick='formSubmit()'>POST</button>
+        onclick='formSubmit({{ .File.Path }})'>POST</button>
     </div>
   </div>
 </aside>
@@ -16,6 +16,6 @@
 <script>
   document.addEventListener("DOMContentLoaded", function(){
     loadComments({{ .File.Path }})
-    login({{ .File.Path }})
+    login()
   });
 </script>
