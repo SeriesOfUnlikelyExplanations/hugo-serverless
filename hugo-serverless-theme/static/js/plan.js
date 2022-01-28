@@ -46,6 +46,6 @@ document.addEventListener('DOMContentLoaded', function() {
     google_maps_script.setAttribute('src',`https://maps.googleapis.com/maps/api/js?key=${data.googleApiKey}&libraries=places&callback=initAutocomplete`);
     document.head.appendChild(google_maps_script);
   });
-
+}
 
 
