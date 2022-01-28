@@ -66,6 +66,19 @@ module.exports = Object.freeze({
     isBase64Encoded: false,
     body: ''
   },
+  userInfo: {
+    httpMethod: "GET",
+    path: '/api/userInfo',
+    resource: '/{proxy+}',
+    queryStringParameters: [],
+    headers: {Cookie: 'access_token=access_token; id_token=id_token; refresh_token=refresh_token'},
+    multiValueHeaders: {Cookie: ['access_token=access_token; id_token=id_token; refresh_token=refresh_token']},
+    requestContext: {},
+    pathParameters: {},
+    stageVariables: {},
+    isBase64Encoded: false,
+    body: ''
+  },
   noAdminStatus: {
     httpMethod: "GET",
     path: '/api/adminStatus',

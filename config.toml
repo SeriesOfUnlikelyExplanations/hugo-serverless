@@ -18,3 +18,6 @@ UserPoolIdSSM = '/AlwaysOnward/UserPoolId' # Cognito User Pool ID (in SSM parame
 UserPoolClientIdSSM = '/AlwaysOnward/UserPoolClientId' # Cognito User Pool Client ID (in SSM parameter)
 UserPoolClientSecretSSM = '/AlwaysOnward/UserPoolClientSecret' # Cognito User Pool Client Secret (in SSM parameter)
 AuthDomain = 'auth.always-onward.com'
+
+[tools]
+googleApiKeySSM = '/AlwaysOnward/GoogleApiKey' # Your Google API key (in SSM parameter) for planning tool

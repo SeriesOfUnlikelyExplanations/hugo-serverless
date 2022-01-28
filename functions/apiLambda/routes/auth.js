@@ -1,9 +1,9 @@
 // route - api/auth
-var querystring = require('querystring');
-var { httpRequest } = require('../components');
+const querystring = require('querystring');
+const { httpRequest } = require('../components');
 const url = require('url');
 
-module.exports = (api, opts) => {
+const authRoutes = (api, opts) => {
 
   api.get('/logout', async (req,res) => {
     auth = new Auth(req)
@@ -17,6 +17,7 @@ module.exports = (api, opts) => {
       login: true,
       redirect_url: '/api/auth/logout'
     }
+    console.log(logoutResponse);
     //if there is already an access token, then skip the rest
     if ('access_token' in req.cookies) {
       return res.status(200).json(logoutResponse)
@@ -42,10 +43,8 @@ module.exports = (api, opts) => {
 
   api.get('/callback', async (req,res) => {
     auth = new Auth(req)
-    console.log(req.query)
     if ('code' in req.query) {
       var tokens = await auth.authCode(req.query.code, req.config.host+'/api/auth/callback');
-      console.log(tokens);
       if ('error' in tokens) {
         auth.clearCookies(res)
       } else {
@@ -98,7 +97,6 @@ class Auth {
       'client_id': this.config['UserPoolClientId'],
       'redirect_uri': 'https://'+host
     });
-    console.log(postData);
     return this._callTokenApi(postData).then(res => res.body)
   }
 
@@ -138,4 +136,37 @@ class Auth {
   }
 }
 
+async function Authorizer(req, res, next) {
+  if (!('access_token' in req.cookies)) { return res.sendStatus(403) }
+  const {
+    verifierFactory,
+    errors: { JwtVerificationError, JwksNoMatchingKeyError },
+  } = require('@southlane/cognito-jwt-verifier')
 
+  // Put your config values here. calls https://cognito-idp.us-west-2.amazonaws.com/us-west-2_XXX/.well-known/jwks.json
+  const verifierCofig = {
+    region: 'us-west-2',
+    userPoolId: req.config.UserPoolId,
+    appClientId: req.config.UserPoolClientId,
+  }
+  const accessVerifier = verifierFactory(Object.assign(verifierCofig, {tokenType: 'access'}))
+  const idVerifier = verifierFactory(Object.assign(verifierCofig, {tokenType: 'id'}))
+
+  try {
+    const accessTokenPayload = accessVerifier.verify(req.cookies.access_token);
+    const idTokenPayload = idVerifier.verify(req.cookies.id_token);
+    req.accessTokenPayload = await accessTokenPayload;
+    req.idTokenPayload = await idTokenPayload;
+    req.userId = req.idTokenPayload.sub
+    req.isAdmin = req.idTokenPayload['custom:isAdmin']
+    console.log('User is authorized')
+    next()
+  } catch (e) {
+    console.log(e)
+    res.clearCookie('access_token', this.tokenOptions)
+    console.log('User is not authorized')
+    return res.sendStatus(403)
+  }
+}
+
+module.exports = { authRoutes, Authorizer }

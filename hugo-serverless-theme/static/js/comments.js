@@ -1,8 +1,8 @@
 
 async function loadComments(post_path) {
   //call api
+  console.log(post_path);
   var my_url = new URL(window.location.href);
-  var my_url = new URL('https://blog.always-onward.com');
   const request_url = new URL( '/api/get_comments', my_url);
   request_url.search = new URLSearchParams({post: post_path }).toString();
   const commentFeed = await fetch(request_url).then((res) => res.json())
@@ -18,11 +18,12 @@ async function loadComments(post_path) {
   });
   document.getElementById('comments-feed').innerHTML = commentFeedHTML
 }
+
 function login() {
   var my_url = new URL(window.location.href);
   var code = my_url.searchParams.get("code");
   if (code != null) {
-    var request_url = new URL('/api/auth/calback', new URL(window.location.href));
+    var request_url = new URL('/api/auth/calback', my_url);
     request_url.search = new URLSearchParams({code: code}).toString();
   } else {
     var request_url = new URL('/api/auth/refresh', my_url);
@@ -44,6 +45,7 @@ function login() {
     }
   });
 }
+
 function formSubmit(post_path) {
   var url = "/api/post_comment";
   var request = new XMLHttpRequest();

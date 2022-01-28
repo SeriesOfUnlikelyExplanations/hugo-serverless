@@ -92,6 +92,12 @@ describe('Testing routing lambda', function() {
       expect(res.statusCode).to.equal(403);
       expect(res.body).to.equal('Forbidden');
     });
+    it('/userInfo ', async () => {
+      const res = await index.handler(reqData.userInfo, {})
+        .catch(err => assert(false, 'application failure: '.concat(err)));
+      expect(res.statusCode).to.equal(200);
+      expect(res.body).to.equal('{"userDetails":{"at_hash":"BSEId5nF27zMrN9BLX-T_A","sub":"good_userId","aud":"5ra91i9p4trq42m2vnjs0pv06q","event_id":"b6d7a62d-54da-49e6-a839-66506f0c21b5","token_use":"id","auth_time":1587311838,"iss":"https://cognito-idp.us-east-1.amazonaws.com/us-east-1_PDsy6i0Bf","name":"Max Ivanov","cognito:username":"24e26910-e7b9-4aad-a994-387942f164e7","exp":1587315438,"iat":1587311838,"email":"max@southlane.com","custom:isAdmin":"True"},"googleApiKey":"testGoogleKey"}');
+    });
     it('/adminStatus failed', async () => {
       const res = await index.handler(reqData.noAdminStatus, {})
         .catch(err => assert(false, 'application failure: '.concat(err)));
