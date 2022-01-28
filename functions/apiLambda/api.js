@@ -46,7 +46,7 @@ module.exports = (api, opts) => {
   api.get('/userInfo', async (req,res) => {
     return res.status(200).json({
       userDetails: req.idTokenPayload,
-      googleApiKey: req.config.googleApiKey
+      googleApiKey: req.config.GoogleApiKey
     })
   })
   api.post('/post_comment', async (req,res) => {
