@@ -45,7 +45,7 @@ async function sendEmail(params, ses) {
     console.log('template warnings', errors);
 
     html = template(feed);
-    subject = 'Always-Onward - a new Blog Post is available to view';
+    subject = `${feed.title} - a new Blog Post is available to view`;
   }
   //send the email
   emailParams.Message = {
