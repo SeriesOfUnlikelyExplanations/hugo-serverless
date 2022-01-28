@@ -25,5 +25,17 @@ module.exports = {
       }
       req.end();
     });
+  },
+  
+  getSSM: function (ssm, path, config = {}, nextToken) {
+    return ssm
+      .getParametersByPath({ Path: path, Recursive: true, NextToken: nextToken })
+      .promise()
+      .then(({ Parameters, NextToken }) => {
+        for (const i of Parameters) {
+          config[i.Name.replace(`${path}/`,"")] = i.Value;
+        }
+        return NextToken ? getSSM(ssm, path, config, NextToken) : config;
+      });
   }
 }

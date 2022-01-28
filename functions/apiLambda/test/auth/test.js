@@ -6,6 +6,8 @@ var index = require('../../index');
 const reqData = require('./requestTestData.js');
 const resData = require('./responseTestData.js');
 
+const URI = 'https://blog.always-onward.com'
+
 // Setup the mock for cognito token endpoint
 // https://docs.aws.amazon.com/cognito/latest/developerguide/token-endpoint.html
 var authdomainNock = nock('https://authdomain', {
@@ -29,7 +31,7 @@ it("/logout", async () => {
   const res = await index.handler(reqData.logout, {})
     .catch(err => assert(false, 'application failure: '.concat(err)));
   expect(res.statusCode).to.equal(302);
-  expect(res.multiValueHeaders.location).to.include('https://AuthDomain/logout?client_id=UserPoolClientId&logout_uri=https://blog.always-onward.com')
+  expect(res.multiValueHeaders.location).to.include('https://AuthDomain/logout?client_id=UserPoolClientId&logout_uri='+URI)
   expect(res.multiValueHeaders['set-cookie'].join()).to.include('id_token')
   expect(res.multiValueHeaders['set-cookie'].join()).to.include('refresh_token')
   expect(res.multiValueHeaders['set-cookie'].join()).to.include('access_token')
@@ -40,7 +42,7 @@ it("/refresh No Refresh Token", async () => {
   const res = await index.handler(reqData.refresh_noRefreshToken, {})
     .catch(err => assert(false, 'application failure: '.concat(err)));
   expect(res.statusCode).to.equal(200);
-  expect(res.body).to.equal('{"login":false,"redirect_url":"https://AuthDomain/login?client_id=UserPoolClientId&response_type=code&scope=email+openid+phone+profile&redirect_uri=https://blog.always-onward.com/api/auth/callback"}')
+  expect(res.body).to.equal(`{"login":false,"redirect_url":"https://AuthDomain/login?client_id=UserPoolClientId&response_type=code&scope=email+openid+phone+profile&redirect_uri=${URI}/api/auth/callback"}`)
 });
 
 it("/refresh with Access Token", async () => {
@@ -72,7 +74,7 @@ it("/refresh with bad Refresh Token", async () => {
   const res = await index.handler(reqData.refresh_withBadToken, {})
     .catch(err => assert(false, 'application failure: '.concat(err)));
   expect(res.statusCode).to.equal(200);
-  expect(res.body).to.equal('{"login":false,"redirect_url":"https://AuthDomain/login?client_id=UserPoolClientId&response_type=code&scope=email+openid+phone+profile&redirect_uri=https://blog.always-onward.com/api/auth/callback"}')
+  expect(res.body).to.equal(`{"login":false,"redirect_url":"https://AuthDomain/login?client_id=UserPoolClientId&response_type=code&scope=email+openid+phone+profile&redirect_uri=${URI}/api/auth/callback"}`)
 });
 
 it("/callback ", async () => {
@@ -86,7 +88,7 @@ it("/callback ", async () => {
   expect(res.multiValueHeaders['set-cookie'].join()).to.include('id_token')
   expect(res.multiValueHeaders['set-cookie'].join()).to.include('refresh_token')
   expect(res.multiValueHeaders['set-cookie'].join()).to.include('access_token')
-  expect(res.multiValueHeaders.location).to.include('https://blog.always-onward.com')
+  expect(res.multiValueHeaders.location).to.include(URI)
 });
 
 it("/callback without auth code", async () => {
@@ -94,7 +96,7 @@ it("/callback without auth code", async () => {
     .catch(err => assert(false, 'application failure: '.concat(err)));
   expect(res.statusCode).to.equal(302);
   expect(res.multiValueHeaders).not.to.have.key('set-cookie')
-  expect(res.multiValueHeaders.location).to.include('https://blog.always-onward.com')
+  expect(res.multiValueHeaders.location).to.include(URI)
 });
 
 it("/callback with bad auth code", async () => {
@@ -106,5 +108,5 @@ it("/callback with bad auth code", async () => {
     .catch(err => assert(false, 'application failure: '.concat(err)));
   expect(res.statusCode).to.equal(302);
   expect(res.multiValueHeaders).not.to.have.key('set-cookie')
-  expect(res.multiValueHeaders.location).to.include('https://blog.always-onward.com')
+  expect(res.multiValueHeaders.location).to.include(URI)
 });

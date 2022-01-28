@@ -6,12 +6,15 @@ description = "Worksheet for planning your next trip"
 
 <div style='align:left' >
 <p>This is my attempt at a trip planner. Just enter where you are going, when you want to go, and hit go!</p>
-Where: 
+
+
+<input style='color:black;width:215px' id="autocomplete" placeholder="Where" type="text" />
+<input type="text" style='color:black;width:215px' id="litepicker" placeholder="When" />
+
 
 </div>
 
-<input type="text" id="litepicker" />
-
+<script src="https://maps.googleapis.com/maps/api/js?key=&libraries=places&callback=initAutocomplete" async defer></script>
 <script src="https://cdn.jsdelivr.net/npm/litepicker/dist/litepicker.js"></script>
 <script type="text/javascript" src="/js/plan.js"></script>
 <!--
