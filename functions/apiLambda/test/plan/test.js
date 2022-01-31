@@ -44,6 +44,5 @@ it('/weather', async () => {
     </div>
     <p class="forecast-credits">Forecast provided by the <a href="https://www.weather.gov/">National Weather Service</a>.</p>
   `.replaceAll(' ','').replaceAll('\n',''));
-  
   });
 
