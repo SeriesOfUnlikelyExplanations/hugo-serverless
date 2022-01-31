@@ -24,7 +24,7 @@ it('/weather', async () => {
   expect(res.statusCode).to.equal(200);
   const body = JSON.parse(res.body);
   expect(body.json.length).to.equal(14);
-  expect(body.html.replace(/ /g,'').replaceAll(/\n/g,'')).to.equal(`<div class="forecast-wrapper">
+  expect(body.html.replace(/ /g,'').replace(/\n/g,'')).to.equal(`<div class="forecast-wrapper">
     <div class="forecast-day">
     <div class="forecast-section forecast-section--day">
       <strong class="forecast-section__name">Today</strong>
@@ -43,6 +43,6 @@ it('/weather', async () => {
     </div>
     </div>
     <p class="forecast-credits">Forecast provided by the <a href="https://www.weather.gov/">National Weather Service</a>.</p>
-  `.replace(/ /g,'').replaceAll(/\n/g,''));
+  `.replace(/ /g,'').replace(/\n/g,''));
   });
 
