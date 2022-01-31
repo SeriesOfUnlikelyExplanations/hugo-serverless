@@ -1,5 +1,5 @@
 // function to call an API
-function httpRequest(params, postData) {
+function httpRequest(params, postData = undefined) {
   var https = require('https');
   return new Promise(function(resolve, reject) {
     var req = https.request(params, function(res) {

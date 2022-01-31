@@ -4,27 +4,15 @@ module.exports = (api, opts) => {
   api.get('/weather/:lat/:long/', async (req,res) => {
     const date_offset = Math.floor((Date.parse(req.query.date) - new Date())/(24 * 60 * 60 * 1000)) || 1;
     const days = req.query.days || 1;
-    
-    req.params.lat
-    return res.sendStatus(200)
+     const fetcher = new ForecastFetcher({
+      days: days,
+      offset: date_offset
+    });
+    const forecast = await fetcher.lookupForecastForLatLng(req.params.lat, req.params.long);
+    const forecastNode = fetcher.markupForecast(forecast);
+    return res.status(200).json({json: forecast.periods, html: forecastNode});
   })
-  
 }
-
-
-async function loadWeather(lat, long, start_days, finish_days) {
-  const weather = document.querySelector("#weather");
-  
-  demoButton.removeEventListener("click", runDemo);
-  demoButton.remove();
-  const fetcher = new ForecastFetcher({
-    maxDays: finish_days,
-  });
-  const forecast = await fetcher.lookupForecastForLatLng(lat, long);
-  const forecastNode = fetcher.markupForecast(forecast);
-  weather.appendChild(forecastNode);
-};
-
 
 //
 // -------  Weather forecast functions  --------
@@ -32,10 +20,11 @@ async function loadWeather(lat, long, start_days, finish_days) {
 // https://www.weather.gov/documentation/services-web-api
 //
 class ForecastFetcher {
-  constructor({timeout: 3000, days: 5, host: "https://api.weather.gov/"}) {
+  constructor({timeout = 3000, days = 5, offset = 1, host = "api.weather.gov"}) {
     this.host = host;
     this.timeout = timeout;
     this.days = days;
+    this.offset = offset;
   }
   renderer = (forecastDay) => {
     const { day, night } = forecastDay;
@@ -46,7 +35,6 @@ class ForecastFetcher {
       <div class="forecast-section__short">${night.shortForecast}</div>
       <div class="forecast-section__wind">Wind: ${night.windSpeed} ${night.windDirection}</div>
     </div>`
-    
     if (night && !day) {
       return `<div class="forecast-day forecast-day--night-only">          
         ${nightHTML}
@@ -64,53 +52,54 @@ class ForecastFetcher {
     </div>`;
   };
   wrapRenderer = (forecast, forecastMarkup) => {
-    return ` 
-      <div class="forecast-wrapper">
+    return `<div class="forecast-wrapper">
         ${forecastMarkup}
       </div>
       <p class="forecast-credits">Forecast provided by the <a href="https://www.weather.gov/">National Weather Service</a>.</p>`;
   };
   // fetch data via the nws api
   useNWS = async (route) => {
-    const response = await fetch(`${this.config.host}${route}`, {
-      method: "GET",
-    });
-    return response.json();
+    const options = {
+      hostname: this.host,
+      port: 443,
+      path: route,
+      method: 'GET'
+    };
+    return await httpRequest(options);
   };
   // lookup and provide point information
   lookupPoint = async (lat, lng) => {
-    return this.useNWS(`points/${lat},${lng}`);
+    return this.useNWS(`/points/${lat},${lng}`);
   };
   // lookup and provide forecast info
   lookupForecast = async (office, gridX, gridY) => {
-    return this.useNWS(`gridpoints/${office}/${gridX},${gridY}/forecast`);
+    return this.useNWS(`/gridpoints/${office}/${gridX},${gridY}/forecast`)
+      .then((r) => r.body.properties);
   };
   // combine point and forecast lookups
   lookupForecastForLatLng = async (lat, lng) => {
     const point = await this.lookupPoint(lat, lng);
-    const { cwa, gridX, gridY } = point.properties;
+    const { cwa, gridX, gridY } = point.body.properties;
     return await this.lookupForecast(cwa, gridX, gridY);
   };
   // manipulate html strings, or let user do it
   markupForecast = (forecast) => {
     let forecastMarkup = "";
-    const { periods } = forecast.properties;
+    const { periods } = forecast;
     let offset = 0;
-    let maxDays = this.config.maxDays;
+    let days = this.days;
     if (!periods[0].isDaytime) {
       offset = 1;
-      maxDays -= 1;
-      forecastMarkup += this.dayRenderer({ night: periods[0] });
+      days -= 1;
+      forecastMarkup += this.renderer({ night: periods[0] });
     }
-    for (let i = offset; i < maxDays * 2; i += 2) {
+    for (let i = offset; i < days * 2; i += 2) {
       const forecastDay = {
         day: periods[i],
         night: periods[i + 1],
       };
-      forecastMarkup += this.dayRenderer(forecastDay);
+      forecastMarkup += this.renderer(forecastDay);
     }
-    const forecastWrapper = document.createElement("DIV");
-    forecastWrapper.innerHTML = this.wrapRenderer(forecast, forecastMarkup);
-    return forecastWrapper;
+    return this.wrapRenderer(forecast, forecastMarkup);
   };
 }

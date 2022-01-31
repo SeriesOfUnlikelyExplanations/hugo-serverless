@@ -33,6 +33,7 @@ module.exports = (api, opts) => {
       googleApiKey: req.config.GoogleApiKey
     })
   })
+  api.register(require('./routes/plan'), { prefix: '/plan' })
   api.register(postComments, { prefix: '' })
   
   //Register admin endpoints
@@ -41,7 +42,7 @@ module.exports = (api, opts) => {
     return res.sendStatus(200)
   });
   api.any('/*', async (req,res) => {
-    return res.redirect('/')
+    return res.sendStatus(400)
   });
 };
 
