@@ -83,15 +83,34 @@ function formSubmit(post_path) {
 // Set date picker & location auto-complete
 //
 function plan() {
+  var lat, long, start_date, finish_date;
+  function loadWeather(lat, long, start_date, finish_date) {
+    if !(lat && long && start_date && finish_date) {
+      return
+    }
+    var url = new URL(`/api/plan/weather/${lat}/${long}`),
+    url.search = new URLSearchParams({ start_date:start_date, finish_date:finish_date }).toString();
+    fetch(url).then((response) => {
+      weatherElement = document.getElementById("weather");
+      weatherElement.innerHTML = response;
+    });
+  };
+  
   // date picker
   let lightPickerElement = document.getElementById('litepicker')
   if (document.getElementById('litepicker')) {
     new Litepicker({ 
       element: lightPickerElement,
-      singleMode: false
+      singleMode: false,
+      setup:  (picker) => {
+      picker.on('button:apply', (date1, date2) => {
+        start_days = date1;
+        finish_days = date2;
+        loadWeather(lat, long, start_days, finish_days)
+      });
     });
   }
-  
+   
   // location auto-complete
   var placeSearch, autocomplete, geocoder;
   function initAutocomplete() {
@@ -109,7 +128,8 @@ function plan() {
     }, function(results, status) {
       if (status == 'OK') {
         // This is the lat and lng results[0].geometry.location
-        alert(results[0].geometry.location);
+        [lat, long] = results[0].geometry.location.split(', ');
+        loadWeather(lat, long, start_days, finish_days)
       } else {
         alert('Geocode was not successful for the following reason: ' + status);
       }

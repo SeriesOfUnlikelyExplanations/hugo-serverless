@@ -1,9 +1,9 @@
 const { httpRequest } = require('../components');
 
 module.exports = (api, opts) => {
-  api.get('/weather/:lat/:long/', async (req,res) => {
-    const date_offset = Math.floor((Date.parse(req.query.date) - new Date())/(24 * 60 * 60 * 1000)) || 1;
-    const days = req.query.days || 1;
+  api.get('/weather/:lat/:long', async (req,res) => {
+    const date_offset = Math.floor((Date.parse(req.query.start_date) - new Date())/(24 * 60 * 60 * 1000)) || 1;
+    const days = Math.floor((Date.parse(req.query.finish_date) - Date.parse(req.query.start_date))/(24 * 60 * 60 * 1000)) || 1;
      const fetcher = new ForecastFetcher({
       days: days,
       offset: date_offset
