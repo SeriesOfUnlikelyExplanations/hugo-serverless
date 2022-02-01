@@ -6,19 +6,23 @@
 // carousel() - loads the image carousels for every "carousel" class object
 //
 
+var base_url = new URL(window.location.href);
+var base_url = new URL('https://blog.always-onward.com');
+
 function login() {
   var my_url = new URL(window.location.href);
   var code = my_url.searchParams.get("code");
   if (code != null) {
-    var request_url = new URL('/api/auth/calback', my_url);
+    var request_url = new URL('/api/auth/calback', base_url);
     request_url.search = new URLSearchParams({code: code}).toString();
   } else {
-    var request_url = new URL('/api/auth/refresh', my_url);
+    var request_url = new URL('/api/auth/refresh', base_url);
   }
   return fetch(request_url)
   .then((res) => res.json())
   .then((data) => {
-    setComments(data.login);
+    console.log(data);
+    setComments(data);
     plan()
   });
 };
@@ -27,8 +31,8 @@ function login() {
 // comments functions
 //
 
-function setComments(login) {
-  if (login) {
+function setComments(data) {
+  if (data.login) {
     document.getElementById('write-comment').hidden = false;
   } else {
     document.getElementById('write-comment').innerHTML = '<a href="'+data.redirect_url+'">Login to leave a comment!</a>'
@@ -44,7 +48,7 @@ function setComments(login) {
 async function loadComments(post_path) {
   //call api
   console.log(post_path);
-  const request_url = new URL( '/api/get_comments', new URL(window.location.href));
+  const request_url = new URL( '/api/get_comments', base_url);
   request_url.search = new URLSearchParams({post: post_path }).toString();
   const commentFeed = await fetch(request_url).then((res) => res.json())
   console.log(commentFeed);
@@ -62,9 +66,8 @@ async function loadComments(post_path) {
 
   
 function formSubmit(post_path) {
-  var url = "/api/post_comment";
   var request = new XMLHttpRequest();
-  request.open('POST', url, true);
+  request.open('POST', new URL( '/api/post_comment', base_url), true);
   request.onload = function() { // request successful
     console.log(request.responseText);
     loadComments(post_path)
@@ -85,12 +88,12 @@ function formSubmit(post_path) {
 function plan() {
   var lat, long, start_date, finish_date;
   function loadWeather(lat, long, start_date, finish_date) {
-    if !(lat && long && start_date && finish_date) {
+    if (!(lat && long && start_date && finish_date)) {
       return
     }
-    var url = new URL(`/api/plan/weather/${lat}/${long}`),
-    url.search = new URLSearchParams({ start_date:start_date, finish_date:finish_date }).toString();
-    fetch(url).then((response) => {
+    var request_url = new URL(`/api/plan/weather/${lat}/${long}`, base_url);
+    request_url.search = new URLSearchParams({ start_date:start_date, finish_date:finish_date }).toString();
+    fetch(request_url).then((response) => {
       weatherElement = document.getElementById("weather");
       weatherElement.innerHTML = response;
     });
@@ -103,11 +106,12 @@ function plan() {
       element: lightPickerElement,
       singleMode: false,
       setup:  (picker) => {
-      picker.on('button:apply', (date1, date2) => {
-        start_days = date1;
-        finish_days = date2;
-        loadWeather(lat, long, start_days, finish_days)
-      });
+        picker.on('button:apply', (date1, date2) => {
+          start_days = date1;
+          finish_days = date2;
+          loadWeather(lat, long, start_days, finish_days)
+        })
+      }
     });
   }
    
@@ -143,7 +147,7 @@ function plan() {
   
   //Load the Google script for location auto-complete
   if (document.getElementById('autocomplete')) {
-    var request_url = new URL('/api/userInfo', new URL(window.location.href));
+    var request_url = new URL('/api/userInfo', base_url);
     return fetch(request_url)
     .then((res) => res.json())
     .then((data) => {
