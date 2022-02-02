@@ -19,14 +19,14 @@ before(async function () {
     resources: "usable" 
   })
  
-  //load mapbox
-  window.URL.createObjectURL = function() {};
-  await new Promise((resolve, reject) => {
-    const func = document.createElement('script');
-    func.src = 'https://api.mapbox.com/mapbox-gl-js/v2.6.1/mapbox-gl.js'
-    func.onload = () => { resolve() }
-    document.body.appendChild(func);
-  });
+  //load mapbox - Not sure why this isn't loading from URL. It loads from the local file.
+  //~ window.URL.createObjectURL = function() {};
+  //~ await new Promise((resolve, reject) => {
+    //~ const func = document.createElement('script');
+    //~ func.src = 'https://api.mapbox.com/mapbox-gl-js/v2.6.1/mapbox-gl.js'
+    //~ func.onload = () => { resolve() }
+    //~ document.body.appendChild(func);
+  //~ });
   
   //nock
   nock('https://blog.always-onward.com')
@@ -61,9 +61,6 @@ it('/login happy path (page with comments)', async () => {
   expect(res.set_comments).to.equal('Needs to Login')
   expect(res.plan).to.be.false;
 });
-
-
-
 
   //~ const res = {}
   //~ res.maps = load_maps()
