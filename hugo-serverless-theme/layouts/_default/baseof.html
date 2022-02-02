@@ -32,8 +32,8 @@
       </div>
       <script src='https://api.mapbox.com/mapbox-gl-js/v2.6.1/mapbox-gl.js'></script>
       <link href='https://api.mapbox.com/mapbox-gl-js/v2.6.1/mapbox-gl.css' rel='stylesheet' />
-      <script type="text/javascript" src="/js/functions.js"></script>
-      <script>
+      <script type="module">
+        import { pageLoad } from "/js/functions.mjs";
         document.addEventListener("DOMContentLoaded", function(){
           pageLoad({{ .File.Path }}) 
         });

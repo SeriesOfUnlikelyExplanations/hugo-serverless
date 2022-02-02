@@ -1,43 +1,28 @@
-var assert = require('assert');
-var expect = require('chai').expect;
-const nock = require('nock');
-const sinon = require("sinon");
-const jsdom = require('jsdom');
-const JSDOM = jsdom.JSDOM;
-const fs = require('fs');
-const path = require('path');
+import 'jsdom-global/register.js'
+import jsdom from 'jsdom-global'
+import assert from 'assert';
+import { expect } from 'chai';
+import nock from 'nock';
+import sinon from 'sinon';
+import fs from 'fs';
+import path from 'path';
 
-const resData = require('./responseTestData.js');
+import resData from './responseTestData.js';
+import { pageLoad } from '../static/js/functions.js';
 
-var dom, window, document;
 before(async function () {
   //setup the jsdom stuff
-  const virtualConsole = new jsdom.VirtualConsole();
-  virtualConsole.sendTo(console);
-  
-  
-  dom = new JSDOM('',{ 
+  this.jsdom = jsdom('',{ 
     url: "https://blog.always-onward.com/",
     referrer: "https://blog.always-onward.com/",
     runScripts: "dangerously", 
     resources: "usable" 
   })
-  window = dom.window;
-  document = dom.window.document;
  
-  
-  //load functions
-  await new Promise((resolve, reject) => {
-    var func = document.createElement('script');
-    func.innerHTML = fs.readFileSync(path.resolve(__dirname, '../static/js/functions.js'))
-    func.onload = () => { resolve() }
-    document.body.appendChild(func);
-  });
-  
   //load mapbox
   window.URL.createObjectURL = function() {};
   await new Promise((resolve, reject) => {
-    func = document.createElement('script');
+    const func = document.createElement('script');
     func.src = 'https://api.mapbox.com/mapbox-gl-js/v2.6.1/mapbox-gl.js'
     func.onload = () => { resolve() }
     document.body.appendChild(func);
@@ -58,8 +43,8 @@ before(async function () {
 })
 
 it('/login happy path (page with comments)', async () => {
-  document.body.innerHTML = fs.readFileSync(path.resolve(__dirname, '../layouts/partials/post-comments.html'));
-  const res = await window.eval('pageLoad("test.md")');
+  document.body.innerHTML = fs.readFileSync(path.resolve('./layouts/partials/post-comments.html'));
+  const res = await pageLoad("test.md")
   console.log(res);
   // Check that user isn't logged in
   expect(res.status.login).to.equal(false);

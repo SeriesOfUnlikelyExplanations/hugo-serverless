@@ -6,8 +6,7 @@
 // carousel() - loads the image carousels for every "carousel" class object
 //
 
-var base_url = new URL(window.location.href);
-var base_url = new URL('https://blog.always-onward.com');
+var base_url;
 
 function makeRequest (method, url) {
   return new Promise(function (resolve, reject) {
@@ -34,10 +33,13 @@ function makeRequest (method, url) {
 }
 
 async function pageLoad(file_path) {
+  base_url = new URL(window.location.href);
+  base_url = new URL('https://blog.always-onward.com');
   const res = {}
   res.maps = load_maps()
   res.comments = await loadComments(file_path)
   res.status = await login()
+  console.log('i got here');
   console.log(res.status);
   res.set_comments = setComments(res.status);
   res.plan = plan()
@@ -366,3 +368,5 @@ function carousel() {
     });
   };
 };
+
+export { pageLoad }
