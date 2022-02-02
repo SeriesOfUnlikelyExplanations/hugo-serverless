@@ -14,6 +14,8 @@ before(async function () {
   //setup the jsdom stuff
   const virtualConsole = new jsdom.VirtualConsole();
   virtualConsole.sendTo(console);
+  
+  
   dom = new JSDOM('',{ 
     url: "https://blog.always-onward.com/",
     referrer: "https://blog.always-onward.com/",
@@ -22,6 +24,7 @@ before(async function () {
   })
   window = dom.window;
   document = dom.window.document;
+ 
   
   //load functions
   await new Promise((resolve, reject) => {
@@ -39,6 +42,7 @@ before(async function () {
     func.onload = () => { resolve() }
     document.body.appendChild(func);
   });
+  
   //nock
   nock('https://blog.always-onward.com')
     .persist()
