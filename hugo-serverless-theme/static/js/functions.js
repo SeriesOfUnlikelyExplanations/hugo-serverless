@@ -36,7 +36,7 @@ function makeRequest (method, url) {
 async function pageLoad(file_path) {
   const res = {}
   res.maps = load_maps()
-  res.comments = loadComments(file_path)
+  res.comments = await loadComments(file_path)
   res.status = await login()
   console.log(res.status);
   res.set_comments = setComments(res.status);
@@ -53,8 +53,7 @@ function login() {
   } else {
     var request_url = new URL('/api/auth/refresh', base_url);
   }
-  return makeRequest('GET', request_url)
-    .then((res) => JSON.parse(res));
+  return makeRequest('GET', request_url).then((res) => JSON.parse(res));
 };
 
 //
@@ -67,6 +66,7 @@ function setComments(data) {
   }
   if (data.login) {
     document.getElementById('write-comment').hidden = false;
+    return 'Ready'
   } else {
     console.log(data);
     document.getElementById('write-comment').innerHTML = '<a href="'+data.redirect_url+'">Login to leave a comment!</a>'
@@ -76,6 +76,7 @@ function setComments(data) {
       sessionStorage.setItem('redirect',location.href);
       location.replace($(this).attr('href'));
     };
+    return 'Needs to Login'
   }
 };
 
@@ -85,7 +86,7 @@ async function loadComments(post_path) {
   }
   const request_url = new URL( '/api/get_comments', base_url);
   request_url.search = new URLSearchParams({post: post_path }).toString();
-  const commentFeed = await fetch(request_url).then((res) => res.json())
+  const commentFeed = await makeRequest('GET', request_url).then((res) => JSON.parse(res));
   console.log(commentFeed);
   
   var commentFeedHTML = ''
@@ -97,6 +98,7 @@ async function loadComments(post_path) {
     commentFeedHTML += '</div></article>'
   });
   document.getElementById('comments-feed').innerHTML = commentFeedHTML
+  return commentFeedHTML
 }
 
   
@@ -121,41 +123,45 @@ function formSubmit(post_path) {
 // Set date picker & location auto-complete
 //
 function plan() {
+  let whenElement = document.getElementById('when');
+  let whereElement = document.getElementById('where');
+  if (!whenElement || !whereElement) {
+    return false
+  }
   var lat, long, start_date, finish_date;
   function loadWeather(lat, long, start_date, finish_date) {
     if (!(lat && long && start_date && finish_date)) {
-      return
+      return false
     }
     var request_url = new URL(`/api/plan/weather/${lat}/${long}`, base_url);
     request_url.search = new URLSearchParams({ start_date:start_date, finish_date:finish_date }).toString();
-    fetch(request_url).then((response) => {
-      weatherElement = document.getElementById("weather");
-      weatherElement.innerHTML = response;
-    });
+    makeRequest('GET', request_url)
+      .then((res) => JSON.parse(res))
+      .then(({ html }) => {
+        weatherElement = document.getElementById("weather");
+        weatherElement.innerHTML = html;
+      });
   };
   
   // date picker
-  let lightPickerElement = document.getElementById('litepicker')
-  if (document.getElementById('litepicker')) {
-    new Litepicker({ 
-      element: lightPickerElement,
-      singleMode: false,
-      setup:  (picker) => {
-        picker.on('button:apply', (date1, date2) => {
-          start_days = date1;
-          finish_days = date2;
-          loadWeather(lat, long, start_days, finish_days)
-        })
-      }
-    });
-  }
-   
+  new Litepicker({ 
+    element: whenElement,
+    singleMode: false,
+    setup:  (picker) => {
+      picker.on('button:apply', (date1, date2) => {
+        start_days = date1;
+        finish_days = date2;
+        loadWeather(lat, long, start_days, finish_days)
+      })
+    }
+  });
+  
   // location auto-complete
   var placeSearch, autocomplete, geocoder;
   function initAutocomplete() {
     geocoder = new google.maps.Geocoder();
     autocomplete = new google.maps.places.Autocomplete(
-      (document.getElementById('autocomplete')), {
+      (whereElement), {
         types: ['geocode']
       });
     autocomplete.addListener('place_changed', fillInAddress);
@@ -183,17 +189,18 @@ function plan() {
   //Load the Google script for location auto-complete
   if (document.getElementById('autocomplete')) {
     var request_url = new URL('/api/userInfo', base_url);
-    return fetch(request_url)
-    .then((res) => res.json())
-    .then((data) => {
-      console.log(data);
-      var google_maps_script = document.createElement('script');
-      google_maps_script.setAttribute('src',`https://maps.googleapis.com/maps/api/js?key=${data.googleApiKey}&libraries=places&callback=initAutocomplete`);
-      document.head.appendChild(google_maps_script);
-    });
+    return makeRequest('GET', request_url)
+      .then((res) => JSON.parse(res))
+      .then((data) => {
+        console.log(data);
+        var google_maps_script = document.createElement('script');
+        google_maps_script.setAttribute('src',`https://maps.googleapis.com/maps/api/js?key=${data.googleApiKey}&libraries=places&callback=initAutocomplete`);
+        document.head.appendChild(google_maps_script);
+      });
   }
   //~ const weather = document.querySelector("#weather");
   //~ weather.appendChild(forecastNode);
+  return true
 };
 
 //
@@ -202,86 +209,88 @@ function plan() {
 function load_maps() {
   mapboxgl.accessToken = 'pk.eyJ1Ijoid29vZGFyZHRob21hcyIsImEiOiJja3h1d25qanQwc2w0MnBwb2NuNWN3ajQwIn0.hTIyVRngyfAlIJEyGlT1ng';
   const maps = document.querySelectorAll('.map');
-  if (maps) {
-    maps.forEach(async function( mapElement ) {
-      var data = await fetch(mapElement.id+'.geojson').then(response => response.json())
-      const map = new mapboxgl.Map({
-        container: mapElement.id,
-        center: [data.features[0].properties.longitude, data.features[0].properties.latitude],
-        pitch: 45,
-        bearing: 0,
-        attributionControl: false,
-        logoPosition: 'bottom-right',
-        style: 'mapbox://styles/mapbox/satellite-v9',
-        zoom: 11
-      });
-      
-      map.on('load', () => {
-        map.addSource('route', {
-          'type': 'geojson',
-          'data': data
-        });
-        map.addControl(new mapboxgl.NavigationControl());
-        map.addLayer({
-          'id': 'route',
-          'type': 'line',
-          'source': 'route',
-          'layout': {
-            'line-join': 'round',
-            'line-cap': 'round'
-          },
-          'paint': {
-            'line-color': '#0096FF',
-            'line-width': 2
-          }
-        });
-        map.addLayer({
-          'id': 'title',
-          'type': 'symbol',
-          'source': 'route',
-          'layout': {
-            'text-field': ['get', 'title'],
-            'text-variable-anchor': ['top', 'bottom', 'left', 'right'],
-            'text-radial-offset': 0.5,
-            'text-justify': 'auto'
-          }
-        });
-        map.addSource('mapbox-dem', {
-          'type': 'raster-dem',
-          'url': 'mapbox://mapbox.mapbox-terrain-dem-v1',
-          'tileSize': 512,
-          'maxzoom': 14
-        });
-        // add the DEM source as a terrain layer with exaggerated height
-        map.setTerrain({
-          'source': 'mapbox-dem',
-          'exaggeration': 1.5
-        });
-
-        // add a sky layer that will show when the map is highly pitched
-        map.addLayer({
-          'id': 'sky',
-          'type': 'sky',
-          'paint': {
-            'sky-type': 'atmosphere',
-            'sky-atmosphere-sun': [0.0, 0.0],
-            'sky-atmosphere-sun-intensity': 15
-          }
-        });
-      });
-      const map_properties = data.features[0].properties
-      const map_distance = document.getElementById(mapElement.id+'_distance')
-      map_distance.innerHTML  = `${Math.round(map_properties.distance*0.000621371192*100)/100} mi`
-      const map_time = document.getElementById(mapElement.id+'_time')
-      if (map_time < 3600) {
-        map_time.innerHTML  = `${Math.floor(map_properties.total_time/60)}m ${Math.round(map_properties.total_time % 60)}s`
-      } else {
-        map_time.innerHTML  = `${Math.floor(map_properties.total_time/3600)}h ${Math.round((map_properties.total_time % 3600)/60)}m`
-      };
-      const map_elevation = document.getElementById(mapElement.id+'_elevation')
-      map_elevation.innerHTML =  `${Math.round(map_properties.total_ascent*3.28084)} ft`
+  console.log(maps);
+  if (maps.length === 0) {
+    return false
+  }
+  maps.forEach(async function( mapElement ) {
+    var data = await makeRequest('GET', mapElement.id+'.geojson').then((res) => JSON.parse(res));
+    const map = new mapboxgl.Map({
+      container: mapElement.id,
+      center: [data.features[0].properties.longitude, data.features[0].properties.latitude],
+      pitch: 45,
+      bearing: 0,
+      attributionControl: false,
+      logoPosition: 'bottom-right',
+      style: 'mapbox://styles/mapbox/satellite-v9',
+      zoom: 11
     });
-  };
+    
+    map.on('load', () => {
+      map.addSource('route', {
+        'type': 'geojson',
+        'data': data
+      });
+      map.addControl(new mapboxgl.NavigationControl());
+      map.addLayer({
+        'id': 'route',
+        'type': 'line',
+        'source': 'route',
+        'layout': {
+          'line-join': 'round',
+          'line-cap': 'round'
+        },
+        'paint': {
+          'line-color': '#0096FF',
+          'line-width': 2
+        }
+      });
+      map.addLayer({
+        'id': 'title',
+        'type': 'symbol',
+        'source': 'route',
+        'layout': {
+          'text-field': ['get', 'title'],
+          'text-variable-anchor': ['top', 'bottom', 'left', 'right'],
+          'text-radial-offset': 0.5,
+          'text-justify': 'auto'
+        }
+      });
+      map.addSource('mapbox-dem', {
+        'type': 'raster-dem',
+        'url': 'mapbox://mapbox.mapbox-terrain-dem-v1',
+        'tileSize': 512,
+        'maxzoom': 14
+      });
+      // add the DEM source as a terrain layer with exaggerated height
+      map.setTerrain({
+        'source': 'mapbox-dem',
+        'exaggeration': 1.5
+      });
+
+      // add a sky layer that will show when the map is highly pitched
+      map.addLayer({
+        'id': 'sky',
+        'type': 'sky',
+        'paint': {
+          'sky-type': 'atmosphere',
+          'sky-atmosphere-sun': [0.0, 0.0],
+          'sky-atmosphere-sun-intensity': 15
+        }
+      });
+    });
+    const map_properties = data.features[0].properties
+    const map_distance = document.getElementById(mapElement.id+'_distance')
+    map_distance.innerHTML  = `${Math.round(map_properties.distance*0.000621371192*100)/100} mi`
+    const map_time = document.getElementById(mapElement.id+'_time')
+    if (map_time < 3600) {
+      map_time.innerHTML  = `${Math.floor(map_properties.total_time/60)}m ${Math.round(map_properties.total_time % 60)}s`
+    } else {
+      map_time.innerHTML  = `${Math.floor(map_properties.total_time/3600)}h ${Math.round((map_properties.total_time % 3600)/60)}m`
+    };
+    const map_elevation = document.getElementById(mapElement.id+'_elevation')
+    map_elevation.innerHTML =  `${Math.round(map_properties.total_ascent*3.28084)} ft`
+  });
 }
 
 //

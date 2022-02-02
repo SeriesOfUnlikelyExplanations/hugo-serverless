@@ -43,34 +43,20 @@ before(async function () {
   nock('https://blog.always-onward.com')
     .persist()
     .get('/api/auth/refresh')
-    .reply(200, JSON.stringify(resData.logged_out));
+    .reply(200, JSON.stringify(resData.logged_out))
+    .get('/api/get_comments?post=test.md')
+    .reply(200, JSON.stringify([])); //[{author: "me", content: "fun post"}]
+    
   nock.emitter.on("no match", (req) => {
     console.log(req)
     assert(false, 'application failure: no match')
   })
-  
-  await window.eval(`new Promise(function (resolve) {
-    if (document.readyState != "loading") {
-      return resolve();
-    } else {
-      document.addEventListener("DOMContentLoaded", function () {
-        return resolve();
-      });
-    }
-   });`);
 })
-
-//~ load_maps()
-//~ loadComments(file_path)
-//~ const res = await login()
-//~ console.log(res);
-//~ setComments(res);
-//~ plan()
 
 it('/login happy path (page with comments)', async () => {
   document.body.innerHTML = fs.readFileSync(path.resolve(__dirname, '../layouts/partials/post-comments.html'));
   const res = await window.eval('pageLoad("test.md")');
-  
+  console.log(res);
   // Check that user isn't logged in
   expect(res.status.login).to.equal(false);
   expect(res.status.redirect_url).to.contain('https');
@@ -79,8 +65,25 @@ it('/login happy path (page with comments)', async () => {
   // check that comments block was updated
   console.log(document.getElementById('write-comment').innerHTML);
   expect(document.getElementById('write-comment').innerHTML).to.contain('Login to leave a comment!');
-  expect(document.getElementById('write-comment').innerHTML).to.contain('href="https://auth.always-onward.com');
+  expect(document.getElementById('write-comment').innerHTML).to.contain('href="https');
   
-  // Check that there weren't any 
-  
+  expect(res.maps).to.be.false;
+  expect(res.comments).to.equal('');
+  expect(res.set_comments).to.equal('Needs to Login')
+  expect(res.plan).to.be.false;
 });
+
+
+
+
+  //~ const res = {}
+  //~ res.maps = load_maps()
+  //~ res.comments = loadComments(file_path)
+  //~ res.status = await login()
+  //~ console.log(res.status);
+  //~ res.set_comments = setComments(res.status);
+  //~ res.plan = plan()
+  //~ return res
+
+
+

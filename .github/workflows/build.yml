@@ -58,5 +58,27 @@ jobs:
         name: upload generator coverage
         with:
           file: functions/siteGeneratorLambda/coverage/*.json
-          flags: routeLambda
+          flags: siteGeneratorLambda
           fail_ci_if_error: true
+          
+      - uses: codecov/codecov-action@v1
+        name: upload adminLambda coverage
+        with:
+          file: functions/adminLambda/coverage/*.json
+          flags: adminLambda
+          fail_ci_if_error: true
+
+      - uses: codecov/codecov-action@v1
+        name: upload apiLambda coverage
+        with:
+          file: functions/apiLambda/coverage/*.json
+          flags: apiLambda
+          fail_ci_if_error: true
+
+      - uses: codecov/codecov-action@v1
+        name: upload frontEnd coverage
+        with:
+          file: hugo-serverless-theme/coverage/*.json
+          flags: frontEnd
+          fail_ci_if_error: true
+
