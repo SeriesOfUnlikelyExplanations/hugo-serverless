@@ -35,6 +35,7 @@ jobs:
           npm run test-generator-deploy
           npm run test-admin-deploy
           npm run test-api-deploy
+          npm run test-frontend-deploy
         env:
           AWS_ACCESS_KEY_ID: 'testKey'
           AWS_SECRET_ACCESS_KEY: 'testSecret'

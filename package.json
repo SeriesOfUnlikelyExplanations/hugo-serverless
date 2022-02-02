@@ -4,15 +4,15 @@
   "description": "Hugo, powered by EFS, lambda, and S3",
   "main": "index.js",
   "scripts": {
-    "serve": "npm --prefix ../onward-blog run serve" ,
-    "test": "npm run test-admin & npm run test-generator & npm run test-api & npm run test-cdk",
-    "test-generator": "npm --prefix functions/siteGeneratorLambda run test" ,
+    "serve": "npm --prefix ../onward-blog run serve",
+    "test": "npm run test-admin & npm run test-generator & npm run test-api & npm run test-frontend & npm run test-cdk",
+    "test-generator": "npm --prefix functions/siteGeneratorLambda run test",
     "test-generator-deploy": "npm --prefix functions/siteGeneratorLambda run deploy-test",
-    "test-admin": "npm --prefix functions/adminLambda run test" ,
+    "test-admin": "npm --prefix functions/adminLambda run test",
     "test-admin-deploy": "npm --prefix functions/adminLambda run deploy-test",
-    "test-api": "npm --prefix functions/apiLambda run test" ,
+    "test-api": "npm --prefix functions/apiLambda run test",
     "test-api-deploy": "npm --prefix functions/apiLambda run deploy-test",
-    "test-frontend": "npm --prefix hugo-serverless-theme run test" ,
+    "test-frontend": "npm --prefix hugo-serverless-theme run test",
     "test-frontend-deploy": "npm --prefix hugo-serverless-theme run deploy-test",
     "test-cdk": "cdk synth",
     "test-service": "aws s3 cp ../onward-blog/content/_index.md s3://blog.always-onward.com-source/content/_index.md",
@@ -32,14 +32,12 @@
   "devDependencies": {
     "aws-sdk": "^2.923.0",
     "chai": "^4.2.0",
-    "jose": "^1.28.1",
-    "lambda-api": "^0.11.1",
+    "jsdom": "19.0.0",
     "mocha": "^9.2.0",
     "nock": "^12.0.3",
     "nyc": "^15.1.0",
-    "sinon": "^11.1.2",
-    "jsdom": "^19.0.0"
-  },  
+    "sinon": "^11.1.2"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/SeriesOfUnlikelyExplanations/hugo-serverless.git"

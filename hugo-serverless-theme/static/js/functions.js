@@ -9,6 +9,41 @@
 var base_url = new URL(window.location.href);
 var base_url = new URL('https://blog.always-onward.com');
 
+function makeRequest (method, url) {
+  return new Promise(function (resolve, reject) {
+    var xhr = new XMLHttpRequest();
+    xhr.open(method, url);
+    xhr.onload = function () {
+      if (xhr.status >= 200 && xhr.status < 300) {
+        resolve(xhr.response);
+      } else {
+        reject({
+          status: xhr.status,
+          statusText: xhr.statusText
+        });
+      }
+    };
+    xhr.onerror = function () {
+      reject({
+        status: xhr.status,
+        statusText: xhr.statusText
+      });
+    };
+    xhr.send();
+  });
+}
+
+async function pageLoad(file_path) {
+  const res = {}
+  res.maps = load_maps()
+  res.comments = loadComments(file_path)
+  res.status = await login()
+  console.log(res.status);
+  res.set_comments = setComments(res.status);
+  res.plan = plan()
+  return res
+}
+
 function login() {
   var my_url = new URL(window.location.href);
   var code = my_url.searchParams.get("code");
@@ -18,13 +53,8 @@ function login() {
   } else {
     var request_url = new URL('/api/auth/refresh', base_url);
   }
-  return fetch(request_url)
-  .then((res) => res.json())
-  .then((data) => {
-    console.log(data);
-    setComments(data);
-    plan()
-  });
+  return makeRequest('GET', request_url)
+    .then((res) => JSON.parse(res));
 };
 
 //
@@ -32,9 +62,13 @@ function login() {
 //
 
 function setComments(data) {
+  if (!(document.getElementById('write-comment'))) {
+    return false
+  }
   if (data.login) {
     document.getElementById('write-comment').hidden = false;
   } else {
+    console.log(data);
     document.getElementById('write-comment').innerHTML = '<a href="'+data.redirect_url+'">Login to leave a comment!</a>'
     document.getElementById('write-comment').hidden = false;
     document.getElementById('write-comment').onClick = function(e) {
@@ -46,8 +80,9 @@ function setComments(data) {
 };
 
 async function loadComments(post_path) {
-  //call api
-  console.log(post_path);
+  if (!(document.getElementById('comments-feed'))) {
+    return false
+  }
   const request_url = new URL( '/api/get_comments', base_url);
   request_url.search = new URLSearchParams({post: post_path }).toString();
   const commentFeed = await fetch(request_url).then((res) => res.json())
