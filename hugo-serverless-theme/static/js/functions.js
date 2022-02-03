@@ -16,17 +16,11 @@ function makeRequest (method, url) {
       if (xhr.status >= 200 && xhr.status < 300) {
         resolve(xhr.response);
       } else {
-        reject({
-          status: xhr.status,
-          statusText: xhr.statusText
-        });
+        reject({status: xhr.status, statusText: xhr.statusText });
       }
     };
     xhr.onerror = function () {
-      reject({
-        status: xhr.status,
-        statusText: xhr.statusText
-      });
+      reject({ status: xhr.status, statusText: xhr.statusText });
     };
     xhr.send();
   });
@@ -42,6 +36,12 @@ async function pageLoad(file_path) {
   res.set_comments = setComments(res.status);
   res.plan = plan();
   res.gallery = gallery();
+  
+  res.post_comment = false;
+  if (document.querySelector('#post_comment')) {
+    document.querySelector('#post_comment').addEventListener("click", postComment(file_path));
+    res.post_comment = true;
+  }
   return res
 }
 
@@ -103,7 +103,7 @@ async function loadComments(post_path) {
 }
 
   
-function formSubmit(post_path) {
+function postComment(post_path) {
   var request = new XMLHttpRequest();
   request.open('POST', new URL( '/api/post_comment', base_url), true);
   request.onload = function() { // request successful
@@ -213,9 +213,8 @@ function load_maps() {
   if (maps.length === 0) {
     return false
   }
-  maps.forEach(async function( mapElement ) {
+  const response = [...maps].map(async function( mapElement ) {
     var request_url = `${window.location.href}/${mapElement.id}.geojson`;
-    console.log(request_url);
     var data = await makeRequest('GET', request_url).then((res) => JSON.parse(res));
     const map = new mapboxgl.Map({
       container: mapElement.id,
@@ -283,16 +282,18 @@ function load_maps() {
     });
     const map_properties = data.features[0].properties
     const map_distance = document.getElementById(mapElement.id+'_distance')
-    map_distance.innerHTML  = `${Math.round(map_properties.distance*0.000621371192*100)/100} mi`
+    map_distance.innerHTML = `${Math.round(map_properties.distance*0.000621371192*100)/100} mi`
     const map_time = document.getElementById(mapElement.id+'_time')
     if (map_time < 3600) {
-      map_time.innerHTML  = `${Math.floor(map_properties.total_time/60)}m ${Math.round(map_properties.total_time % 60)}s`
+      map_time.innerHTML = `${Math.floor(map_properties.total_time/60)}m ${Math.round(map_properties.total_time % 60)}s`
     } else {
-      map_time.innerHTML  = `${Math.floor(map_properties.total_time/3600)}h ${Math.round((map_properties.total_time % 3600)/60)}m`
+      map_time.innerHTML = `${Math.floor(map_properties.total_time/3600)}h ${Math.round((map_properties.total_time % 3600)/60)}m`
     };
     const map_elevation = document.getElementById(mapElement.id+'_elevation')
-    map_elevation.innerHTML =  `${Math.round(map_properties.total_ascent*3.28084)} ft`
+    map_elevation.innerHTML = `${Math.round(map_properties.total_ascent*3.28084)} ft`
+    return { map: map, map_distance: map_distance, map_time: map_time, map_elevation: map_elevation };
   });
+  return response;
 }
 
 //
@@ -371,4 +372,4 @@ function gallery() {
   return {carousels: carousels, intervals: intervals };
 };
 
-export { pageLoad }
+export { pageLoad, postComment }
