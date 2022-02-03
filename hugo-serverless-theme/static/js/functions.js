@@ -304,6 +304,7 @@ function gallery() {
     if (carousels.length === 0) {
     return false
   }
+  const intervals = []
   carousels.forEach(function( carousel ) {
     const ele = carousel.querySelector('ul');
     const bullets = carousel.querySelectorAll('ol li');
@@ -347,11 +348,11 @@ function gallery() {
 
     //setInterval for autoplay
     if(carousel.getAttribute('duration')) {
-      setInterval(function(){ 
+      intervals.push(setInterval(function(){ 
         if (ele != document.querySelector(".carousel:hover ul")) {
           nextarrow.click();
         }
-      }, carousel.getAttribute('duration'));
+      }, carousel.getAttribute('duration')));
     }
   }); //end foreach
 
@@ -367,7 +368,7 @@ function gallery() {
       });
     }
   });
-  return carousels;
+  return {carousels: carousels, intervals: intervals };
 };
 
 export { pageLoad }

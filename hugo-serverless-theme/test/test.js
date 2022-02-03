@@ -79,12 +79,11 @@ describe('Testing frontend js', function() {
       expect(res.set_comments).to.equal('Needs to Login');
       expect(res.plan).to.be.false;
       expect(res.gallery).to.be.false;
-      window.close();
     });
   });
   
   describe('test gallery', () => {
-    xit('/login happy path (page with gallery)', async () => {
+    it('/login happy path (page with gallery)', async () => {
       document.body.innerHTML = `<div id="carousel0" class="carousel" duration="10" items="1">
           <ul>
                 <li id="c0_slide1" style="min-width: 100%; padding-bottom: 500px"><img src="ready1.jpg" alt=""></li>
@@ -108,10 +107,27 @@ describe('Testing frontend js', function() {
       expect(res.comments).to.be.false;
       expect(res.set_comments).to.be.false;
       expect(res.plan).to.be.false;
-      expect(res.gallery.length).to.equal(1);
-      console.log(res.gallery.item(0));
-      window.stop();
-      console.log(window);
+      expect(res.gallery.carousels.length).to.equal(1);
+      expect(res.gallery.carousels[0].innerHTML.replace(/ *|\n|\t/gm, "").trim()).to.equal(`<ul>
+                <li id="c0_slide1" style="min-width: 100%; padding-bottom: 500px"><img src="ready1.jpg" alt=""></li>
+                <li id="c0_slide2" style="min-width: 100%; padding-bottom: 500px"><img src="ready2.jpg" alt=""></li>
+          </ul>
+          <ol>
+              <li class="selected"><a href="#c0_slide1"></a></li>
+              <li><a href="#c0_slide2"></a></li>
+          </ol>
+          <div class="prev" style="display: block;">‹</div>
+          <div class="next" style="display: block;">›</div>`.replace(/ *|\n|\t/gm, ""));
+      // interact with left and right button
+      
+      document.querySelector('.next').dispatchEvent(new MouseEvent('click', { bubbles: true }))
+      expect(res.gallery.carousels[0].innerHTML).to.contain('<li class="selected"><a href="#c0_slide2"></a></li>');
+      document.querySelector('.prev').dispatchEvent(new MouseEvent('click', { bubbles: true }))
+      expect(res.gallery.carousels[0].innerHTML).to.contain('<li class="selected"><a href="#c0_slide1"></a></li>');
+      // cleanup
+      res.gallery.intervals.forEach((interval) => {
+        clearInterval(interval);
+      });
     });
   });
   describe('test map', () => {
@@ -142,7 +158,6 @@ describe('Testing frontend js', function() {
       expect(res.set_comments).to.equal('Needs to Login')
       expect(res.plan).to.be.false;
       expect(res.gallery).to.be.false;
-      window.close();
     });
   });
 });
