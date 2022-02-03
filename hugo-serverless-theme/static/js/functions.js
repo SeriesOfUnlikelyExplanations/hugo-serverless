@@ -29,14 +29,14 @@ function makeRequest (method, url) {
 async function pageLoad(file_path) {
   base_url = new URL(window.location.href);
   const res = {}
-  res.maps = load_maps();
+  res.gallery = gallery();
   res.comments = await loadComments(file_path);
   res.status = await login();
   console.log(res.status);
-  res.set_comments = setComments(res.status);
-  res.plan = plan();
-  res.gallery = gallery();
-  
+  res.set_comments = await setComments(res.status);
+
+  res.maps = await load_maps();
+  res.plan = await plan();
   res.post_comment = false;
   if (document.querySelector('#post_comment')) {
     document.querySelector('#post_comment').addEventListener("click", () => { postComment(file_path) });
