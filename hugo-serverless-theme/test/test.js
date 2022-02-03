@@ -10,7 +10,7 @@ import sinon from 'sinon';
 import fs from 'fs';
 import path from 'path';
 
-import resData from './responseTestData.js';
+import testData from './testData.js';
 import { pageLoad } from '../static/js/functions.js';
 
 describe('Testing frontend js', function() {
@@ -20,7 +20,7 @@ describe('Testing frontend js', function() {
     this.apiNock = nock('https://blog.always-onward.com')
       .persist()
       .get('/api/auth/refresh')
-      .reply(200, JSON.stringify(resData.logged_out))
+      .reply(200, JSON.stringify(testData.logged_out))
       .get('/api/get_comments?post=test.md')
       .reply(200, JSON.stringify([{author: "me", content: "fun post"}]))
       .get('/test_page/mapfile.geojson')
@@ -85,8 +85,8 @@ describe('Testing frontend js', function() {
           console.log(body);
           return body;
         })
-        .reply(200, JSON.stringify(resData.logged_out))
-      this.apiNock.interceptors.find(({uri}) =>  uri === '/api/auth/refresh').body = JSON.stringify(resData.logged_in);
+        .reply(200, '')
+      this.apiNock.interceptors.find(({uri}) =>  uri === '/api/auth/refresh').body = JSON.stringify(testData.logged_in);
       
       document.body.innerHTML = fs.readFileSync(path.resolve('./layouts/partials/post-comments.html')).toString().replace('{{ .File.Path }}','test.md');
       const res = await pageLoad("test.md")
@@ -94,27 +94,14 @@ describe('Testing frontend js', function() {
       document.querySelector('#post_comment').dispatchEvent(new MouseEvent('click', { bubbles: true }))
       expect(postNock).to.have.been.requested;
       
-      this.apiNock.interceptors.find(({uri}) =>  uri == '/api/auth/refresh').body = JSON.stringify(resData.logged_out);
+      this.apiNock.interceptors.find(({uri}) =>  uri == '/api/auth/refresh').body = JSON.stringify(testData.logged_out);
     });
   });
   
   describe('test gallery', () => {
     it('Gallery - happy path', async () => {
-      document.body.innerHTML = `<div id="carousel0" class="carousel" duration="10" items="1">
-          <ul>
-                <li id="c0_slide1" style="min-width: 100%; padding-bottom: 500px"><img src="ready1.jpg" alt=""></li>
-                <li id="c0_slide2" style="min-width: 100%; padding-bottom: 500px"><img src="ready2.jpg" alt=""></li> 
-          </ul>
-          <ol>
-              <li><a href="#c0_slide1"></a></li>
-              <li><a href="#c0_slide2"></a></li>
-          </ol>
-          <div class="prev">‹</div>
-          <div class="next">›</div>
-      </div>
-      `
+      document.body.innerHTML = testData.gallery_html
       const res = await pageLoad("test.md")
-      console.log(res);
       // Check that user isn't logged in
       expect(res.status.login).to.be.false;
       expect(res.status.redirect_url).to.contain('https');
@@ -134,10 +121,19 @@ describe('Testing frontend js', function() {
           </ol>
           <div class="prev" style="display: block;">‹</div>
           <div class="next" style="display: block;">›</div>`.replace(/ *|\n|\t/gm, ""));
-      // interact with left and right button
+      // cleanup
+      res.gallery.intervals.forEach((interval) => {
+        clearInterval(interval);
+      });
     });
     it('Gallery - test left/right click)', async () => {
+      document.body.innerHTML = testData.gallery_html
+      const res = await pageLoad("test.md")
       document.querySelector('.next').dispatchEvent(new MouseEvent('click', { bubbles: true }))
+      expect(res.gallery.carousels[0].innerHTML).to.contain('<li class="selected"><a href="#c0_slide2"></a></li>');
+      document.querySelector('.next').dispatchEvent(new MouseEvent('click', { bubbles: true }))
+      expect(res.gallery.carousels[0].innerHTML).to.contain('<li class="selected"><a href="#c0_slide1"></a></li>');
+      document.querySelector('.prev').dispatchEvent(new MouseEvent('click', { bubbles: true }))
       expect(res.gallery.carousels[0].innerHTML).to.contain('<li class="selected"><a href="#c0_slide2"></a></li>');
       document.querySelector('.prev').dispatchEvent(new MouseEvent('click', { bubbles: true }))
       expect(res.gallery.carousels[0].innerHTML).to.contain('<li class="selected"><a href="#c0_slide1"></a></li>');
@@ -146,7 +142,31 @@ describe('Testing frontend js', function() {
         clearInterval(interval);
       });
     });
+    it('Gallery - test left/right key)', async () => {
+      document.body.innerHTML = testData.gallery_html;
+      const res = await pageLoad("test.md")
+      document.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight' }));
+      expect(res.gallery.carousels[0].innerHTML).to.contain('<li class="selected"><a href="#c0_slide2"></a></li>');
+      document.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowLeft' }));
+      expect(res.gallery.carousels[0].innerHTML).to.contain('<li class="selected"><a href="#c0_slide1"></a></li>');
+      // cleanup
+      res.gallery.intervals.forEach((interval) => {
+        clearInterval(interval);
+      });
+    });
+    it('Gallery - test left/right key)', async () => {
+      document.body.innerHTML = testData.gallery_html;
+      const res = await pageLoad("test.md")
+      await new Promise((resolve) => {setTimeout(resolve, 150)});
+      expect(res.gallery.carousels[0].innerHTML).to.contain('<li class="selected"><a href="#c0_slide2"></a></li>');
+
+      // cleanup
+      res.gallery.intervals.forEach((interval) => {
+        clearInterval(interval);
+      });
+    });
   });
+  
   describe('test map', () => {
     xit('/login happy path (page with map)', async () => {
       document.body.innerHTML = `<div class="map" id="mapfile"></div>
