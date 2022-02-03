@@ -34,15 +34,14 @@ function makeRequest (method, url) {
 
 async function pageLoad(file_path) {
   base_url = new URL(window.location.href);
-  base_url = new URL('https://blog.always-onward.com');
   const res = {}
-  res.maps = load_maps()
-  res.comments = await loadComments(file_path)
-  res.status = await login()
-  console.log('i got here');
+  res.maps = load_maps();
+  res.comments = await loadComments(file_path);
+  res.status = await login();
   console.log(res.status);
   res.set_comments = setComments(res.status);
-  res.plan = plan()
+  res.plan = plan();
+  res.gallery = gallery();
   return res
 }
 
@@ -211,12 +210,13 @@ function plan() {
 function load_maps() {
   mapboxgl.accessToken = 'pk.eyJ1Ijoid29vZGFyZHRob21hcyIsImEiOiJja3h1d25qanQwc2w0MnBwb2NuNWN3ajQwIn0.hTIyVRngyfAlIJEyGlT1ng';
   const maps = document.querySelectorAll('.map');
-  console.log(maps);
   if (maps.length === 0) {
     return false
   }
   maps.forEach(async function( mapElement ) {
-    var data = await makeRequest('GET', mapElement.id+'.geojson').then((res) => JSON.parse(res));
+    var request_url = `${window.location.href}/${mapElement.id}.geojson`;
+    console.log(request_url);
+    var data = await makeRequest('GET', request_url).then((res) => JSON.parse(res));
     const map = new mapboxgl.Map({
       container: mapElement.id,
       center: [data.features[0].properties.longitude, data.features[0].properties.latitude],
@@ -299,74 +299,75 @@ function load_maps() {
 // --------- Carosel Functions -----------------
 //
 
-function carousel() {
+function gallery() {
   const carousels = document.querySelectorAll('.carousel');
-  if (carousels) {
-    carousels.forEach(function( carousel ) {
-      const ele = carousel.querySelector('ul');
-      const bullets = carousel.querySelectorAll('ol li');
-      const nextarrow = carousel.querySelector('.next');
-      const prevarrow = carousel.querySelector('.prev');
-      // Initialize the carousel
-      nextarrow.style.display = 'block';
-      prevarrow.style.display = 'block';
-      ele.scrollLeft = 0;
-      bullets[0].classList.add('selected');
-      const scrollTo = function(event) {
-        event.preventDefault();
-        ele.scrollLeft = ele.querySelector(this.getAttribute('href')).offsetLeft;
+    if (carousels.length === 0) {
+    return false
+  }
+  carousels.forEach(function( carousel ) {
+    const ele = carousel.querySelector('ul');
+    const bullets = carousel.querySelectorAll('ol li');
+    const nextarrow = carousel.querySelector('.next');
+    const prevarrow = carousel.querySelector('.prev');
+    // Initialize the carousel
+    nextarrow.style.display = 'block';
+    prevarrow.style.display = 'block';
+    ele.scrollLeft = 0;
+    bullets[0].classList.add('selected');
+    const scrollTo = function(event) {
+      event.preventDefault();
+      ele.scrollLeft = ele.querySelector(this.getAttribute('href')).offsetLeft;
 
-        // Set selected bullet
-        bullets.forEach(function(bullet) {
-          bullet.classList.remove('selected');
-        });
-        this.parentElement.classList.add('selected');
-      }
-      const nextSlide = function() {
-        if(!carousel.querySelector('ol li:last-child').classList.contains('selected')) {
-          carousel.querySelector('ol li.selected').nextElementSibling.querySelector('a').click();
-        } else {
-          carousel.querySelector('ol li:first-child a').click();
-        }
-      }
-      const prevSlide = function() {
-        if(!carousel.querySelector('ol li:first-child').classList.contains('selected')) {
-          carousel.querySelector('ol li.selected').previousElementSibling.querySelector('a').click();
-        } else {
-          carousel.querySelector('ol li:last-child a').click();
-        }
-      }
-      // Attach the handlers
-      nextarrow.addEventListener("click", nextSlide);
-      prevarrow.addEventListener("click", prevSlide);
+      // Set selected bullet
       bullets.forEach(function(bullet) {
-        bullet.querySelector('a').addEventListener('click', scrollTo);
+        bullet.classList.remove('selected');
       });
-
-      //setInterval for autoplay
-      if(carousel.getAttribute('duration')) {
-        setInterval(function(){ 
-          if (ele != document.querySelector(".carousel:hover ul")) {
-            nextarrow.click();
-          }
-        }, carousel.getAttribute('duration'));
+      this.parentElement.classList.add('selected');
+    }
+    const nextSlide = function() {
+      if(!carousel.querySelector('ol li:last-child').classList.contains('selected')) {
+        carousel.querySelector('ol li.selected').nextElementSibling.querySelector('a').click();
+      } else {
+        carousel.querySelector('ol li:first-child a').click();
       }
-    }); //end foreach
-
-    document.addEventListener('keydown', function (e){
-      var elements = document.querySelectorAll('.carousel');
-      if(e.key == 'ArrowLeft') {
-        elements.forEach( function(element) {
-          element.querySelector('.prev').click();
-        });
+    }
+    const prevSlide = function() {
+      if(!carousel.querySelector('ol li:first-child').classList.contains('selected')) {
+        carousel.querySelector('ol li.selected').previousElementSibling.querySelector('a').click();
+      } else {
+        carousel.querySelector('ol li:last-child a').click();
       }
-      if(e.key == 'ArrowRight') {
-        elements.forEach( function(element) {
-          element.querySelector('.next').click();
-        });
-      }
+    }
+    // Attach the handlers
+    nextarrow.addEventListener("click", nextSlide);
+    prevarrow.addEventListener("click", prevSlide);
+    bullets.forEach(function(bullet) {
+      bullet.querySelector('a').addEventListener('click', scrollTo);
     });
-  };
+
+    //setInterval for autoplay
+    if(carousel.getAttribute('duration')) {
+      setInterval(function(){ 
+        if (ele != document.querySelector(".carousel:hover ul")) {
+          nextarrow.click();
+        }
+      }, carousel.getAttribute('duration'));
+    }
+  }); //end foreach
+
+  document.addEventListener('keydown', function (e){
+    if(e.key == 'ArrowLeft') {
+      carousels.forEach( function(element) {
+        element.querySelector('.prev').click();
+      });
+    }
+    if(e.key == 'ArrowRight') {
+      carousels.forEach( function(element) {
+        element.querySelector('.next').click();
+      });
+    }
+  });
+  return carousels;
 };
 
 export { pageLoad }
