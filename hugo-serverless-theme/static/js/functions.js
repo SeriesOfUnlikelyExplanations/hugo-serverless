@@ -39,7 +39,7 @@ async function pageLoad(file_path) {
   
   res.post_comment = false;
   if (document.querySelector('#post_comment')) {
-    document.querySelector('#post_comment').addEventListener("click", postComment(file_path));
+    document.querySelector('#post_comment').addEventListener("click", () => { postComment(file_path) });
     res.post_comment = true;
   }
   return res
@@ -214,7 +214,7 @@ function load_maps() {
     return false
   }
   const response = [...maps].map(async function( mapElement ) {
-    var request_url = `${window.location.href}/${mapElement.id}.geojson`;
+    var request_url = `${window.location.href}${mapElement.id}.geojson`;
     var data = await makeRequest('GET', request_url).then((res) => JSON.parse(res));
     const map = new mapboxgl.Map({
       container: mapElement.id,
@@ -291,7 +291,7 @@ function load_maps() {
     };
     const map_elevation = document.getElementById(mapElement.id+'_elevation')
     map_elevation.innerHTML = `${Math.round(map_properties.total_ascent*3.28084)} ft`
-    return { map: map, map_distance: map_distance, map_time: map_time, map_elevation: map_elevation };
+    //~ return { map: map, map_distance: map_distance, map_time: map_time, map_elevation: map_elevation };
   });
   return response;
 }
@@ -372,4 +372,4 @@ function gallery() {
   return {carousels: carousels, intervals: intervals };
 };
 
-export { pageLoad, postComment }
+export { pageLoad }

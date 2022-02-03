@@ -99,7 +99,7 @@ describe('Testing frontend js', function() {
   });
   
   describe('test gallery', () => {
-    it('/login happy path (page with gallery)', async () => {
+    it('Gallery - happy path', async () => {
       document.body.innerHTML = `<div id="carousel0" class="carousel" duration="10" items="1">
           <ul>
                 <li id="c0_slide1" style="min-width: 100%; padding-bottom: 500px"><img src="ready1.jpg" alt=""></li>
@@ -135,7 +135,8 @@ describe('Testing frontend js', function() {
           <div class="prev" style="display: block;">‹</div>
           <div class="next" style="display: block;">›</div>`.replace(/ *|\n|\t/gm, ""));
       // interact with left and right button
-      
+    });
+    it('Gallery - test left/right click)', async () => {
       document.querySelector('.next').dispatchEvent(new MouseEvent('click', { bubbles: true }))
       expect(res.gallery.carousels[0].innerHTML).to.contain('<li class="selected"><a href="#c0_slide2"></a></li>');
       document.querySelector('.prev').dispatchEvent(new MouseEvent('click', { bubbles: true }))
