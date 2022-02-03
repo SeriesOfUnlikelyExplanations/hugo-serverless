@@ -131,7 +131,7 @@ describe('Testing frontend js', function() {
     });
   });
   describe('test map', () => {
-    it('/login happy path (page with map)', async () => {
+    xit('/login happy path (page with map)', async () => {
       document.body.innerHTML = `<div class="map" id="mapfile"></div>
       <table class="map_table">
         <tbody><tr>
