@@ -196,10 +196,12 @@ async function plan(Litepicker) {
         var google_maps_script = document.createElement('script');
         google_maps_script.setAttribute('src',`https://maps.googleapis.com/maps/api/js?key=${data.googleApiKey}&libraries=places&callback=initAutocomplete`);
         document.head.appendChild(google_maps_script);
+        initAutocomplete()
       });
   }
   //~ const weather = document.querySelector("#weather");
   //~ weather.appendChild(forecastNode);
+
   return true
 };
 
