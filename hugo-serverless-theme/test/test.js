@@ -10,6 +10,8 @@ import sinon from 'sinon';
 import fs from 'fs';
 import path from 'path';
 
+import { Litepicker } from 'litepicker';
+
 import testData from './testData.js';
 import { pageLoad } from '../static/js/functions.js';
 
@@ -29,8 +31,14 @@ describe('Testing frontend js', function() {
     nock('https://api.mapbox.com')
       .persist()
       .get('/mapbox-gl-js/v2.6.1/mapbox-gl.js')
-      .reply(200, fs.readFileSync(path.resolve('./test/mapboxgl.js')).toString());   
+      .reply(200, fs.readFileSync(path.resolve('./test/scripts/mapboxgl.js')).toString());   
       
+    nock('https://cdn.jsdelivr.net')
+      .persist()
+      .get('/npm/litepicker/dist/css/litepicker.css')
+      .reply(200, '');
+      //~ .get('/npm/litepicker/dist/litepicker.js')
+      //~ .reply(200, fs.readFileSync(path.resolve('./test/litepicker.js')).toString());
       
     nock.emitter.on("no match", (req) => {
       console.log(req)
@@ -167,6 +175,23 @@ describe('Testing frontend js', function() {
     });
   });
   
+  describe('test plan', () => {
+    it('Plan - happy path', async () => {
+      document.body.innerHTML = fs.readFileSync(path.resolve('./content/plan.html'));
+      const res = await pageLoad("test.md", {Litepicker: Litepicker} )
+      console.log(res);
+      // Check that user isn't logged in
+      expect(res.status.login).to.equal(false);
+      expect(res.status.redirect_url).to.contain('https');
+      expect(res.comments).to.be.false;
+      expect(res.set_comments).to.be.false;
+      expect(res.plan).to.be.true;
+      expect(res.gallery).to.be.false;
+      expect(res.maps).to.be.false;
+      
+    });
+  });
+  
   describe('test map', () => {
     xit('/login happy path (page with map)', async () => {
       document.body.innerHTML = `<div class="map" id="mapfile"></div>
@@ -182,8 +207,8 @@ describe('Testing frontend js', function() {
             <div id="mapfile_elevation"></div>
           </td>
         </tr>
-      </tbody></table>
-      `
+      </tbody></table>`
+      
       window.URL.createObjectURL = function() {};
       await new Promise((resolve, reject) => {
         const func = document.createElement('script');
@@ -199,7 +224,7 @@ describe('Testing frontend js', function() {
 
       expect(res.maps.length).to.equal(1)
       //~ expect(res.maps[0]).to.have.keys(['map', 'map_distance', 'map_time', 'map_elevation']);
-      expect(res.comments).to.equal('');
+      expect(res.comments).to.equal('<article class="read-next-card"><div><b style="color:firebrick">me</b> says:</div><div>fun post</div></article>');
       expect(res.set_comments).to.equal('Needs to Login')
       expect(res.plan).to.be.false;
       expect(res.gallery).to.be.false;

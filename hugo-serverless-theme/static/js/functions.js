@@ -1,11 +1,3 @@
-//
-// top level functions
-// login()
-// loadWeather(lat, long, start_days, finish_days) - 
-// load_maps() - loads any maps for any "map" class object
-// carousel() - loads the image carousels for every "carousel" class object
-//
-
 var base_url;
 
 function makeRequest (method, url) {
@@ -26,7 +18,7 @@ function makeRequest (method, url) {
   });
 }
 
-async function pageLoad(file_path) {
+async function pageLoad(file_path, dependencies = {}) {
   base_url = new URL(window.location.href);
   const res = {}
   res.gallery = gallery();
@@ -36,7 +28,7 @@ async function pageLoad(file_path) {
   res.set_comments = await setComments(res.status);
 
   res.maps = await load_maps();
-  res.plan = await plan();
+  res.plan = await plan(dependencies.Litepicker || '');
   res.post_comment = false;
   if (document.querySelector('#post_comment')) {
     document.querySelector('#post_comment').addEventListener("click", () => { postComment(file_path) });
@@ -123,7 +115,7 @@ function postComment(post_path) {
 //
 // Set date picker & location auto-complete
 //
-function plan() {
+function plan(Litepicker) {
   let whenElement = document.getElementById('when');
   let whereElement = document.getElementById('where');
   if (!whenElement || !whereElement) {
@@ -144,6 +136,7 @@ function plan() {
       });
   };
   
+  console.log(Litepicker);
   // date picker
   new Litepicker({ 
     element: whenElement,
@@ -208,11 +201,11 @@ function plan() {
 // ------------- Function to load maps on the page if they exist
 //
 function load_maps() {
-  mapboxgl.accessToken = 'pk.eyJ1Ijoid29vZGFyZHRob21hcyIsImEiOiJja3h1d25qanQwc2w0MnBwb2NuNWN3ajQwIn0.hTIyVRngyfAlIJEyGlT1ng';
   const maps = document.querySelectorAll('.map');
-  if (maps.length === 0) {
+  if (!(maps.length)) {
     return false
   }
+  mapboxgl.accessToken = 'pk.eyJ1Ijoid29vZGFyZHRob21hcyIsImEiOiJja3h1d25qanQwc2w0MnBwb2NuNWN3ajQwIn0.hTIyVRngyfAlIJEyGlT1ng';
   const response = [...maps].map(async function( mapElement ) {
     var request_url = `${window.location.href}${mapElement.id}.geojson`;
     var data = await makeRequest('GET', request_url).then((res) => JSON.parse(res));
