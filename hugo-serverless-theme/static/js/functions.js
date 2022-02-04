@@ -22,13 +22,17 @@ async function pageLoad(file_path, dependencies = {}) {
   base_url = new URL(window.location.href);
   const res = {}
   res.gallery = gallery();
-  res.comments = await loadComments(file_path);
-  res.status = await login();
-  console.log(res.status);
-  res.set_comments = await setComments(res.status);
+  try {
+    res.comments = await loadComments(file_path);
+  } catch (e) { console.log(e);}
+  try {
+    res.status = await login();
+    console.log(res.status);
+    res.set_comments = await setComments(res.status);
+  } catch (e) { console.log(e);}
 
   res.maps = await load_maps(dependencies.mapboxgl || '');
-  res.plan = await plan(dependencies.Litepicker || '');
+  res.plan = await plan(dependencies.Litepicker || '', dependencies.google || '');
   res.post_comment = false;
   if (document.querySelector('#post_comment')) {
     document.querySelector('#post_comment').addEventListener("click", () => { postComment(file_path) });
@@ -115,7 +119,7 @@ function postComment(post_path) {
 //
 // Set date picker & location auto-complete
 //
-async function plan(Litepicker) {
+async function plan(Litepicker, google) {
   let whenElement = document.getElementById('when');
   let whereElement = document.getElementById('where');
   if (!whenElement || !whereElement) {
@@ -159,6 +163,7 @@ async function plan(Litepicker) {
   // location auto-complete
   var placeSearch, autocomplete, geocoder;
   function initAutocomplete() {
+    console.log(google);
     geocoder = new google.maps.Geocoder();
     autocomplete = new google.maps.places.Autocomplete(
       (whereElement), {

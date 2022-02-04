@@ -16,8 +16,8 @@ import testData from './testData.js';
 import { pageLoad } from '../static/js/functions.js';
 
 describe('Testing frontend js', function() {
-  this.timeout(1000);
-  before(() => {    
+  this.timeout(10000);
+  before(async () => {    
     //nock
     this.apiNock = nock('https://blog.always-onward.com')
       .persist()
@@ -45,12 +45,41 @@ describe('Testing frontend js', function() {
     nock('https://maps.googleapis.com')
       .persist()
       .get('/maps/api/js?key=test&libraries=places&callback=initAutocomplete')
-      .reply(200, fs.readFileSync('./test/scripts/google.js').toString());
+      .reply(200, '');
       
     nock.emitter.on("no match", (req) => {
       console.log(req)
       assert(false, 'application failure: no match')
     });
+    
+    class GeoCoderMock {
+      geocode(params) {
+        return true
+      }
+    };
+    
+    class autocompleteMock {
+      //~ constructor(element, params) {
+        //~ console.log(element);
+        //~ expect(params.types[0]).to.equal('geocode');
+      //~ }
+      addListener(params) {
+        return true
+      }
+      getPlace(params) {
+        return true
+      }
+    };
+    this.GeoCoderFake = sinon.fake.returns(new GeoCoderMock());
+    this.AutocompleteFake = sinon.fake.returns(new autocompleteMock());
+    
+    this.google = {maps: {
+      Geocoder: this.GeoCoderFake,
+      places: { 
+        Autocomplete: this.AutocompleteFake
+      }
+    }};
+    this.Litepicker = Litepicker;
   });
   beforeEach(() => {
     //setup the jsdom stuff
@@ -185,8 +214,7 @@ describe('Testing frontend js', function() {
   describe('test plan', () => {
     it('Datepicker - happy path', async () => {
       document.body.innerHTML = fs.readFileSync(path.resolve('./content/plan.html'));
-      const res = await pageLoad("test.md", {Litepicker: Litepicker} )
-      console.log(res);
+      const res = await pageLoad("test.md", {Litepicker: Litepicker, google: this.google} )
       // Check that user isn't logged in
       expect(res.status.login).to.equal(false);
       expect(res.status.redirect_url).to.contain('https');
@@ -202,23 +230,13 @@ describe('Testing frontend js', function() {
       expect(document.getElementById('when').value).to.have.lengthOf(23);
       expect(document.getElementById('when').value[4]).to.equal('-');
     });
-    xit('Datepicker - happy path', async () => {
+    it('Autocomplete & Geocode - happy path', async () => {
       document.body.innerHTML = fs.readFileSync(path.resolve('./content/plan.html'));
-      const res = await pageLoad("test.md", {Litepicker: Litepicker} )
-      console.log(res);
-      // Check that user isn't logged in
-      expect(res.status.login).to.equal(false);
-      expect(res.status.redirect_url).to.contain('https');
-      expect(res.comments).to.be.false;
-      expect(res.set_comments).to.be.false;
-      expect(res.plan).to.be.true;
-      expect(res.gallery).to.be.false;
-      expect(res.maps).to.be.false;
-      expect(document.getElementById('when').value).to.equal('');
-      document.getElementsByClassName('day-item')[6].click();
-      document.getElementsByClassName('day-item')[10].click();
-      expect(document.getElementById('when').value).to.have.lengthOf(23);
-      expect(document.getElementById('when').value[4]).to.equal('-');
+      const res = await pageLoad("test.md", {Litepicker: Litepicker, google: this.google} )
+      expect(this.AutocompleteFake.firstArg).to.equal(document.getElementById('where'));
+      expect(this.AutocompleteFake.lastArg.types[0]).to.equal('geocode');
+      
+      
     });
   });
   
