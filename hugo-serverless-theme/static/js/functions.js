@@ -115,7 +115,7 @@ function postComment(post_path) {
 //
 // Set date picker & location auto-complete
 //
-function plan(Litepicker) {
+async function plan(Litepicker) {
   let whenElement = document.getElementById('when');
   let whereElement = document.getElementById('where');
   if (!whenElement || !whereElement) {
@@ -183,13 +183,13 @@ function plan(Litepicker) {
 
   function fillInAddress() {
     var place = autocomplete.getPlace();
-    codeAddress(document.getElementById('autocomplete').value);
+    codeAddress(document.getElementById('where').value);
   }
   
   //Load the Google script for location auto-complete
-  if (document.getElementById('autocomplete')) {
+  if (document.getElementById('where')) {
     var request_url = new URL('/api/userInfo', base_url);
-    return makeRequest('GET', request_url)
+    await makeRequest('GET', request_url)
       .then((res) => JSON.parse(res))
       .then((data) => {
         console.log(data);

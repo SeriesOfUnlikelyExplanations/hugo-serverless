@@ -11,7 +11,6 @@ import fs from 'fs';
 import path from 'path';
 
 import { Litepicker } from 'litepicker';
-import mapboxgl from 'mapbox-gl';
 
 import testData from './testData.js';
 import { pageLoad } from '../static/js/functions.js';
@@ -27,7 +26,9 @@ describe('Testing frontend js', function() {
       .get('/api/get_comments?post=test.md')
       .reply(200, JSON.stringify([{author: "me", content: "fun post"}]))
       .get('/test_page/mapfile.geojson')
-      .replyWithFile(200, path.resolve('./test/map.geojson')); 
+      .replyWithFile(200, path.resolve('./test/map.geojson'))
+      .get('/api/userInfo')
+      .reply(200, JSON.stringify({googleApiKey: "test"}))
       
     nock('https://api.mapbox.com')
       .persist()
@@ -41,10 +42,15 @@ describe('Testing frontend js', function() {
       .get('/npm/litepicker/dist/litepicker.js')
       .reply(200, '');
       
+    nock('https://maps.googleapis.com')
+      .persist()
+      .get('/maps/api/js?key=test&libraries=places&callback=initAutocomplete')
+      .reply(200, fs.readFileSync('./test/scripts/google.js').toString());
+      
     nock.emitter.on("no match", (req) => {
       console.log(req)
       assert(false, 'application failure: no match')
-    })
+    });
   });
   beforeEach(() => {
     //setup the jsdom stuff
@@ -178,6 +184,25 @@ describe('Testing frontend js', function() {
   
   describe('test plan', () => {
     it('Datepicker - happy path', async () => {
+      document.body.innerHTML = fs.readFileSync(path.resolve('./content/plan.html'));
+      const res = await pageLoad("test.md", {Litepicker: Litepicker} )
+      console.log(res);
+      // Check that user isn't logged in
+      expect(res.status.login).to.equal(false);
+      expect(res.status.redirect_url).to.contain('https');
+      expect(res.comments).to.be.false;
+      expect(res.set_comments).to.be.false;
+      expect(res.plan).to.be.true;
+      expect(res.gallery).to.be.false;
+      expect(res.maps).to.be.false;
+      expect(document.getElementById('when').value).to.equal('');
+      document.getElementsByClassName('day-item')[6].click();
+      document.getElementsByClassName('day-item')[9].dispatchEvent(new MouseEvent("mouseover"));
+      document.getElementsByClassName('day-item')[10].click();
+      expect(document.getElementById('when').value).to.have.lengthOf(23);
+      expect(document.getElementById('when').value[4]).to.equal('-');
+    });
+    xit('Datepicker - happy path', async () => {
       document.body.innerHTML = fs.readFileSync(path.resolve('./content/plan.html'));
       const res = await pageLoad("test.md", {Litepicker: Litepicker} )
       console.log(res);
