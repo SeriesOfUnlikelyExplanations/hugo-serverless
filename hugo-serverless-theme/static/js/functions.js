@@ -214,10 +214,10 @@ async function load_maps(mapboxgl) {
   mapboxgl.accessToken = 'pk.eyJ1Ijoid29vZGFyZHRob21hcyIsImEiOiJja3h1d25qanQwc2w0MnBwb2NuNWN3ajQwIn0.hTIyVRngyfAlIJEyGlT1ng';
   const response = [...maps].map(async function( mapElement ) {
     var request_url = `${window.location.href}${mapElement.id}.geojson`;
-    console.log(mapElement);
     var data = await makeRequest('GET', request_url).then((res) => JSON.parse(res));
+    console.log(mapElement);
     const map = new mapboxgl.Map({
-      container: mapElement.id,
+      container: mapElement,
       center: [data.features[0].properties.longitude, data.features[0].properties.latitude],
       pitch: 45,
       bearing: 0,
