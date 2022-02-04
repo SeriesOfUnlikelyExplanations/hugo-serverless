@@ -63,7 +63,12 @@ class ForecastFetcher {
       hostname: this.host,
       port: 443,
       path: route,
-      method: 'GET'
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json',  
+        'Content-Type': 'application/json',
+        'User-Agent': 'ONWARD-ADVENTURES'
+      }
     };
     return await httpRequest(options);
   };
