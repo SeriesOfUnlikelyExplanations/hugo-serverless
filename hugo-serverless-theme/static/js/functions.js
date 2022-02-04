@@ -152,10 +152,10 @@ async function plan(Litepicker, google) {
       return totalDays - 1;
     },
     setup:  (picker) => {
-      picker.on('button:apply', (date1, date2) => {
-        start_days = date1;
-        finish_days = date2;
-        loadWeather(lat, long, start_days, finish_days)
+      picker.on('selected', (date1, date2) => {
+        start_date = date1;
+        finish_date = date2;
+        loadWeather(lat, long, start_date, finish_date)
       })
     }
   });
@@ -163,7 +163,6 @@ async function plan(Litepicker, google) {
   // location auto-complete
   var placeSearch, autocomplete, geocoder;
   function initAutocomplete() {
-    console.log(google);
     geocoder = new google.maps.Geocoder();
     autocomplete = new google.maps.places.Autocomplete(
       (whereElement), {
@@ -188,7 +187,7 @@ async function plan(Litepicker, google) {
 
   function fillInAddress() {
     var place = autocomplete.getPlace();
-    codeAddress(document.getElementById('where').value);
+    codeAddress(whereElement.value);
   }
   
   //Load the Google script for location auto-complete

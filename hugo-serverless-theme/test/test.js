@@ -59,11 +59,9 @@ describe('Testing frontend js', function() {
     };
     
     class autocompleteMock {
-      //~ constructor(element, params) {
-        //~ console.log(element);
-        //~ expect(params.types[0]).to.equal('geocode');
-      //~ }
-      addListener(params) {
+      addListener(type, params) {
+        expect(type).to.equal('place_changed');
+        expect(params).to.be.a('function');
         return true
       }
       getPlace(params) {
