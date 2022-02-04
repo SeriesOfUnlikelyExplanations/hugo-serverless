@@ -29,6 +29,8 @@ describe('Testing frontend js', function() {
       .replyWithFile(200, path.resolve('./test/map.geojson'))
       .get('/api/userInfo')
       .reply(200, JSON.stringify({googleApiKey: "test"}))
+      .get('/api/plan/weather/47.6062/-122.3493?start_date=2-7-2022&finish_date=2-11-2022')
+      .reply(200, JSON.stringify({googleApiKey: "test"}));
       
     nock('https://api.mapbox.com')
       .persist()
