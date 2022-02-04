@@ -206,7 +206,7 @@ function plan(Litepicker) {
 //
 // ------------- Function to load maps on the page if they exist
 //
-function load_maps(mapboxgl) {
+async function load_maps(mapboxgl) {
   const maps = document.querySelectorAll('.map');
   if (!(maps.length)) {
     return false
@@ -214,6 +214,7 @@ function load_maps(mapboxgl) {
   mapboxgl.accessToken = 'pk.eyJ1Ijoid29vZGFyZHRob21hcyIsImEiOiJja3h1d25qanQwc2w0MnBwb2NuNWN3ajQwIn0.hTIyVRngyfAlIJEyGlT1ng';
   const response = [...maps].map(async function( mapElement ) {
     var request_url = `${window.location.href}${mapElement.id}.geojson`;
+    console.log(mapElement);
     var data = await makeRequest('GET', request_url).then((res) => JSON.parse(res));
     const map = new mapboxgl.Map({
       container: mapElement.id,
@@ -292,6 +293,7 @@ function load_maps(mapboxgl) {
     map_elevation.innerHTML = `${Math.round(map_properties.total_ascent*3.28084)} ft`
     return { map: map, map_distance: map_distance, map_time: map_time, map_elevation: map_elevation };
   });
+  await Promise.all(response);
   return response;
 }
 
