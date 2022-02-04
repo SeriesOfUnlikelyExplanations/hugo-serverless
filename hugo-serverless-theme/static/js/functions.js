@@ -290,7 +290,7 @@ function load_maps(mapboxgl) {
     };
     const map_elevation = document.getElementById(mapElement.id+'_elevation')
     map_elevation.innerHTML = `${Math.round(map_properties.total_ascent*3.28084)} ft`
-    //~ return { map: map, map_distance: map_distance, map_time: map_time, map_elevation: map_elevation };
+    return { map: map, map_distance: map_distance, map_time: map_time, map_elevation: map_elevation };
   });
   return response;
 }

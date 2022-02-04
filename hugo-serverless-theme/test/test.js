@@ -221,7 +221,7 @@ describe('Testing frontend js', function() {
       expect(res.status.redirect_url).to.contain('https');
 
       expect(res.maps.length).to.equal(1)
-      //~ expect(res.maps[0]).to.have.keys(['map', 'map_distance', 'map_time', 'map_elevation']);
+      expect(res.maps[0]).to.have.keys(['map', 'map_distance', 'map_time', 'map_elevation']);
       expect(res.comments).to.be.false;
       expect(res.set_comments).to.be.false;
       expect(res.plan).to.be.false;
