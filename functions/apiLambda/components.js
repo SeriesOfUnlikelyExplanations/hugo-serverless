@@ -1,5 +1,6 @@
 // function to call an API
 function httpRequest(params, postData = undefined) {
+  console.log(params);
   var https = require('https');
   return new Promise(function(resolve, reject) {
     var req = https.request(params, function(res) {
@@ -10,7 +11,12 @@ function httpRequest(params, postData = undefined) {
         body.push(chunk);
       });
       res.on('end', function() {
-        response.body = JSON.parse(Buffer.concat(body).toString());
+        try {
+          response.body = JSON.parse(Buffer.concat(body).toString());
+        } catch {
+          console.log(Buffer.concat(body).toString());
+          response.body = Buffer.concat(body).toString();
+        };
         resolve(response);
       });
     });

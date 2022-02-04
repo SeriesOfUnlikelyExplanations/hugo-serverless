@@ -153,12 +153,28 @@ async function plan(Litepicker, google) {
     },
     setup:  (picker) => {
       picker.on('selected', (date1, date2) => {
-        start_date = date1;
-        finish_date = date2;
+        start_date = date1.dateInstance.getMonth() + 1 + "-" + date1.dateInstance.getDate() + "-" + date1.dateInstance.getFullYear();
+        finish_date = date2.dateInstance.getMonth() + 1 + "-" + date2.dateInstance.getDate() + "-" + date2.dateInstance.getFullYear();
         loadWeather(lat, long, start_date, finish_date)
       })
     }
   });
+  
+  function codeAddress() {
+    const address = whereElement.value;
+    geocoder.geocode({
+      'address': address
+    }, function(results, status) {
+      if (status == 'OK') {
+        // This is the lat and lng results[0].geometry.location
+        [lat, long] = results[0].geometry.location.split(', ');
+        console.log(lat);
+        loadWeather(lat, long, start_date, finish_date)
+      } else {
+        alert('Geocode was not successful for the following reason: ' + status);
+      }
+    });
+  }
   
   // location auto-complete
   var placeSearch, autocomplete, geocoder;
@@ -168,26 +184,7 @@ async function plan(Litepicker, google) {
       (whereElement), {
         types: ['geocode']
       });
-    autocomplete.addListener('place_changed', fillInAddress);
-  }
-
-  function codeAddress(address) {
-    geocoder.geocode({
-      'address': address
-    }, function(results, status) {
-      if (status == 'OK') {
-        // This is the lat and lng results[0].geometry.location
-        [lat, long] = results[0].geometry.location.split(', ');
-        loadWeather(lat, long, start_days, finish_days)
-      } else {
-        alert('Geocode was not successful for the following reason: ' + status);
-      }
-    });
-  }
-
-  function fillInAddress() {
-    var place = autocomplete.getPlace();
-    codeAddress(whereElement.value);
+    autocomplete.addListener('place_changed', codeAddress);
   }
   
   //Load the Google script for location auto-complete
@@ -196,7 +193,6 @@ async function plan(Litepicker, google) {
     await makeRequest('GET', request_url)
       .then((res) => JSON.parse(res))
       .then((data) => {
-        console.log(data);
         var google_maps_script = document.createElement('script');
         google_maps_script.setAttribute('src',`https://maps.googleapis.com/maps/api/js?key=${data.googleApiKey}&libraries=places&callback=initAutocomplete`);
         document.head.appendChild(google_maps_script);
@@ -206,7 +202,7 @@ async function plan(Litepicker, google) {
   //~ const weather = document.querySelector("#weather");
   //~ weather.appendChild(forecastNode);
 
-  return true
+  return {setupComplete: true, codeAddress: codeAddress, loadWeather: loadWeather}
 };
 
 //

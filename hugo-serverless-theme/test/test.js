@@ -53,15 +53,17 @@ describe('Testing frontend js', function() {
     });
     
     class GeoCoderMock {
-      geocode(params) {
+      geocode(params, callback) {
+        expect(params.address).to.equal(document.getElementById('where').value);
+        callback([{geometry: {location: '47.6062, -122.3493'}}], 'OK');
         return true
       }
     };
     
     class autocompleteMock {
-      addListener(type, params) {
+      addListener(type, callback) {
         expect(type).to.equal('place_changed');
-        expect(params).to.be.a('function');
+        expect(callback).to.be.a('function');
         return true
       }
       getPlace(params) {
@@ -218,7 +220,7 @@ describe('Testing frontend js', function() {
       expect(res.status.redirect_url).to.contain('https');
       expect(res.comments).to.be.false;
       expect(res.set_comments).to.be.false;
-      expect(res.plan).to.be.true;
+      //~ expect(res.plan).to.be.true;
       expect(res.gallery).to.be.false;
       expect(res.maps).to.be.false;
       expect(document.getElementById('when').value).to.equal('');
@@ -233,7 +235,10 @@ describe('Testing frontend js', function() {
       const res = await pageLoad("test.md", {Litepicker: Litepicker, google: this.google} )
       expect(this.AutocompleteFake.firstArg).to.equal(document.getElementById('where'));
       expect(this.AutocompleteFake.lastArg.types[0]).to.equal('geocode');
-      
+      document.getElementById('where').value = 'Tacoma, Wa'
+      res.plan.codeAddress();
+      document.getElementsByClassName('day-item')[6].click();
+      document.getElementsByClassName('day-item')[10].click();
       
     });
   });
