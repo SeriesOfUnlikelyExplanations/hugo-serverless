@@ -11,6 +11,7 @@ import fs from 'fs';
 import path from 'path';
 
 import { Litepicker } from 'litepicker';
+import mapboxgl from 'mapbox-gl';
 
 import testData from './testData.js';
 import { pageLoad } from '../static/js/functions.js';
@@ -31,14 +32,14 @@ describe('Testing frontend js', function() {
     nock('https://api.mapbox.com')
       .persist()
       .get('/mapbox-gl-js/v2.6.1/mapbox-gl.js')
-      .reply(200, fs.readFileSync(path.resolve('./test/scripts/mapboxgl.js')).toString());   
+      .reply(200, '');   
       
     nock('https://cdn.jsdelivr.net')
       .persist()
       .get('/npm/litepicker/dist/css/litepicker.css')
+      .reply(200, '')
+      .get('/npm/litepicker/dist/litepicker.js')
       .reply(200, '');
-      //~ .get('/npm/litepicker/dist/litepicker.js')
-      //~ .reply(200, fs.readFileSync(path.resolve('./test/litepicker.js')).toString());
       
     nock.emitter.on("no match", (req) => {
       console.log(req)
@@ -56,7 +57,7 @@ describe('Testing frontend js', function() {
     delete window.location
     Object.defineProperty(window, "location", {
       value: {
-         href: 'https://blog.always-onward.com/test_page'
+         href: 'https://blog.always-onward.com/test_page/'
       },
       writable: true
     });
@@ -120,12 +121,12 @@ describe('Testing frontend js', function() {
       expect(res.plan).to.be.false;
       expect(res.gallery.carousels.length).to.equal(1);
       expect(res.gallery.carousels[0].innerHTML.replace(/ *|\n|\t/gm, "").trim()).to.equal(`<ul>
-                <li id="c0_slide1" style="min-width: 100%; padding-bottom: 500px"><img src="ready1.jpg" alt=""></li>
-                <li id="c0_slide2" style="min-width: 100%; padding-bottom: 500px"><img src="ready2.jpg" alt=""></li>
+            <li id="c0_slide1" style="min-width: 100%; padding-bottom: 500px"><img src="ready1.jpg" alt=""></li>
+            <li id="c0_slide2" style="min-width: 100%; padding-bottom: 500px"><img src="ready2.jpg" alt=""></li>
           </ul>
           <ol>
-              <li class="selected"><a href="#c0_slide1"></a></li>
-              <li><a href="#c0_slide2"></a></li>
+            <li class="selected"><a href="#c0_slide1"></a></li>
+            <li><a href="#c0_slide2"></a></li>
           </ol>
           <div class="prev" style="display: block;">‹</div>
           <div class="next" style="display: block;">›</div>`.replace(/ *|\n|\t/gm, ""));
@@ -176,7 +177,7 @@ describe('Testing frontend js', function() {
   });
   
   describe('test plan', () => {
-    it('Plan - happy path', async () => {
+    it('Datepicker - happy path', async () => {
       document.body.innerHTML = fs.readFileSync(path.resolve('./content/plan.html'));
       const res = await pageLoad("test.md", {Litepicker: Litepicker} )
       console.log(res);
@@ -188,12 +189,16 @@ describe('Testing frontend js', function() {
       expect(res.plan).to.be.true;
       expect(res.gallery).to.be.false;
       expect(res.maps).to.be.false;
-      
+      expect(document.getElementById('when').value).to.equal('');
+      document.getElementsByClassName('day-item')[6].click();
+      document.getElementsByClassName('day-item')[10].click();
+      expect(document.getElementById('when').value).to.have.lengthOf(23);
+      expect(document.getElementById('when').value[4]).to.equal('-');
     });
   });
   
   describe('test map', () => {
-    xit('/login happy path (page with map)', async () => {
+    it('/login happy path (page with map)', async () => {
       document.body.innerHTML = `<div class="map" id="mapfile"></div>
       <table class="map_table">
         <tbody><tr>
@@ -209,14 +214,7 @@ describe('Testing frontend js', function() {
         </tr>
       </tbody></table>`
       
-      window.URL.createObjectURL = function() {};
-      await new Promise((resolve, reject) => {
-        const func = document.createElement('script');
-        func.src = 'https://api.mapbox.com/mapbox-gl-js/v2.6.1/mapbox-gl.js'
-        func.onload = () => { resolve() }
-        document.body.appendChild(func);
-      });
-      const res = await pageLoad("test.md")
+      const res = await pageLoad("test.md", {mapboxgl: mapboxgl});
       console.log(res);
       // Check that user isn't logged in
       expect(res.status.login).to.equal(false);
@@ -224,25 +222,12 @@ describe('Testing frontend js', function() {
 
       expect(res.maps.length).to.equal(1)
       //~ expect(res.maps[0]).to.have.keys(['map', 'map_distance', 'map_time', 'map_elevation']);
-      expect(res.comments).to.equal('<article class="read-next-card"><div><b style="color:firebrick">me</b> says:</div><div>fun post</div></article>');
-      expect(res.set_comments).to.equal('Needs to Login')
+      expect(res.comments).to.be.false;
+      expect(res.set_comments).to.be.false;
       expect(res.plan).to.be.false;
       expect(res.gallery).to.be.false;
     });
   });
 });
-
-
-  
-
-  //~ const res = {}
-  //~ res.maps = load_maps()
-  //~ res.comments = loadComments(file_path)
-  //~ res.status = await login()
-  //~ console.log(res.status);
-  //~ res.set_comments = setComments(res.status);
-  //~ res.plan = plan()
-  //~ return res
-
 
 

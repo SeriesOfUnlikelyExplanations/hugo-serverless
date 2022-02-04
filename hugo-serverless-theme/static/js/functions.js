@@ -27,7 +27,7 @@ async function pageLoad(file_path, dependencies = {}) {
   console.log(res.status);
   res.set_comments = await setComments(res.status);
 
-  res.maps = await load_maps();
+  res.maps = await load_maps(dependencies.mapboxgl || '');
   res.plan = await plan(dependencies.Litepicker || '');
   res.post_comment = false;
   if (document.querySelector('#post_comment')) {
@@ -136,11 +136,17 @@ function plan(Litepicker) {
       });
   };
   
-  console.log(Litepicker);
   // date picker
   new Litepicker({ 
     element: whenElement,
     singleMode: false,
+    tooltipText: {
+      one: 'night',
+      other: 'nights'
+    },
+    tooltipNumber: (totalDays) => {
+      return totalDays - 1;
+    },
     setup:  (picker) => {
       picker.on('button:apply', (date1, date2) => {
         start_days = date1;
@@ -200,7 +206,7 @@ function plan(Litepicker) {
 //
 // ------------- Function to load maps on the page if they exist
 //
-function load_maps() {
+function load_maps(mapboxgl) {
   const maps = document.querySelectorAll('.map');
   if (!(maps.length)) {
     return false
