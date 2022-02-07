@@ -36,7 +36,9 @@
         import { pageLoad } from "/js/functions.js";
         document.addEventListener("DOMContentLoaded", function(){
           const result = pageLoad({{ .File.Path }}, {Litepicker: Litepicker, mapboxgl: mapboxgl} ) 
-          const initAutocomplete = result.initAutocomplete;
+          if ('plan' in result) {
+            const initAutocomplete = result.plan.initAutocomplete;
+          }
         });
       </script>
     </footer>
