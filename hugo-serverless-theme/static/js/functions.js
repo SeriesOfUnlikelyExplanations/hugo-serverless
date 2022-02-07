@@ -32,7 +32,7 @@ async function pageLoad(file_path, dependencies = {}) {
   } catch (e) { console.log(e);}
 
   res.maps = await load_maps(dependencies.mapboxgl || '');
-  res.plan = await plan(dependencies.Litepicker || '', dependencies.google || '');
+  res.plan = await plan(dependencies.Litepicker || '', dependencies.google || undefined);
   res.post_comment = false;
   if (document.querySelector('#post_comment')) {
     document.querySelector('#post_comment').addEventListener("click", () => { postComment(file_path) });
@@ -167,6 +167,7 @@ async function plan(Litepicker, google) {
     }, function(results, status) {
       if (status == 'OK') {
         // This is the lat and lng results[0].geometry.location
+        console.log(results);
         [lat, long] = results[0].geometry.location.split(', ');
         console.log(lat);
         loadWeather(lat, long, start_date, finish_date)
@@ -196,7 +197,10 @@ async function plan(Litepicker, google) {
         var google_maps_script = document.createElement('script');
         google_maps_script.setAttribute('src',`https://maps.googleapis.com/maps/api/js?key=${data.googleApiKey}&libraries=places&callback=initAutocomplete`);
         document.head.appendChild(google_maps_script);
-        initAutocomplete()
+        if (data.googleApiKey == 'test') {
+          // test artifact - there is probaby a better way to do this...
+          initAutocomplete()
+        }
       });
   }
   //~ const weather = document.querySelector("#weather");
