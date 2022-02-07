@@ -82,7 +82,7 @@ describe('Testing Admin lambda', function() {
     EC2Stub = sinon.stub(AWS, 'EC2').returns(new EC2Mock());
     
     class S3Mock {
-      ListObjectsV2(params) {
+      listObjectsV2(params) {
         expect(params.Bucket).to.equal('siteName');
         return { promise: async () => {return resData.listWebsiteBucket}}
       }

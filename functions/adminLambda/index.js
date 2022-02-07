@@ -7,9 +7,9 @@ exports.handler = async (event, context) => {
   const result = {};
   var REGION;
   if (event.hasOwnProperty('Records')) {
-    REGION  = event.Records[0].awsRegion
+    REGION = event.Records[0].awsRegion
   } else {
-    REGION  = event.region
+    REGION = event.region
   }
   const ssm = new AWS.SSM({region:REGION});
   const ssmData = await getSSM(ssm, '/hugoServerless');
@@ -120,7 +120,7 @@ exports.handler = async (event, context) => {
     } else if (event.resources[0].includes(ssmData.datasyncSourceTask)){
       console.log('Source Datasync task completed. Emptying the website bucket so it is ready for deployment...');
       var s3 = new AWS.S3({region:REGION});
-      const { Contents } = await s3.ListObjectsV2({ Bucket: ssmData.siteName }).promise();
+      const { Contents } = await s3.listObjectsV2({ Bucket: ssmData.siteName }).promise();
       if (Contents.length > 0) {
         result.deleted = await s3
           .deleteObjects({
