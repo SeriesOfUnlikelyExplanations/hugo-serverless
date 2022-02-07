@@ -206,7 +206,7 @@ async function plan(Litepicker, google) {
   //~ const weather = document.querySelector("#weather");
   //~ weather.appendChild(forecastNode);
 
-  return {setupComplete: true, codeAddress: codeAddress, loadWeather: loadWeather}
+  return {setupComplete: true, codeAddress: codeAddress, loadWeather: loadWeather, initAutocomplete:initAutocomplete}
 };
 
 //
