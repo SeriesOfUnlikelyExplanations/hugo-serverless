@@ -46,7 +46,7 @@ describe('Testing frontend js', function() {
       
     nock('https://maps.googleapis.com')
       .persist()
-      .get('/maps/api/js?key=test&libraries=places&callback=result.plan.initAutocomplete')
+      .get('/maps/api/js?key=test&libraries=places&callback=initAutocomplete')
       .reply(200, '');
       
     nock.emitter.on("no match", (req) => {
@@ -59,7 +59,10 @@ describe('Testing frontend js', function() {
     class GeoCoderMock {
       geocode(params, callback) {
         expect(params.address).to.equal(document.getElementById('where').value);
-        callback([{geometry: {location: '47.6062, -122.3493'}}], 'OK');
+        callback([{geometry: {location: {
+          lat: () => '47.6062',
+          lng: () => '-122.3493'
+        }}}], 'OK');
         return true
       }
     };
@@ -257,7 +260,8 @@ describe('Testing frontend js', function() {
     });
     it('Autocomplete & Geocode - happy path', async () => {
       document.body.innerHTML = fs.readFileSync(path.resolve('./content/plan.html'));
-      const res = await pageLoad("test.md", {Litepicker: this.Litepicker, google: this.google} )
+      window.google = this.google;
+      const res = await pageLoad("test.md", {Litepicker: this.Litepicker} )
       res.plan.initAutocomplete();
       expect(this.google.maps.places.Autocomplete.firstArg).to.equal(document.getElementById('where'));
       expect(this.google.maps.places.Autocomplete.lastArg.types[0]).to.equal('geocode');

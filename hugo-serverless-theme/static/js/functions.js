@@ -32,7 +32,7 @@ async function pageLoad(file_path, dependencies = {}) {
   } catch (e) { console.log(e);}
 
   res.maps = await load_maps(dependencies.mapboxgl || undefined);
-  res.plan = await plan(dependencies.Litepicker || undefined, dependencies.google || undefined);
+  res.plan = await plan(dependencies.Litepicker || undefined);
   res.post_comment = false;
   if (document.querySelector('#post_comment')) {
     document.querySelector('#post_comment').addEventListener("click", () => { postComment(file_path) });
@@ -119,7 +119,7 @@ function postComment(post_path) {
 //
 // Set date picker & location auto-complete
 //
-async function plan(Litepicker, google) {
+async function plan(Litepicker) {
   let whenElement = document.getElementById('when');
   let whereElement = document.getElementById('where');
   if (!whenElement || !whereElement) {
@@ -156,7 +156,7 @@ async function plan(Litepicker, google) {
       picker.on('selected', (date1, date2) => {
         start_date = date1.dateInstance.getMonth() + 1 + "-" + date1.dateInstance.getDate() + "-" + date1.dateInstance.getFullYear();
         finish_date = date2.dateInstance.getMonth() + 1 + "-" + date2.dateInstance.getDate() + "-" + date2.dateInstance.getFullYear();
-        window.weather = loadWeather(lat, long, start_date, finish_date)
+        window.weather = loadWeather(lat, long, start_date, finish_date);
       })
     }
   });
@@ -167,7 +167,9 @@ async function plan(Litepicker, google) {
       'address': address
     }, function(results, status) {
       if (status == 'OK') {
-        [lat, long] = results[0].geometry.location.split(', ');
+        console.log(results);
+        lat = results[0].geometry.location.lat();
+        long = results[0].geometry.location.lng();
         window.weather = loadWeather(lat, long, start_date, finish_date)
       } else {
         alert('Geocode was not successful for the following reason: ' + status);
@@ -178,8 +180,8 @@ async function plan(Litepicker, google) {
   // location auto-complete
   var placeSearch, autocomplete, geocoder;
   function initAutocomplete() {
-    geocoder = new google.maps.Geocoder();
-    autocomplete = new google.maps.places.Autocomplete(
+    geocoder = new window.google.maps.Geocoder();
+    autocomplete = new window.google.maps.places.Autocomplete(
       (whereElement), {
         types: ['geocode']
       });
@@ -193,13 +195,13 @@ async function plan(Litepicker, google) {
       .then((res) => JSON.parse(res))
       .then((data) => {
         var google_maps_script = document.createElement('script');
-        google_maps_script.setAttribute('src',`https://maps.googleapis.com/maps/api/js?key=${data.googleApiKey}&libraries=places&callback=result.plan.initAutocomplete`);
+        google_maps_script.setAttribute('src',`https://maps.googleapis.com/maps/api/js?key=${data.googleApiKey}&libraries=places&callback=initAutocomplete`);
         document.head.appendChild(google_maps_script);
       });
   }
   //~ const weather = document.querySelector("#weather");
   //~ weather.appendChild(forecastNode);
-
+  window.initAutocomplete = initAutocomplete;
   return {setupComplete: true, codeAddress: codeAddress, loadWeather: loadWeather, initAutocomplete: initAutocomplete }
 };
 
