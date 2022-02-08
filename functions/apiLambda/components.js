@@ -5,6 +5,11 @@ function httpRequest(params, postData = undefined) {
   return new Promise(function(resolve, reject) {
     var req = https.request(params, function(res) {
       const response = {};
+      if (response.statusCode == 302) {
+        var url = new URL(response.headers.location)
+        params.path = url.pathname;
+        httpRequest();
+      }
       response.statusCode = res.statusCode
       body = [];
       res.on('data', function(chunk) {
