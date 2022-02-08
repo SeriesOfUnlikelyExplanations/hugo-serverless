@@ -266,7 +266,9 @@ describe('Testing frontend js', function() {
       document.getElementsByClassName('day-item')[6].click();
       document.getElementsByClassName('day-item')[10].click();
       res.plan.codeAddress();
-      expect(document.getElementById("weather").innerHTML).to.contain('<div class=\"forecast-day\">    \n      <div class=\"forecast-section forecast-section--day\">\n        <strong class=\"forecast-section__name\">This Afternoon</strong>\n        <img class=\"forecast-section__icon\" src=\"https://api.weather.gov/icons/land/day/snow,30?size=medium\" alt=\"Chance Light Snow\">\n        <div class=\"forecast-section__temp\">30&deg; F</div>\n        <div class=\"forecast-section__short\">Chance Light Snow</div>\n')
+      await window.weather;
+      console.log(document.getElementById("weather").innerHTML);
+      expect(document.getElementById("weather").innerHTML).to.contain('<img class="forecast-section__icon" src="https://api.weather.gov/icons/land/day/snow,30?size=medium" alt="Chance Light Snow">');
     });
   });
   

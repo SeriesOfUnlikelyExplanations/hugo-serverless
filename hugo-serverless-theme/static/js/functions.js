@@ -127,16 +127,17 @@ async function plan(Litepicker, google) {
   }
   var lat, long, start_date, finish_date;
   function loadWeather(lat, long, start_date, finish_date) {
+    console.log([lat, long, start_date, finish_date])
     if (!(lat && long && start_date && finish_date)) {
       return false
     }
     var request_url = new URL(`/api/plan/weather/${lat}/${long}`, base_url);
     request_url.search = new URLSearchParams({ start_date:start_date, finish_date:finish_date }).toString();
-    makeRequest('GET', request_url)
+    return makeRequest('GET', request_url)
       .then((res) => JSON.parse(res))
       .then(({ html }) => {
-        weatherElement = document.getElementById("weather");
-        weatherElement.innerHTML = html;
+        document.getElementById("weather").innerHTML = html;
+        return html
       });
   };
   
@@ -155,7 +156,7 @@ async function plan(Litepicker, google) {
       picker.on('selected', (date1, date2) => {
         start_date = date1.dateInstance.getMonth() + 1 + "-" + date1.dateInstance.getDate() + "-" + date1.dateInstance.getFullYear();
         finish_date = date2.dateInstance.getMonth() + 1 + "-" + date2.dateInstance.getDate() + "-" + date2.dateInstance.getFullYear();
-        loadWeather(lat, long, start_date, finish_date)
+        window.weather = loadWeather(lat, long, start_date, finish_date)
       })
     }
   });
@@ -166,11 +167,8 @@ async function plan(Litepicker, google) {
       'address': address
     }, function(results, status) {
       if (status == 'OK') {
-        // This is the lat and lng results[0].geometry.location
-        console.log(results);
         [lat, long] = results[0].geometry.location.split(', ');
-        console.log(lat);
-        loadWeather(lat, long, start_date, finish_date)
+        window.weather = loadWeather(lat, long, start_date, finish_date)
       } else {
         alert('Geocode was not successful for the following reason: ' + status);
       }
