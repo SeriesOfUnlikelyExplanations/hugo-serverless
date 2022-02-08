@@ -84,6 +84,7 @@ class ForecastFetcher {
   // combine point and forecast lookups
   lookupForecastForLatLng = async (lat, lng) => {
     const point = await this.lookupPoint(lat, lng);
+    console.log(point);
     const { cwa, gridX, gridY } = point.body.properties;
     return await this.lookupForecast(cwa, gridX, gridY);
   };
