@@ -35,7 +35,7 @@
       <script type="module">
         import { pageLoad } from "/js/functions.js";
         document.addEventListener("DOMContentLoaded", function(){
-          const result = pageLoad({{ .File.Path }}, {Litepicker: Litepicker, mapboxgl: mapboxgl})
+          window.result = pageLoad({{ .File.Path }}, {Litepicker: Litepicker, mapboxgl: mapboxgl})
         });
       </script>
     </footer>
