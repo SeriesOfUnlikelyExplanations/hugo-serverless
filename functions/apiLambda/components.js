@@ -8,9 +8,10 @@ function httpRequest(params, postData = undefined) {
       if (response.statusCode == 302) {
         var url = new URL(response.headers.location)
         params.path = url.pathname;
-        httpRequest();
+        httpRequest(params);
       }
       response.statusCode = res.statusCode
+      console.log(res.statusCode);
       body = [];
       res.on('data', function(chunk) {
         body.push(chunk);
