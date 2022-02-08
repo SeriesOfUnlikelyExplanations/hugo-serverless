@@ -5,7 +5,7 @@ function httpRequest(params, postData = undefined) {
   return new Promise(function(resolve, reject) {
     var req = https.request(params, function(res) {
       const response = {};
-      if (response.statusCode == 302) {
+      if (response.statusCode >= 300 && response.statusCode < 400) {
         var url = new URL(response.headers.location)
         params.path = url.pathname;
         httpRequest(params);
