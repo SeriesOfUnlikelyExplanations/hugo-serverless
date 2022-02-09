@@ -9,7 +9,7 @@
   <mj-body>
     <mj-section>
       <mj-column>
-        <mj-text font-weight="bold" align="justify" font-size="44px" color="#000" font-family="helvetica">{{title}}</mj-text>
+        <mj-text font-weight="bold" align="center" font-size="40px" color="#000" font-family="helvetica">{{title}}</mj-text>
       </mj-column>
     </mj-section>
     <mj-section background-color="#f3f3f3">
@@ -17,7 +17,7 @@
         <mj-image width="170px" src="{{& items.0.featureImage}}"></mj-image>
       </mj-column>
       <mj-column>
-        <mj-text font-weight="bold" align="justify" font-size="24px" color="#000" font-family="helvetica">{{items.0.title}}</mj-text>
+        <mj-text font-weight="bold" align="center" font-size="24px" color="#000" font-family="helvetica">{{items.0.title}}</mj-text>
         <mj-text align="justify" font-size="15px" color="#000" font-family="helvetica">{{items.0.contentSnippet}}</mj-text>
         <mj-button href="{{& items.0.link}}" align="left" background-color="#8ccaca" border-radius="40px" font-family="helvetica" font-size="12px">READ MORE</mj-button>
       </mj-column>

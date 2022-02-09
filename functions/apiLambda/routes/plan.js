@@ -2,11 +2,12 @@ const { httpRequest } = require('../components');
 
 module.exports = (api, opts) => {
   api.get('/weather/:lat/:long', async (req,res) => {
-    const date_offset = Math.floor((Date.parse(req.query.start_date) - new Date())/(24 * 60 * 60 * 1000)) || 1;
-    const days = Math.floor((Date.parse(req.query.finish_date) - Date.parse(req.query.start_date))/(24 * 60 * 60 * 1000)) || 1;
-     const fetcher = new ForecastFetcher({
-      days: days,
-      offset: date_offset
+    console.log(req.query);
+    console.log((Date.parse(req.query.finish_date) - Date.parse(req.query.start_date))/(24 * 60 * 60 * 1000))
+    console.log((Date.parse(req.query.start_date) - new Date())/(24 * 60 * 60 * 1000))
+    const fetcher = new ForecastFetcher({
+      days: Math.ceil((Date.parse(req.query.finish_date) - Date.parse(req.query.start_date))/(24 * 60 * 60 * 1000)) || 1,
+      offset: Math.ceil((Date.parse(req.query.start_date) - new Date())/(24 * 60 * 60 * 1000)) || 1
     });
     const forecast = await fetcher.lookupForecastForLatLng(req.params.lat, req.params.long);
     const forecastNode = fetcher.markupForecast(forecast);
@@ -91,15 +92,15 @@ class ForecastFetcher {
   // manipulate html strings, or let user do it
   markupForecast = (forecast) => {
     let forecastMarkup = "";
+    var offset = this.offset*2;
+    var days = this.days*2;
     const { periods } = forecast;
-    let offset = 0;
-    let days = this.days;
     if (!periods[0].isDaytime) {
-      offset = 1;
+      offset += 1;
       days -= 1;
       forecastMarkup += this.renderer({ night: periods[0] });
     }
-    for (let i = offset; i < days * 2; i += 2) {
+    for (let i = offset; i < (offset + days); i += 2) {
       const forecastDay = {
         day: periods[i],
         night: periods[i + 1],
