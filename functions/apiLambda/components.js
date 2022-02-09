@@ -6,6 +6,7 @@ function httpRequest(params, postData = undefined) {
     var req = https.request(params, function(res) {
       const response = {};
       if (res.statusCode >= 300 && res.statusCode < 400) {
+        console.log(res);
         var url = new URL(res.headers.location)
         params.path = url.pathname;
         console.log(params);
