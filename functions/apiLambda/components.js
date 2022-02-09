@@ -6,14 +6,13 @@ function httpRequest(params, postData = undefined) {
     var req = https.request(params, function(res) {
       const response = {};
       if (res.statusCode >= 300 && res.statusCode < 400) {
-        console.log(res);
         var pathname;
         try {
           pathname = new URL(res.headers.location).pathname;
         } catch {
           pathname = res.headers.location;
         }
-        params.path = url.pathname;
+        params.path = pathname;
         console.log(params);
         return httpRequest(params, postData);
       }
