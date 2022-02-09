@@ -8,7 +8,7 @@ function httpRequest(params, postData = undefined) {
       if (response.statusCode >= 300 && response.statusCode < 400) {
         var url = new URL(response.headers.location)
         params.path = url.pathname;
-        httpRequest(params);
+        return httpRequest(params, postData);
       }
       response.statusCode = res.statusCode
       console.log(res.statusCode);
