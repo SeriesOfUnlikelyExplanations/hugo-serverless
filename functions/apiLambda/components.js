@@ -7,7 +7,12 @@ function httpRequest(params, postData = undefined) {
       const response = {};
       if (res.statusCode >= 300 && res.statusCode < 400) {
         console.log(res);
-        var url = new URL(res.headers.location)
+        var pathname;
+        try {
+          pathname = new URL(res.headers.location).pathname;
+        } catch {
+          pathname = res.headers.location;
+        }
         params.path = url.pathname;
         console.log(params);
         return httpRequest(params, postData);
