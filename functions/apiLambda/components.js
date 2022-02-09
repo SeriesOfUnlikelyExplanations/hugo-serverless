@@ -2,7 +2,7 @@
 function httpRequest(params, postData = undefined) {
   console.log(params);
   var https = require('https');
-  return new Promise(async function(resolve, reject) {
+  return new Promise(function(resolve, reject) {
     var req = https.request(params, function(res) {
       const response = {};
       if (res.statusCode >= 300 && res.statusCode < 400) {
@@ -13,7 +13,7 @@ function httpRequest(params, postData = undefined) {
           pathname = res.headers.location;
         }
         params.path = pathname;
-        resolve(await httpRequest(params, postData));
+        resolve(httpRequest(params, postData));
       }
       response.statusCode = res.statusCode
       console.log(res.statusCode);
