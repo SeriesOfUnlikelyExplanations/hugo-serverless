@@ -32,7 +32,13 @@ async function pageLoad(file_path, dependencies = {}) {
   } catch (e) { console.log(e);}
 
   res.maps = await load_maps(dependencies.mapboxgl || undefined);
-  res.plan = await plan(dependencies.Litepicker || undefined);
+  try {
+    res.plan = await plan(dependencies.Litepicker || undefined);
+    if (res.plan.notLoggedIn) {
+      location.replace(res.status.redirect_url );
+    }
+  } catch (e) { console.log(e);}
+  
   res.post_comment = false;
   if (document.querySelector('#post_comment')) {
     document.querySelector('#post_comment').addEventListener("click", () => { postComment(file_path) });
@@ -65,7 +71,6 @@ function setComments(data) {
     document.getElementById('write-comment').hidden = false;
     return 'Ready'
   } else {
-    console.log(data);
     document.getElementById('write-comment').innerHTML = '<a href="'+data.redirect_url+'">Login to leave a comment!</a>'
     document.getElementById('write-comment').hidden = false;
     document.getElementById('write-comment').onClick = function(e) {
@@ -189,20 +194,25 @@ async function plan(Litepicker) {
   }
   
   //Load the Google script for location auto-complete
+  var notLoggedIn = false;
   if (document.getElementById('where')) {
+    
     var request_url = new URL('/api/userInfo', base_url);
-    await makeRequest('GET', request_url)
-      .then((res) => JSON.parse(res))
-      .then((data) => {
-        var google_maps_script = document.createElement('script');
-        google_maps_script.setAttribute('src',`https://maps.googleapis.com/maps/api/js?key=${data.googleApiKey}&libraries=places&callback=initAutocomplete`);
-        document.head.appendChild(google_maps_script);
-      });
+    try {
+      const data = await makeRequest('GET', request_url)
+        .then((res) => JSON.parse(res))
+      var google_maps_script = document.createElement('script');
+      google_maps_script.setAttribute('src',`https://maps.googleapis.com/maps/api/js?key=${data.googleApiKey}&libraries=places&callback=initAutocomplete`);
+      document.head.appendChild(google_maps_script);
+    } catch (e) {
+      console.log(e);
+      notLoggedIn = true;
+    }
   }
   //~ const weather = document.querySelector("#weather");
   //~ weather.appendChild(forecastNode);
   window.initAutocomplete = initAutocomplete;
-  return {setupComplete: true, codeAddress: codeAddress, loadWeather: loadWeather, initAutocomplete: initAutocomplete }
+  return {setupComplete: true, codeAddress: codeAddress, loadWeather: loadWeather, initAutocomplete: initAutocomplete, plan: plan, notLoggedIn: notLoggedIn }
 };
 
 //
