@@ -7,7 +7,7 @@ const end_date = now.getMonth() + 1 + "-" + (now.getDate()+5) + "-" + now.getFul
 module.exports = Object.freeze({
   weather: {
     httpMethod: "GET",
-    path: '/api/plan/weather/47.6062/-122.3321',
+    path: '/api/plan/weather/47.60628/-122.33218',
     resource: '/{proxy+}',
     queryStringParameters: [],
     headers: {Cookie: 'access_token=access_token_noAdmin; id_token=id_token_noAdmin; refresh_token=refresh_token'},

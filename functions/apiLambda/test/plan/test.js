@@ -15,6 +15,8 @@ nock('https://api.weather.gov')
   .persist()
   .get('/points/47.6062,-122.3321')
   .reply(200, JSON.stringify(resData.lookupPoint))
+  .get('/points/47.60628,-122.33218')
+  .reply(301,undefined,{location:"https://api.weather.gov/points/47.6062,-122.3321"})
   .get('/gridpoints/SEW/124,67/forecast')
   .reply(200, JSON.stringify(resData.getForecast))
 

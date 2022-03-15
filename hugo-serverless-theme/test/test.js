@@ -19,6 +19,7 @@ describe('Testing frontend js', function() {
   this.timeout(10000);
   before(async () => {    
     //nock
+    const today = new Date();
     this.apiNock = nock('https://blog.always-onward.com')
       .persist()
       .get('/api/auth/refresh')
@@ -29,7 +30,7 @@ describe('Testing frontend js', function() {
       .replyWithFile(200, path.resolve('./test/map.geojson'))
       .get('/api/userInfo')
       .reply(200, JSON.stringify({googleApiKey: "test"}))
-      .get('/api/plan/weather/47.6062/-122.3493?start_date=2-7-2022&finish_date=2-11-2022')
+      .get(`/api/plan/weather/47.6062/-122.3493?start_date=${today.getMonth()+1}-7-${today.getFullYear()}&finish_date=${today.getMonth()+1}-11-${today.getFullYear()}`)
       .reply(200, testData.weather);
       
     nock('https://api.mapbox.com')
