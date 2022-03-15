@@ -29,28 +29,30 @@ class ForecastFetcher {
   }
   renderer = (forecastDay) => {
     const { day, night } = forecastDay;
-    const nightHTML = `<div class="forecast-section forecast-section--night">
-      <strong class="forecast-section__name">${night.name}</strong>
-      <img class="forecast-section__icon" src="${night.icon}" alt="${night.shortForecast}">
-      <div class="forecast-section__temp">${night.temperature}&deg; ${night.temperatureUnit}</div>
-      <div class="forecast-section__short">${night.shortForecast}</div>
-      <div class="forecast-section__wind">Wind: ${night.windSpeed} ${night.windDirection}</div>
-    </div>`
-    if (night && !day) {
-      return `<div class="forecast-day forecast-day--night-only">          
-        ${nightHTML}
-      </div>`;
-    }
-    return `<div class="forecast-day">    
-      <div class="forecast-section forecast-section--day">
-        <strong class="forecast-section__name">${day.name}</strong>
-        <img class="forecast-section__icon" src="${day.icon}" alt="${day.shortForecast}">
-        <div class="forecast-section__temp">${day.temperature}&deg; ${day.temperatureUnit}</div>
-        <div class="forecast-section__short">${day.shortForecast}</div>
-        <div class="forecast-section__wind">Wind: ${day.windSpeed} ${day.windDirection}</div>
-      </div>
-      ${nightHTML}
-    </div>`;
+    return `<div class="forecast-day">   
+      <strong class="forecast-section__name">${day.name || night.name}</strong>
+      <table><tbody>
+        <tr>
+          <td><img class="forecast-section__icon" src="${day.icon}" alt="${day.shortForecast}"></td>
+          <td><img class="forecast-section__icon" src="${night.icon}" alt="${night.shortForecast}"></td>
+        </tr>
+        <tr>
+          <div class="forecast-section__title">Day</div>
+          <div class="forecast-section__title">Night</div>
+        </tr>
+        <tr>
+          <div class="forecast-section__temp">${day.temperature}&deg; ${day.temperatureUnit}</div>
+          <div class="forecast-section__temp">${night.temperature}&deg; ${night.temperatureUnit}</div>
+        </tr>
+        <tr>
+          <div class="forecast-section__short">${day.shortForecast}</div>
+          <div class="forecast-section__short">${night.shortForecast}</div>
+        </tr>
+        <tr>
+          <div class="forecast-section__wind">Wind: ${day.windSpeed} ${day.windDirection}</div>
+          <div class="forecast-section__wind">Wind: ${night.windSpeed} ${night.windDirection}</div>
+        </tr>
+      </table></tbody>`
   };
   wrapRenderer = (forecast, forecastMarkup) => {
     return `<div class="forecast-wrapper">
