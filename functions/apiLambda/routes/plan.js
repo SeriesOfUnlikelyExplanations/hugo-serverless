@@ -21,7 +21,7 @@ module.exports = (api, opts) => {
 // https://www.weather.gov/documentation/services-web-api
 //
 
-async function fetchForecast(lat, long, days, offset) {
+async function fetchForecast(lat, long, lengthDays, offsetDays) {
   // fetch data via the nws api
   async function useNWS (route) {
     const options = {
@@ -45,7 +45,22 @@ async function fetchForecast(lat, long, days, offset) {
   const lookupForecast = await useNWS(`/gridpoints/${cwa}/${gridX},${gridY}/forecast`)
     .then((r) => r.body.properties);
   
-  
+  var offsetPeriods = offsetDays*2;
+  var lengthPeriods = lengthDays*2;
+  const { periods } = lookupForecast;
+  const forecastResponse = []
+  if (!periods[0].isDaytime) {
+    offset += 1;
+    days -= 1;
+    forecastResponse.append({ night: periods[0] })
+  }
+  for (let i = offset; i < (offset + days); i += 2) {
+    const forecastDay = {
+      day: periods[i],
+      night: periods[i + 1],
+    };
+    forecastResponse.append(forecastDay);
+  }
 }
   
 
