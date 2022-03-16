@@ -20,6 +20,35 @@ module.exports = (api, opts) => {
 // https://daltonrowe.com/local-forecasts-weather-gov-api.html#
 // https://www.weather.gov/documentation/services-web-api
 //
+
+async function fetchForecast(lat, long, days, offset) {
+  // fetch data via the nws api
+  async function useNWS (route) {
+    const options = {
+      hostname: this.host,
+      port: 443,
+      path: route,
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json',  
+        'Content-Type': 'application/json',
+        'User-Agent': 'ONWARD-ADVENTURES'
+      }
+    };
+    return await httpRequest(options);
+  };
+  // lookup and provide point information
+  const lookupPoint = await useNWS(`/points/${lat},${lng}`);
+  console.log(lookupPoint);
+  const { cwa, gridX, gridY } = lookupPoint.body.properties;
+  // lookup and provide forecast info
+  const lookupForecast = await useNWS(`/gridpoints/${cwa}/${gridX},${gridY}/forecast`)
+    .then((r) => r.body.properties);
+  
+  
+}
+  
+
 class ForecastFetcher {
   constructor({timeout = 3000, days = 5, offset = 1, host = "api.weather.gov"}) {
     this.host = host;

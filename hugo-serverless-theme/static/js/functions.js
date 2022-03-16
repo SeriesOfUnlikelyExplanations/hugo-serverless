@@ -35,7 +35,7 @@ async function pageLoad(file_path, dependencies = {}) {
   try {
     res.plan = await plan(dependencies.Litepicker || undefined);
     if (res.plan.notLoggedIn) {
-      location.replace(res.status.redirect_url );
+      location.replace(res.status.redirect_url);
     }
   } catch (e) { console.log(e);}
   
